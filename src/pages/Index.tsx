@@ -21,11 +21,11 @@ const Index = () => {
         return (
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <h2 className="text-xl font-comico font-bold text-foreground mb-2">
-                History
+              <h2 className="text-2xl font-fredoka font-bold text-foreground mb-3">
+                Khana History 📚
               </h2>
-              <p className="text-muted-foreground">
-                Yahan aapka food history dikhega! Your food history will appear here.
+              <p className="text-muted-foreground font-quicksand">
+                Yahan aapka purana khana record dikhega! 🍽️
               </p>
             </div>
           </div>
@@ -34,11 +34,11 @@ const Index = () => {
         return (
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <h2 className="text-xl font-comico font-bold text-foreground mb-2">
-                Fasting
+              <h2 className="text-2xl font-fredoka font-bold text-foreground mb-3">
+                Fasting Timer ⏰
               </h2>
-              <p className="text-muted-foreground">
-                Fasting tracker aayega yahan! Fasting features coming soon.
+              <p className="text-muted-foreground font-quicksand">
+                Apna fasting time track karo! Coming soon... 🕐
               </p>
             </div>
           </div>
@@ -47,11 +47,11 @@ const Index = () => {
         return (
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <h2 className="text-xl font-comico font-bold text-foreground mb-2">
-                Profile
+              <h2 className="text-2xl font-fredoka font-bold text-foreground mb-3">
+                Mera Profile 👨‍🍳
               </h2>
-              <p className="text-muted-foreground">
-                Apni profile manage kariye! Manage your profile settings here.
+              <p className="text-muted-foreground font-quicksand">
+                Apni cooking profile banao aur settings change karo! 🔧
               </p>
             </div>
           </div>

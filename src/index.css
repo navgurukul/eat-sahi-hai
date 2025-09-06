@@ -2,74 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
-/* FoodFlow Design System - All colors, gradients, fonts, etc defined here. 
+/* FoodFlow Design System - Delicious Food-Themed Colors! 
 All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    /* Main brand colors */
-    --primary: 39 94% 49%; /* #efa00b */
+    /* Main food-themed brand colors */
+    --primary: 113 85% 65%; /* Fresh leafy green #4ADE80 */
     --primary-foreground: 0 0% 100%;
-    --primary-light: 39 94% 65%;
-    --primary-dark: 39 94% 35%;
+    --primary-light: 113 85% 75%;
+    --primary-dark: 113 85% 45%;
 
-    --secondary: 15 85% 44%; /* #D65108 */
-    --secondary-foreground: 0 0% 100%;
-    --secondary-light: 15 85% 60%;
+    --secondary: 43 96% 60%; /* Sunny corn yellow #FCD34D */
+    --secondary-foreground: 150 15% 15%;
+    --secondary-light: 43 96% 75%;
 
-    --accent: 28 69% 20%; /* #591F0A */
+    --accent: 25 95% 62%; /* Warm carrot orange #FB923C */
     --accent-foreground: 0 0% 100%;
-    --accent-light: 28 69% 35%;
+    --accent-light: 25 95% 75%;
 
-    --info: 207 100% 38%; /* #0075C4 */
+    --info: 207 100% 38%; /* Info blue */
     --info-foreground: 0 0% 100%;
     --info-light: 207 100% 55%;
 
-    /* Background system */
-    --background: 45 15% 97%; /* Light warm background */
-    --background-secondary: 45 20% 95%;
-    --foreground: 28 25% 15%;
+    /* Delicious background system */
+    --background: 45 100% 97%; /* Creamy off-white #FFFBF0 */
+    --background-secondary: 45 85% 94%;
+    --foreground: 150 15% 15%; /* Rich dark green */
 
-    /* Card system */
+    /* Food card system */
     --card: 0 0% 100%;
-    --card-foreground: 28 25% 15%;
-    --card-secondary: 45 25% 98%;
+    --card-foreground: 150 15% 15%;
+    --card-secondary: 45 75% 96%;
 
     /* Interactive elements */
     --popover: 0 0% 100%;
-    --popover-foreground: 28 25% 15%;
+    --popover-foreground: 150 15% 15%;
 
-    /* Success, warning, error */
-    --success: 142 71% 45%;
+    /* Tasty feedback colors */
+    --success: 142 76% 36%; /* Deep avocado green #22C55E */
     --success-foreground: 0 0% 100%;
-    --warning: 39 94% 49%; /* Using primary for warnings */
-    --warning-foreground: 0 0% 100%;
+    --warning: 43 96% 60%; /* Using secondary for warnings */
+    --warning-foreground: 150 15% 15%;
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Text colors */
-    --muted: 45 10% 92%;
-    --muted-foreground: 28 15% 45%;
-    --subtle-foreground: 28 10% 60%;
+    /* Subtle food-themed text */
+    --muted: 45 65% 90%;
+    --muted-foreground: 150 10% 45%;
+    --subtle-foreground: 150 8% 55%;
 
-    /* Border and input */
-    --border: 45 20% 88%;
-    --input: 45 20% 88%;
-    --ring: 39 94% 49%; /* Primary color for focus rings */
+    /* Natural borders */
+    --border: 113 30% 85%;
+    --input: 113 30% 85%;
+    --ring: 113 85% 65%; /* Primary green for focus */
 
-    /* Design elements */
-    --radius: 1rem;
-    --shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
-    --shadow-card: 0 6px 20px -4px rgba(0, 0, 0, 0.1);
+    /* Organic design elements */
+    --radius: 1.25rem;
+    --shadow: 0 4px 20px -4px rgba(74, 222, 128, 0.15);
+    --shadow-card: 0 8px 30px -6px rgba(74, 222, 128, 0.2);
+    --shadow-food: 0 6px 25px -3px rgba(251, 146, 60, 0.3);
 
-    /* Progress and indicators */
-    --progress-bg: 45 25% 90%;
-    --calories-progress: 15 85% 44%; /* Secondary */
-    --protein-progress: 207 100% 38%; /* Info */
-    --carbs-progress: 39 94% 49%; /* Primary */
-    --fat-progress: 28 69% 20%; /* Accent */
-    --glycemic-progress: 142 71% 45%; /* Success */
+    /* Delicious progress indicators */
+    --progress-bg: 113 40% 92%;
+    --calories-progress: 25 95% 62%; /* Carrot orange */
+    --protein-progress: 207 100% 38%; /* Info blue */
+    --carbs-progress: 43 96% 60%; /* Corn yellow */
+    --fat-progress: 113 85% 45%; /* Deep green */
+    --glycemic-progress: 142 76% 36%; /* Avocado green */
 
     --sidebar-background: 0 0% 98%;
 
@@ -133,27 +134,68 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-zodiak;
+    @apply bg-background text-foreground font-quicksand;
     font-size: 14px;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-comico;
+    @apply font-fredoka;
+  }
+
+  .font-accent {
+    @apply font-baloo;
   }
 }
 
-/* Custom animations and effects */
+/* Food-themed animations and effects */
 @layer components {
   .slanted-card {
     transform: perspective(600px) rotateX(2deg) rotateY(-1deg);
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-food);
+    border: 2px solid transparent;
+    background: linear-gradient(135deg, 
+      hsl(var(--card)) 0%, 
+      hsl(var(--card-secondary)) 100%);
   }
 
   .slanted-card:hover {
-    transform: perspective(600px) rotateX(0deg) rotateY(0deg) translateY(-2px);
+    transform: perspective(600px) rotateX(0deg) rotateY(0deg) translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 40px -8px rgba(251, 146, 60, 0.4);
+    border-color: hsl(var(--accent) / 0.3);
   }
 
   .progress-ring {
-    transition: stroke-dasharray 0.6s ease-in-out;
+    transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 2px 8px rgba(74, 222, 128, 0.3));
+  }
+
+  .food-button {
+    @apply bg-primary text-primary-foreground px-6 py-3 rounded-full font-baloo font-semibold;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px -4px rgba(74, 222, 128, 0.4);
+  }
+
+  .food-button:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 25px -5px rgba(74, 222, 128, 0.5);
+  }
+
+  .food-card-border {
+    border: 3px dashed hsl(var(--accent) / 0.3);
+    border-radius: var(--radius);
+    background: linear-gradient(145deg, 
+      hsl(var(--background)) 0%, 
+      hsl(var(--background-secondary)) 100%);
+  }
+
+  .food-search {
+    @apply border-2 border-primary/30 rounded-full px-4 py-3 bg-background;
+    transition: all 0.3s ease;
+  }
+
+  .food-search:focus {
+    @apply border-primary ring-4 ring-primary/20;
+    transform: scale(1.02);
   }
 }

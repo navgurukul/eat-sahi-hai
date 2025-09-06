@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Edit2, Trash2, Plus } from "lucide-react";
+import { Apple, ChefHat, Trash2, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -7,7 +7,7 @@ interface FoodItem {
   id: string;
   name: string;
   quantity: string;
-  portion: "small" | "medium" | "large";
+  portion: "thoda-sa" | "bharpet" | "zyada";
   calories: number;
   time: string;
 }
@@ -21,7 +21,7 @@ export function FoodLogging() {
       id: "1",
       name: "Aloo Paratha",
       quantity: "2 pieces",
-      portion: "medium",
+      portion: "bharpet",
       calories: 320,
       time: "8:30 AM"
     },
@@ -29,7 +29,7 @@ export function FoodLogging() {
       id: "2", 
       name: "Chai",
       quantity: "1 glass",
-      portion: "small",
+      portion: "thoda-sa",
       calories: 80,
       time: "8:45 AM"
     },
@@ -37,7 +37,7 @@ export function FoodLogging() {
       id: "3",
       name: "Dal Chawal",
       quantity: "1 plate",
-      portion: "large",
+      portion: "zyada",
       calories: 450,
       time: "1:30 PM"
     },
@@ -45,7 +45,7 @@ export function FoodLogging() {
       id: "4",
       name: "Mixed Sabzi",
       quantity: "1 bowl",
-      portion: "medium",
+      portion: "bharpet",
       calories: 180,
       time: "1:30 PM"
     },
@@ -53,7 +53,7 @@ export function FoodLogging() {
       id: "5",
       name: "Samosa",
       quantity: "2 pieces",
-      portion: "small",
+      portion: "thoda-sa",
       calories: 280,
       time: "5:00 PM"
     }
@@ -61,84 +61,84 @@ export function FoodLogging() {
 
   const getPortionColor = (portion: string) => {
     switch (portion) {
-      case "small": return "text-success";
-      case "medium": return "text-warning";
-      case "large": return "text-secondary";
-      default: return "text-muted-foreground";
+      case "thoda-sa": return "text-success-foreground bg-success/20 border-success/40";
+      case "bharpet": return "text-warning-foreground bg-warning/20 border-warning/40";
+      case "zyada": return "text-destructive-foreground bg-destructive/20 border-destructive/40";
+      default: return "text-muted-foreground bg-muted border-muted-foreground/20";
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-comico font-bold text-foreground mb-4">
-          Aaj kya khaya? What did you eat today?
+        <h2 className="text-2xl font-fredoka font-bold text-foreground mb-6">
+          Aaj kya khaya tumne? 🍽️
         </h2>
         
         {/* Search bar */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <div className="relative mb-8">
+          <Apple className="absolute left-4 top-1/2 transform -translate-y-1/2 text-primary h-5 w-5" />
           <Input
-            placeholder="Search for food items... (e.g., roti, dal, sabzi)"
+            placeholder="Kya dhund rahe ho? (eg: roti, sabzi...)"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-card border-border rounded-xl h-12"
+            className="food-search pl-12 pr-16 h-14 text-base font-quicksand font-medium"
           />
           <Button 
             size="sm" 
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary hover:bg-primary-dark text-primary-foreground rounded-lg"
+            className="food-button absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10 p-0"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-5 w-5" />
           </Button>
         </div>
       </div>
 
       {/* Logged food items */}
-      <div className="space-y-3">
-        <h3 className="text-lg font-comico font-bold text-foreground">
-          Today's meals
+      <div className="space-y-5">
+        <h3 className="text-xl font-fredoka font-bold text-foreground">
+          Aaj ka khana log 📝
         </h3>
         
         {loggedItems.map((item, index) => (
           <div 
             key={item.id}
-            className="slanted-card bg-card rounded-xl p-4 shadow-card border border-border"
+            className="slanted-card food-card-border bg-card rounded-3xl p-6 shadow-food"
             style={{
-              transform: `perspective(600px) rotateX(${1 + index * 0.5}deg) rotateY(${-0.5 + index * 0.2}deg)`,
+              transform: `perspective(600px) rotateX(${1 + index * 0.3}deg) rotateY(${-0.3 + index * 0.1}deg)`,
             }}
           >
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-comico font-bold text-card-foreground">
+                <div className="flex items-center gap-3 mb-2">
+                  <h4 className="font-fredoka font-bold text-lg text-card-foreground">
                     {item.name}
                   </h4>
-                  <span className={`text-xs px-2 py-1 rounded-full bg-background-secondary ${getPortionColor(item.portion)}`}>
+                  <span className={`text-xs px-3 py-1.5 rounded-full font-baloo font-bold border-2 ${getPortionColor(item.portion)}`}>
                     {item.portion}
                   </span>
                 </div>
-                <p className="text-sm text-subtle-foreground mb-1">
-                  {item.quantity} • {item.calories} cal
+                <p className="text-sm text-subtle-foreground mb-2 font-quicksand font-semibold">
+                  {item.quantity} • <span className="text-accent font-bold">{item.calories} cal</span>
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground font-baloo font-medium">
                   {item.time}
                 </p>
               </div>
               
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="h-8 w-8 p-0 text-info hover:text-info-light hover:bg-info/10"
+                  className="h-10 w-10 p-0 text-info hover:text-info-light hover:bg-info/20 rounded-full transition-all duration-200 hover:scale-110"
                 >
-                  <Edit2 className="h-4 w-4" />
+                  <ChefHat className="h-5 w-5" />
                 </Button>
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  className="h-10 w-10 p-0 text-destructive hover:text-destructive hover:bg-destructive/20 rounded-full transition-all duration-200 hover:scale-110"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-5 w-5" />
                 </Button>
               </div>
             </div>

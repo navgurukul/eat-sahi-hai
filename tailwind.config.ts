@@ -14,8 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        'comico': ['Comico', 'sans-serif'],
-        'zodiak': ['Zodiak', 'serif'],
+        'fredoka': ['Fredoka One', 'cursive'],
+        'quicksand': ['Quicksand', 'sans-serif'],
+        'baloo': ['Baloo 2', 'cursive'],
       },
       fontSize: {
         'xs': ['12px', '16px'],
@@ -98,6 +99,7 @@ export default {
       boxShadow: {
         'custom': 'var(--shadow)',
         'card': 'var(--shadow-card)',
+        'food': 'var(--shadow-food)',
       },
       borderRadius: {
         lg: "var(--radius)",
