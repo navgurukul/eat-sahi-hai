@@ -2,41 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+/* FoodFlow Design System - All colors, gradients, fonts, etc defined here. 
 All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Main brand colors */
+    --primary: 39 94% 49%; /* #efa00b */
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 39 94% 65%;
+    --primary-dark: 39 94% 35%;
 
+    --secondary: 15 85% 44%; /* #D65108 */
+    --secondary-foreground: 0 0% 100%;
+    --secondary-light: 15 85% 60%;
+
+    --accent: 28 69% 20%; /* #591F0A */
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 28 69% 35%;
+
+    --info: 207 100% 38%; /* #0075C4 */
+    --info-foreground: 0 0% 100%;
+    --info-light: 207 100% 55%;
+
+    /* Background system */
+    --background: 45 15% 97%; /* Light warm background */
+    --background-secondary: 45 20% 95%;
+    --foreground: 28 25% 15%;
+
+    /* Card system */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 28 25% 15%;
+    --card-secondary: 45 25% 98%;
 
+    /* Interactive elements */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 28 25% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Success, warning, error */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 39 94% 49%; /* Using primary for warnings */
+    --warning-foreground: 0 0% 100%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Text colors */
+    --muted: 45 10% 92%;
+    --muted-foreground: 28 15% 45%;
+    --subtle-foreground: 28 10% 60%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Border and input */
+    --border: 45 20% 88%;
+    --input: 45 20% 88%;
+    --ring: 39 94% 49%; /* Primary color for focus rings */
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Design elements */
+    --radius: 1rem;
+    --shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
+    --shadow-card: 0 6px 20px -4px rgba(0, 0, 0, 0.1);
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
+    /* Progress and indicators */
+    --progress-bg: 45 25% 90%;
+    --calories-progress: 15 85% 44%; /* Secondary */
+    --protein-progress: 207 100% 38%; /* Info */
+    --carbs-progress: 39 94% 49%; /* Primary */
+    --fat-progress: 28 69% 20%; /* Accent */
+    --glycemic-progress: 142 71% 45%; /* Success */
 
     --sidebar-background: 0 0% 98%;
 
@@ -100,6 +133,27 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-zodiak;
+    font-size: 14px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-comico;
+  }
+}
+
+/* Custom animations and effects */
+@layer components {
+  .slanted-card {
+    transform: perspective(600px) rotateX(2deg) rotateY(-1deg);
+    transition: all 0.3s ease;
+  }
+
+  .slanted-card:hover {
+    transform: perspective(600px) rotateX(0deg) rotateY(0deg) translateY(-2px);
+  }
+
+  .progress-ring {
+    transition: stroke-dasharray 0.6s ease-in-out;
   }
 }
