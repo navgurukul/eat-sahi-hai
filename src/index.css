@@ -198,4 +198,21 @@ All colors MUST be HSL.
     @apply border-primary ring-4 ring-primary/20;
     transform: scale(1.02);
   }
+
+  /* Food app specific shadows */
+  .shadow-food {
+    box-shadow: 0 4px 14px -2px hsla(var(--primary) / 0.1), 0 2px 8px -2px hsla(var(--secondary) / 0.15);
+  }
+
+  .shadow-food-hover {
+    box-shadow: 0 8px 25px -5px hsla(var(--primary) / 0.2), 0 4px 15px -3px hsla(var(--secondary) / 0.25);
+  }
+
+  /* Food texture patterns */
+  .food-pattern-bg {
+    background-image: 
+      radial-gradient(circle at 20% 50%, hsla(var(--primary) / 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, hsla(var(--secondary) / 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, hsla(var(--accent) / 0.05) 0%, transparent 50%);
+  }
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Apple, ChefHat, Trash2, Plus } from "lucide-react";
+import { UtensilsCrossed, ChefHat, Trash2, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -75,21 +75,23 @@ export function FoodLogging() {
           Aaj kya khaya tumne? 🍽️
         </h2>
         
-        {/* Search bar */}
-        <div className="relative mb-8">
-          <Apple className="absolute left-4 top-1/2 transform -translate-y-1/2 text-primary h-5 w-5" />
-          <Input
-            placeholder="Kya dhund rahe ho? (eg: roti, sabzi...)"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="food-search pl-12 pr-16 h-14 text-base font-quicksand font-medium"
-          />
-          <Button 
-            size="sm" 
-            className="food-button absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10 p-0"
-          >
-            <Plus className="h-5 w-5" />
-          </Button>
+        {/* Enhanced Food Search */}
+        <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-3 rounded-2xl border border-primary/20 mb-8">
+          <div className="relative">
+            <UtensilsCrossed className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary h-4 w-4" />
+            <Input
+              placeholder="Kya khana hai? Dhundho yahan... 🍽️"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 food-search border-primary/30 font-baloo bg-background/80"
+            />
+            <Button 
+              size="sm" 
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 food-button font-baloo bg-primary hover:bg-primary/90"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 

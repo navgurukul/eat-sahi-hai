@@ -11,7 +11,7 @@ const Index = () => {
     switch (activeTab) {
       case "home":
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 food-pattern-bg min-h-screen">
             <TimeHeader />
             <MacroIndicators />
             <FoodLogging />
