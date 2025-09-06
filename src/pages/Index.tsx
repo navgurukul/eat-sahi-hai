@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { TimeHeader } from "@/components/TimeHeader";
 import { MacroIndicators } from "@/components/MacroIndicators";
 import { FoodLogging } from "@/components/FoodLogging";
 import { BottomNavigation } from "@/components/BottomNavigation";
@@ -7,12 +6,22 @@ import { BottomNavigation } from "@/components/BottomNavigation";
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
 
+  const getTimeBasedGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning! 🌅";
+    if (hour < 17) return "Good Afternoon! ☀️";
+    if (hour < 20) return "Good Evening! 🌆";
+    return "Good Night! 🌙";
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case "home":
         return (
-          <div className="space-y-4 food-pattern-bg min-h-screen">
-            <TimeHeader />
+          <div className="space-y-6 food-pattern-bg min-h-screen">
+            <h1 className="text-3xl font-fredoka font-semibold text-foreground text-center">
+              {getTimeBasedGreeting()}
+            </h1>
             <MacroIndicators />
             <FoodLogging />
           </div>
@@ -21,7 +30,7 @@ const Index = () => {
         return (
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <h2 className="text-2xl font-fredoka font-bold text-foreground mb-3">
+              <h2 className="text-2xl font-fredoka font-semibold text-foreground mb-3">
                 Khana History 📚
               </h2>
               <p className="text-muted-foreground font-quicksand">
@@ -34,7 +43,7 @@ const Index = () => {
         return (
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <h2 className="text-2xl font-fredoka font-bold text-foreground mb-3">
+              <h2 className="text-2xl font-fredoka font-semibold text-foreground mb-3">
                 Fasting Timer ⏰
               </h2>
               <p className="text-muted-foreground font-quicksand">
@@ -47,7 +56,7 @@ const Index = () => {
         return (
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <h2 className="text-2xl font-fredoka font-bold text-foreground mb-3">
+              <h2 className="text-2xl font-fredoka font-semibold text-foreground mb-3">
                 Mera Profile 👨‍🍳
               </h2>
               <p className="text-muted-foreground font-quicksand">

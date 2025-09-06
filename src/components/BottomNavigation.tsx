@@ -1,5 +1,6 @@
-import { UtensilsCrossed, ClipboardList, Timer, ChefHat } from "lucide-react";
+import { UtensilsCrossed, ClipboardList, Timer, ChefHat, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface BottomNavigationProps {
   activeTab: string;
@@ -7,6 +8,8 @@ interface BottomNavigationProps {
 }
 
 export function BottomNavigation({ activeTab, onTabChange }: BottomNavigationProps) {
+  const navigate = useNavigate();
+  
   const tabs = [
     { id: "home", label: "Khana", icon: UtensilsCrossed },
     { id: "history", label: "History", icon: ClipboardList },
@@ -15,33 +18,73 @@ export function BottomNavigation({ activeTab, onTabChange }: BottomNavigationPro
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t-2 border-primary/20 px-4 py-3 safe-area-bottom backdrop-blur-sm">
-      <div className="flex items-center justify-around">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          
-          return (
-            <button
-              key={tab.id}
-              onClick={() => onTabChange(tab.id)}
-              className={cn(
-                "flex flex-col items-center py-3 px-4 rounded-2xl transition-all duration-300 transform",
-                isActive 
-                  ? "bg-primary text-primary-foreground scale-110 shadow-food" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/10 hover:scale-105"
-              )}
-            >
-              <Icon className={cn("h-6 w-6 mb-1", isActive && "text-primary-foreground")} />
-              <span className={cn(
-                "text-xs font-baloo font-medium", 
-                isActive ? "text-primary-foreground font-bold" : "text-muted-foreground"
-              )}>
-                {tab.label}
-              </span>
-            </button>
-          );
-        })}
+    <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border/20 px-4 py-3 safe-area-bottom backdrop-blur-sm">
+      <div className="flex items-center justify-center relative">
+        {/* Left tabs */}
+        <div className="flex items-center space-x-4">
+          {tabs.slice(0, 2).map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            
+            return (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={cn(
+                  "flex flex-col items-center py-3 px-4 rounded-xl transition-all duration-300",
+                  isActive 
+                    ? "bg-primary text-primary-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/10"
+                )}
+              >
+                <Icon className={cn("h-5 w-5 mb-1", isActive && "text-primary-foreground")} />
+                <span className={cn(
+                  "text-xs font-baloo font-medium", 
+                  isActive ? "text-primary-foreground font-semibold" : "text-muted-foreground"
+                )}>
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Center Plus button */}
+        <button
+          onClick={() => navigate('/food-selection')}
+          className="mx-8 bg-primary text-primary-foreground rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+        >
+          <Plus className="h-6 w-6" />
+        </button>
+
+        {/* Right tabs */}
+        <div className="flex items-center space-x-4">
+          {tabs.slice(2, 4).map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            
+            return (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={cn(
+                  "flex flex-col items-center py-3 px-4 rounded-xl transition-all duration-300",
+                  isActive 
+                    ? "bg-primary text-primary-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/10"
+                )}
+              >
+                <Icon className={cn("h-5 w-5 mb-1", isActive && "text-primary-foreground")} />
+                <span className={cn(
+                  "text-xs font-baloo font-medium", 
+                  isActive ? "text-primary-foreground font-semibold" : "text-muted-foreground"
+                )}>
+                  {tab.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
