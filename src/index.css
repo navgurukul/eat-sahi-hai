@@ -1,110 +1,122 @@
-/* Tailwind CSS imports */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Professional fonts for food app */
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Inter:wght@400;500;600;700&display=swap');
+/* FoodFlow Design System - Delicious Food-Themed Colors! 
+All colors MUST be HSL.
+*/
 
 @layer base {
   :root {
-    /* Professional Food App Color Palette - HSL values */
-    --background: 45 33% 97%;               /* Clean warm cream #F9F6F0 */
-    --background-secondary: 45 33% 94%;     /* Slightly darker cream */
-    --foreground: 0 0% 17%;                 /* Charcoal #2C2C2C */
-    --card: 0 0% 100%;                      /* Pure white */
-    --card-foreground: 0 0% 17%;            /* Charcoal */
-    --card-secondary: 45 33% 98%;           /* Off-white for subtle cards */
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 17%;
-    --primary: 82 60% 18%;                  /* Deep forest green #2D5016 */
+    /* Main food-themed brand colors */
+    --primary: 113 85% 65%; /* Fresh leafy green #4ADE80 */
     --primary-foreground: 0 0% 100%;
-    --primary-light: 82 50% 28%;
-    --primary-dark: 82 70% 12%;
-    --secondary: 45 33% 94%;                /* Light cream */
-    --secondary-foreground: 0 0% 17%;
-    --secondary-light: 45 33% 97%;
-    --accent: 25 85% 48%;                   /* Refined burnt orange */
-    --accent-foreground: 0 0% 100%;
-    --accent-light: 25 85% 60%;
-    --info: 200 65% 52%;
-    --info-foreground: 0 0% 100%;
-    --info-light: 200 65% 65%;
-    --success: 142 76% 38%;
-    --success-foreground: 0 0% 100%;
-    --warning: 45 90% 50%;
-    --warning-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 13% 45%;
-    --subtle-foreground: 0 0% 40%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 82 60% 18%;                     /* Same as primary */
-    
-    /* Progress colors */
-    --progress-bg: 210 40% 95%;
-    --calories-progress: 25 85% 48%;        /* Refined burnt orange */
-    --protein-progress: 142 76% 38%;        /* Green */
-    --carbs-progress: 45 90% 50%;           /* Yellow */
-    --fat-progress: 0 84% 60%;              /* Red */
-    --glycemic-progress: 200 65% 52%;       /* Blue */
-    
-    /* Design system variables */
-    --radius: 12px;
-    --shadow: 0 2px 8px -2px hsl(0 0% 0% / 0.08);
-    --shadow-card: 0 1px 6px -1px hsl(0 0% 0% / 0.06);
-    --shadow-food: 0 4px 12px -4px hsl(0 0% 0% / 0.1);
+    --primary-light: 113 85% 75%;
+    --primary-dark: 113 85% 45%;
 
-    /* Sidebar variables for compatibility */
+    --secondary: 43 96% 60%; /* Sunny corn yellow #FCD34D */
+    --secondary-foreground: 150 15% 15%;
+    --secondary-light: 43 96% 75%;
+
+    --accent: 25 95% 62%; /* Warm carrot orange #FB923C */
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 25 95% 75%;
+
+    --info: 207 100% 38%; /* Info blue */
+    --info-foreground: 0 0% 100%;
+    --info-light: 207 100% 55%;
+
+    /* Delicious background system */
+    --background: 45 100% 97%; /* Creamy off-white #FFFBF0 */
+    --background-secondary: 45 85% 94%;
+    --foreground: 150 15% 15%; /* Rich dark green */
+
+    /* Food card system */
+    --card: 0 0% 100%;
+    --card-foreground: 150 15% 15%;
+    --card-secondary: 45 75% 96%;
+
+    /* Interactive elements */
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 15% 15%;
+
+    /* Tasty feedback colors */
+    --success: 142 76% 36%; /* Deep avocado green #22C55E */
+    --success-foreground: 0 0% 100%;
+    --warning: 43 96% 60%; /* Using secondary for warnings */
+    --warning-foreground: 150 15% 15%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Subtle food-themed text */
+    --muted: 45 65% 90%;
+    --muted-foreground: 150 10% 45%;
+    --subtle-foreground: 150 8% 55%;
+
+    /* Natural borders */
+    --border: 113 30% 85%;
+    --input: 113 30% 85%;
+    --ring: 113 85% 65%; /* Primary green for focus */
+
+    /* Organic design elements */
+    --radius: 1.25rem;
+    --shadow: 0 4px 20px -4px rgba(74, 222, 128, 0.15);
+    --shadow-card: 0 8px 30px -6px rgba(74, 222, 128, 0.2);
+    --shadow-food: 0 6px 25px -3px rgba(251, 146, 60, 0.3);
+
+    /* Delicious progress indicators */
+    --progress-bg: 113 40% 92%;
+    --calories-progress: 25 95% 62%; /* Carrot orange */
+    --protein-progress: 207 100% 38%; /* Info blue */
+    --carbs-progress: 43 96% 60%; /* Corn yellow */
+    --fat-progress: 113 85% 45%; /* Deep green */
+    --glycemic-progress: 142 76% 36%; /* Avocado green */
+
     --sidebar-background: 0 0% 98%;
+
     --sidebar-foreground: 240 5.3% 26.1%;
+
     --sidebar-primary: 240 5.9% 10%;
+
     --sidebar-primary-foreground: 0 0% 98%;
+
     --sidebar-accent: 240 4.8% 95.9%;
+
     --sidebar-accent-foreground: 240 5.9% 10%;
+
     --sidebar-border: 220 13% 91%;
+
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    /* Professional dark theme */
-    --background: 0 0% 7%;                  /* Deep charcoal */
-    --background-secondary: 0 0% 9%;        /* Slightly lighter */
-    --foreground: 0 0% 95%;                 /* Off-white */
-    --card: 0 0% 9%;
-    --card-foreground: 0 0% 95%;
-    --card-secondary: 0 0% 11%;
-    --popover: 0 0% 9%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 82 60% 22%;                  /* Brighter forest green for dark mode */
-    --primary-foreground: 0 0% 100%;
-    --primary-light: 82 50% 32%;
-    --primary-dark: 82 70% 16%;
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 95%;
-    --secondary-light: 0 0% 14%;
-    --accent: 25 85% 55%;                   /* Brighter burnt orange */
-    --accent-foreground: 0 0% 100%;
-    --accent-light: 25 85% 65%;
-    --info: 200 65% 58%;
-    --info-foreground: 0 0% 100%;
-    --info-light: 200 65% 70%;
-    --success: 142 76% 42%;
-    --success-foreground: 0 0% 100%;
-    --warning: 45 90% 55%;
-    --warning-foreground: 0 0% 100%;
-    --destructive: 0 84% 65%;
-    --destructive-foreground: 0 0% 100%;
-    --muted: 0 0% 14%;
-    --muted-foreground: 0 0% 60%;
-    --subtle-foreground: 0 0% 65%;
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
-    --ring: 82 60% 22%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
 
-    /* Dark sidebar variables */
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -118,78 +130,89 @@
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    @apply border-border;
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-family: "Inter", system-ui, sans-serif;
-    line-height: 1.6;
+    @apply bg-background text-foreground font-quicksand;
     font-size: 14px;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: "Fredoka One", cursive;
-    line-height: 1.2;
+    @apply font-fredoka;
   }
 
   .font-accent {
-    font-family: "Inter", system-ui, sans-serif;
+    @apply font-baloo;
   }
 }
 
-/* Professional food app styles */
+/* Food-themed animations and effects */
 @layer components {
-  /* Clean card hover effects */
   .slanted-card {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: perspective(600px) rotateX(2deg) rotateY(-1deg);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-food);
+    border: 2px solid transparent;
+    background: linear-gradient(135deg, 
+      hsl(var(--card)) 0%, 
+      hsl(var(--card-secondary)) 100%);
   }
 
   .slanted-card:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: var(--shadow-food);
+    transform: perspective(600px) rotateX(0deg) rotateY(0deg) translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 40px -8px rgba(251, 146, 60, 0.4);
+    border-color: hsl(var(--accent) / 0.3);
   }
 
-  /* Progress ring styling */
   .progress-ring {
-    transition: all 0.2s ease;
+    transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 2px 8px rgba(74, 222, 128, 0.3));
   }
 
-  .progress-ring:hover {
-    transform: scale(1.02);
-  }
-
-  /* Professional button */
   .food-button {
-    background: hsl(var(--primary));
-    border-radius: var(--radius);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: var(--shadow-card);
+    @apply bg-primary text-primary-foreground px-6 py-3 rounded-full font-baloo font-semibold;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px -4px rgba(74, 222, 128, 0.4);
   }
 
   .food-button:hover {
-    background: hsl(var(--primary-light));
-    box-shadow: var(--shadow);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 25px -5px rgba(74, 222, 128, 0.5);
   }
 
-  /* Clean search input */
+  .food-card-border {
+    border: 3px dashed hsl(var(--accent) / 0.3);
+    border-radius: var(--radius);
+    background: linear-gradient(145deg, 
+      hsl(var(--background)) 0%, 
+      hsl(var(--background-secondary)) 100%);
+  }
+
+  .food-search {
+    @apply border-2 border-primary/30 rounded-full px-4 py-3 bg-background;
+    transition: all 0.3s ease;
+  }
+
   .food-search:focus {
-    border-color: hsl(var(--primary));
-    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.1);
+    @apply border-primary ring-4 ring-primary/20;
+    transform: scale(1.02);
   }
 
-  /* Simplified shadow utilities */
+  /* Food app specific shadows */
   .shadow-food {
-    box-shadow: var(--shadow-food);
+    box-shadow: 0 4px 14px -2px hsla(var(--primary) / 0.1), 0 2px 8px -2px hsla(var(--secondary) / 0.15);
   }
 
   .shadow-food-hover {
-    box-shadow: var(--shadow);
+    box-shadow: 0 8px 25px -5px hsla(var(--primary) / 0.2), 0 4px 15px -3px hsla(var(--secondary) / 0.25);
   }
 
-  /* Clean background pattern */
+  /* Food texture patterns */
   .food-pattern-bg {
-    background: hsl(var(--background));
+    background-image: 
+      radial-gradient(circle at 20% 50%, hsla(var(--primary) / 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, hsla(var(--secondary) / 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, hsla(var(--accent) / 0.05) 0%, transparent 50%);
   }
 }
