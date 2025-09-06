@@ -15,7 +15,7 @@ export function BottomNavigation({ activeTab, onTabChange }: BottomNavigationPro
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t-2 border-primary/20 px-4 py-3 safe-area-bottom backdrop-blur-sm">
+    <div className="fixed bottom-0 left-0 right-0 bg-background/95 border-t border-border backdrop-blur-md px-4 py-3 safe-area-bottom">
       <div className="flex items-center justify-around">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -26,13 +26,13 @@ export function BottomNavigation({ activeTab, onTabChange }: BottomNavigationPro
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={cn(
-                "flex flex-col items-center py-3 px-4 rounded-2xl transition-all duration-300 transform",
+                "flex flex-col items-center py-2 px-3 rounded-xl transition-all duration-200 transform",
                 isActive 
-                  ? "bg-primary text-primary-foreground scale-110 shadow-food" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent/10 hover:scale-105"
+                  ? "bg-primary text-primary-foreground scale-105 shadow-lg" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/20 hover:scale-102"
               )}
             >
-              <Icon className={cn("h-6 w-6 mb-1", isActive && "text-primary-foreground")} />
+              <Icon className={cn("h-5 w-5 mb-1", isActive && "text-primary-foreground")} />
               <span className={cn(
                 "text-xs font-baloo font-medium", 
                 isActive ? "text-primary-foreground font-bold" : "text-muted-foreground"

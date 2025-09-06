@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { TimeHeader } from "@/components/TimeHeader";
 import { MacroIndicators } from "@/components/MacroIndicators";
 import { FoodLogging } from "@/components/FoodLogging";
 import { BottomNavigation } from "@/components/BottomNavigation";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -11,8 +11,7 @@ const Index = () => {
     switch (activeTab) {
       case "home":
         return (
-          <div className="space-y-4 food-pattern-bg min-h-screen">
-            <TimeHeader />
+          <div className="space-y-6">
             <MacroIndicators />
             <FoodLogging />
           </div>
@@ -63,7 +62,32 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-md mx-auto px-4 py-6">
+      {/* Header with time and dark mode toggle */}
+      <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border/40">
+        <div className="container max-w-md mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="text-left">
+              <h1 className="text-lg font-fredoka font-bold text-foreground">
+                Khana Tracker 🍽️
+              </h1>
+              <p className="text-xs text-muted-foreground font-quicksand">
+                {new Date().toLocaleDateString("en-IN", { 
+                  weekday: "short",
+                  day: "numeric", 
+                  month: "short" 
+                })} • {new Date().toLocaleTimeString("en-IN", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
+              </p>
+            </div>
+            <DarkModeToggle />
+          </div>
+        </div>
+      </div>
+
+      <div className="container max-w-md mx-auto p-4">
         {renderTabContent()}
       </div>
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />

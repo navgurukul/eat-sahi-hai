@@ -1,98 +1,68 @@
 import { ProgressRing } from "@/components/ui/progress-ring";
 
 export function MacroIndicators() {
-  const macros = {
-    calories: { current: 1847, target: 2000 },
-    glycemic: { current: 67, target: 100 },
-    protein: { current: 68, target: 120 },
-    carbs: { current: 198, target: 250 },
-    fat: { current: 73, target: 67 },
-  };
+  const currentCalories = 1230;
+  const targetCalories = 2000;
+  const currentSugar = 45;
+  const targetSugar = 100;
 
   return (
-    <div className="space-y-4">
-      {/* Compact Main Metrics Row */}
-      <div className="bg-gradient-to-r from-primary/5 via-secondary/10 to-accent/5 p-4 rounded-2xl border border-primary/20 food-card-border">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            {/* Calories */}
-            <div className="flex items-center space-x-3">
-              <ProgressRing value={macros.calories.current} max={macros.calories.target} size={50} color="calories">
-                <div className="text-center">
-                  <div className="text-sm font-fredoka font-bold text-foreground">{macros.calories.current}</div>
-                </div>
-              </ProgressRing>
-              <div>
-                <h3 className="text-sm font-baloo font-bold text-foreground">🔥 Calories</h3>
-                <p className="text-xs text-muted-foreground">{macros.calories.current}/{macros.calories.target} kcal</p>
+    <div className="bg-card rounded-2xl border border-border p-5 shadow-lg">
+      <h3 className="text-base font-fredoka font-bold text-foreground mb-4 text-center">
+        Aaj ka Nutrition 📊
+      </h3>
+      
+      <div className="grid grid-cols-2 gap-6">
+        <div className="flex flex-col items-center">
+          <ProgressRing 
+            value={currentCalories} 
+            max={targetCalories} 
+            size={70} 
+            color="calories"
+            className="mb-2"
+          >
+            <div className="text-center">
+              <div className="text-sm font-baloo font-bold text-progress-calories">
+                {currentCalories}
+              </div>
+              <div className="text-[10px] text-muted-foreground font-quicksand">
+                kcal
               </div>
             </div>
+          </ProgressRing>
+          <span className="text-xs font-quicksand font-medium text-muted-foreground">
+            Calories
+          </span>
+        </div>
 
-            {/* Sugar Level */}
-            <div className="flex items-center space-x-3">
-              <ProgressRing value={macros.glycemic.current} max={macros.glycemic.target} size={50} color="glycemic">
-                <div className="text-center">
-                  <div className="text-sm font-fredoka font-bold text-foreground">{macros.glycemic.current}</div>
-                </div>
-              </ProgressRing>
-              <div>
-                <h3 className="text-sm font-baloo font-bold text-foreground">🍯 Sugar Level</h3>
-                <p className="text-xs text-muted-foreground">{macros.glycemic.current}/{macros.glycemic.target} GI</p>
+        <div className="flex flex-col items-center">
+          <ProgressRing 
+            value={currentSugar} 
+            max={targetSugar} 
+            size={70} 
+            color="glycemic"
+            className="mb-2"
+          >
+            <div className="text-center">
+              <div className="text-sm font-baloo font-bold text-progress-glycemic">
+                {currentSugar}g
+              </div>
+              <div className="text-[10px] text-muted-foreground font-quicksand">
+                sugar
               </div>
             </div>
-          </div>
-          
-          {/* Quick Status */}
-          <div className="text-right">
-            <div className="text-xs font-baloo text-primary font-semibold">Pet bhar gaya? 😋</div>
-            <div className="text-xs text-muted-foreground">{macros.calories.target - macros.calories.current} kcal left</div>
-          </div>
+          </ProgressRing>
+          <span className="text-xs font-quicksand font-medium text-muted-foreground">
+            Sugar Level
+          </span>
         </div>
       </div>
 
-      {/* Detailed Macros Row */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-card p-3 rounded-xl border border-border/50 shadow-food hover:shadow-food-hover transition-all duration-300 hover:scale-105">
-          <div className="flex flex-col items-center space-y-2">
-            <ProgressRing value={macros.protein.current} max={macros.protein.target} size={45} color="protein">
-              <div className="text-center">
-                <div className="text-sm font-fredoka font-bold text-foreground">{macros.protein.current}</div>
-              </div>
-            </ProgressRing>
-            <div className="text-center">
-              <h3 className="text-xs font-baloo font-bold text-foreground">🥩 Protein</h3>
-              <p className="text-xs text-muted-foreground">{macros.protein.current}/{macros.protein.target}g</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card p-3 rounded-xl border border-border/50 shadow-food hover:shadow-food-hover transition-all duration-300 hover:scale-105">
-          <div className="flex flex-col items-center space-y-2">
-            <ProgressRing value={macros.carbs.current} max={macros.carbs.target} size={45} color="carbs">
-              <div className="text-center">
-                <div className="text-sm font-fredoka font-bold text-foreground">{macros.carbs.current}</div>
-              </div>
-            </ProgressRing>
-            <div className="text-center">
-              <h3 className="text-xs font-baloo font-bold text-foreground">🍞 Carbs</h3>
-              <p className="text-xs text-muted-foreground">{macros.carbs.current}/{macros.carbs.target}g</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card p-3 rounded-xl border border-border/50 shadow-food hover:shadow-food-hover transition-all duration-300 hover:scale-105">
-          <div className="flex flex-col items-center space-y-2">
-            <ProgressRing value={macros.fat.current} max={macros.fat.target} size={45} color="fat">
-              <div className="text-center">
-                <div className="text-sm font-fredoka font-bold text-foreground">{macros.fat.current}</div>
-              </div>
-            </ProgressRing>
-            <div className="text-center">
-              <h3 className="text-xs font-baloo font-bold text-foreground">🥑 Fat</h3>
-              <p className="text-xs text-muted-foreground">{macros.fat.current}/{macros.fat.target}g</p>
-            </div>
-          </div>
-        </div>
+      <div className="mt-4 text-center">
+        <p className="text-xs text-muted-foreground font-quicksand">
+          🔥 {Math.round((currentCalories/targetCalories)*100)}% daily goal • 
+          🍯 {Math.round((currentSugar/targetSugar)*100)}% sugar limit
+        </p>
       </div>
     </div>
   );
