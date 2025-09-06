@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { ChefHat, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFoodContext } from "@/contexts/FoodContext";
 
 interface FoodItem {
   id: string;
@@ -12,8 +12,7 @@ interface FoodItem {
 }
 
 export function FoodLogging() {
-  // Sample logged food items - empty by default for empty state
-  const [loggedItems] = useState<FoodItem[]>([]);
+  const { loggedItems, removeLoggedItem } = useFoodContext();
 
   const getPortionColor = (portion: string) => {
     switch (portion) {
@@ -82,6 +81,7 @@ export function FoodLogging() {
                   <Button 
                     variant="ghost" 
                     size="sm"
+                    onClick={() => removeLoggedItem(item.id)}
                     className="h-10 w-10 p-0 text-destructive hover:text-destructive hover:bg-destructive/20 rounded-full transition-all duration-200"
                   >
                     <Trash2 className="h-5 w-5" />

@@ -4,6 +4,7 @@ import { ArrowLeft, Search, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useFoodContext } from "@/contexts/FoodContext";
 
 interface FoodItem {
   id: string;
@@ -23,6 +24,7 @@ const mockFoodItems: FoodItem[] = [
 
 export default function FoodSelection() {
   const navigate = useNavigate();
+  const { addLoggedItems } = useFoodContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
@@ -39,7 +41,10 @@ export default function FoodSelection() {
   };
 
   const handleDone = () => {
-    // In a real app, this would save the selected items to state/API
+    const selectedFoodItems = mockFoodItems.filter(item => 
+      selectedItems.includes(item.id)
+    );
+    addLoggedItems(selectedFoodItems);
     navigate('/');
   };
 
