@@ -69,25 +69,25 @@ export function FoodLogging() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-fredoka font-bold text-foreground mb-6">
-          Aaj kya khaya tumne? 🍽️
+        <h2 className="text-xl font-bold text-foreground mb-4">
+          Food Log
         </h2>
         
-        {/* Enhanced Food Search */}
-        <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-3 rounded-2xl border border-primary/20 mb-8">
+        {/* Clean Food Search */}
+        <div className="bg-card p-4 rounded-xl border shadow-card">
           <div className="relative">
-            <UtensilsCrossed className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary h-4 w-4" />
+            <UtensilsCrossed className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="Kya khana hai? Dhundho yahan... 🍽️"
+              placeholder="Search for food items..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 food-search border-primary/30 font-baloo bg-background/80"
+              className="pl-10 food-search"
             />
             <Button 
               size="sm" 
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 food-button font-baloo bg-primary hover:bg-primary/90"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 food-button"
             >
               <Plus className="h-4 w-4" />
             </Button>
@@ -95,52 +95,49 @@ export function FoodLogging() {
         </div>
       </div>
 
-      {/* Logged food items */}
-      <div className="space-y-5">
-        <h3 className="text-xl font-fredoka font-bold text-foreground">
-          Aaj ka khana log 📝
+      {/* Clean food items list */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-foreground">
+          Today's Meals
         </h3>
         
-        {loggedItems.map((item, index) => (
+        {loggedItems.map((item) => (
           <div 
             key={item.id}
-            className="slanted-card food-card-border bg-card rounded-3xl p-6 shadow-food"
-            style={{
-              transform: `perspective(600px) rotateX(${1 + index * 0.3}deg) rotateY(${-0.3 + index * 0.1}deg)`,
-            }}
+            className="slanted-card bg-card rounded-xl p-4 shadow-card border"
           >
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <h4 className="font-fredoka font-bold text-lg text-card-foreground">
+                  <h4 className="font-semibold text-base text-card-foreground">
                     {item.name}
                   </h4>
-                  <span className={`text-xs px-3 py-1.5 rounded-full font-baloo font-bold border-2 ${getPortionColor(item.portion)}`}>
+                  <span className={`text-xs px-2 py-1 rounded-md font-medium border ${getPortionColor(item.portion)}`}>
                     {item.portion}
                   </span>
                 </div>
-                <p className="text-sm text-subtle-foreground mb-2 font-quicksand font-semibold">
-                  {item.quantity} • <span className="text-accent font-bold">{item.calories} cal</span>
+                <p className="text-sm text-muted-foreground mb-1">
+                  {item.quantity} • <span className="text-accent font-medium">{item.calories} cal</span>
                 </p>
-                <p className="text-xs text-muted-foreground font-baloo font-medium">
+                <p className="text-xs text-muted-foreground">
                   {item.time}
                 </p>
               </div>
               
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="h-10 w-10 p-0 text-info hover:text-info-light hover:bg-info/20 rounded-full transition-all duration-200 hover:scale-110"
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg"
                 >
-                  <ChefHat className="h-5 w-5" />
+                  <ChefHat className="h-4 w-4" />
                 </Button>
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="h-10 w-10 p-0 text-destructive hover:text-destructive hover:bg-destructive/20 rounded-full transition-all duration-200 hover:scale-110"
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
                 >
-                  <Trash2 className="h-5 w-5" />
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             </div>
