@@ -69,79 +69,83 @@ export function FoodLogging() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Quick Add Food */}
-      <div className="bg-card rounded-2xl border border-border p-5 shadow-lg">
-        <h3 className="text-base font-fredoka font-bold text-foreground mb-4 flex items-center gap-2">
-          <UtensilsCrossed className="h-5 w-5 text-primary" />
-          Kya khaya aaj? 🍽️
-        </h3>
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-fredoka font-bold text-foreground mb-6">
+          Aaj kya khaya tumne? 🍽️
+        </h2>
         
-        <div className="relative">
-          <UtensilsCrossed className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search food items..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-20 bg-background border-border"
-          />
-          <Button 
-            size="sm" 
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 px-3"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
+        {/* Enhanced Food Search */}
+        <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-3 rounded-2xl border border-primary/20 mb-8">
+          <div className="relative">
+            <UtensilsCrossed className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary h-4 w-4" />
+            <Input
+              placeholder="Kya khana hai? Dhundho yahan... 🍽️"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 food-search border-primary/30 font-baloo bg-background/80"
+            />
+            <Button 
+              size="sm" 
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 food-button font-baloo bg-primary hover:bg-primary/90"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Food Log History */}
-      <div className="bg-card rounded-2xl border border-border p-5 shadow-lg">
-        <h3 className="text-base font-fredoka font-bold text-foreground mb-4 flex items-center gap-2">
-          <div className="h-5 w-5 text-primary" />
-          Aaj ka Khana Log 📝
+      {/* Logged food items */}
+      <div className="space-y-5">
+        <h3 className="text-xl font-fredoka font-bold text-foreground">
+          Aaj ka khana log 📝
         </h3>
         
-        <div className="space-y-3">
-          {loggedItems.map((item) => (
-            <div 
-              key={item.id}
-              className="bg-muted/30 rounded-xl p-4 border border-border/50 hover:shadow-md transition-all duration-200"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-1">
-                    <h4 className="font-fredoka font-semibold text-card-foreground">
-                      {item.name}
-                    </h4>
-                    <span className={`text-xs px-2 py-1 rounded-full font-baloo font-bold border ${getPortionColor(item.portion)}`}>
-                      {item.portion}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground font-quicksand">
-                    {item.quantity} • <span className="text-foreground font-semibold">{item.calories} cal</span> • {item.time}
-                  </p>
+        {loggedItems.map((item, index) => (
+          <div 
+            key={item.id}
+            className="slanted-card food-card-border bg-card rounded-3xl p-6 shadow-food"
+            style={{
+              transform: `perspective(600px) rotateX(${1 + index * 0.3}deg) rotateY(${-0.3 + index * 0.1}deg)`,
+            }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <h4 className="font-fredoka font-bold text-lg text-card-foreground">
+                    {item.name}
+                  </h4>
+                  <span className={`text-xs px-3 py-1.5 rounded-full font-baloo font-bold border-2 ${getPortionColor(item.portion)}`}>
+                    {item.portion}
+                  </span>
                 </div>
-                
-                <div className="flex items-center gap-2">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
-                  >
-                    <ChefHat className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+                <p className="text-sm text-subtle-foreground mb-2 font-quicksand font-semibold">
+                  {item.quantity} • <span className="text-accent font-bold">{item.calories} cal</span>
+                </p>
+                <p className="text-xs text-muted-foreground font-baloo font-medium">
+                  {item.time}
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="h-10 w-10 p-0 text-info hover:text-info-light hover:bg-info/20 rounded-full transition-all duration-200 hover:scale-110"
+                >
+                  <ChefHat className="h-5 w-5" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="h-10 w-10 p-0 text-destructive hover:text-destructive hover:bg-destructive/20 rounded-full transition-all duration-200 hover:scale-110"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </Button>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );
