@@ -89,11 +89,11 @@ export default {
         },
         progress: {
           bg: "hsl(var(--progress-bg))",
-          calories: "hsl(var(--calories-progress))",
-          protein: "hsl(var(--protein-progress))",
-          carbs: "hsl(var(--carbs-progress))",
-          fat: "hsl(var(--fat-progress))",
-          glycemic: "hsl(var(--glycemic-progress))",
+          calories: "hsl(var(--progress-calories))",
+          protein: "hsl(var(--progress-protein))",
+          carbs: "hsl(var(--progress-carbs))",
+          fat: "hsl(var(--progress-fat))",
+          glycemic: "hsl(var(--progress-glycemic))",
         },
       },
       boxShadow: {

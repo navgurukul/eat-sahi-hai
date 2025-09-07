@@ -66,11 +66,11 @@ All colors MUST be HSL.
 
     /* Delicious progress indicators */
     --progress-bg: 113 40% 92%;
-    --calories-progress: 25 95% 62%; /* Carrot orange */
-    --protein-progress: 207 100% 38%; /* Info blue */
-    --carbs-progress: 43 96% 60%; /* Corn yellow */
-    --fat-progress: 113 85% 45%; /* Deep green */
-    --glycemic-progress: 142 76% 36%; /* Avocado green */
+    --progress-calories: 25 95% 62%; /* Carrot orange */
+    --progress-protein: 207 100% 38%; /* Info blue */
+    --progress-carbs: 43 96% 60%; /* Corn yellow */
+    --progress-fat: 113 85% 45%; /* Deep green */
+    --progress-glycemic: 142 76% 36%; /* Avocado green */
 
     --sidebar-background: 0 0% 98%;
 

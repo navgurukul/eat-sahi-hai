@@ -1,4 +1,4 @@
-import { UtensilsCrossed, ClipboardList, Timer, ChefHat, Plus } from "lucide-react";
+import { UtensilsCrossed, TrendingUp, Timer, ChefHat, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 
@@ -12,7 +12,7 @@ export function BottomNavigation({ activeTab, onTabChange }: BottomNavigationPro
   
   const tabs = [
     { id: "home", label: "Khana", icon: UtensilsCrossed },
-    { id: "history", label: "History", icon: ClipboardList },
+    { id: "insights", label: "Insights", icon: TrendingUp },
     { id: "fast", label: "Fast", icon: Timer },
     { id: "profile", label: "Profile", icon: ChefHat },
   ];

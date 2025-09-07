@@ -1,17 +1,20 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState } from 'react';
+import { startOfWeek, endOfWeek, isWithinInterval, subWeeks } from 'date-fns';
 
 export interface LoggedFoodItem {
   id: string;
   name: string;
+  emoji: string;
+  category: string;
+  portion: string;
   quantity: number;
-  portion: "bowl" | "plate" | "cup" | "piece";
   calories: number;
   protein: number;
   carbs: number;
   fat: number;
   glycemicLoad: number;
   time: string;
-  date: string;
+  date: Date;
 }
 
 export interface SelectedFoodItem {
@@ -24,7 +27,7 @@ export interface SelectedFoodItem {
   glycemicLoad: number;
   emoji: string;
   category: string;
-  portion: "bowl" | "plate" | "cup" | "piece";
+  portion: string;
   quantity: number;
 }
 
@@ -37,40 +40,100 @@ interface FoodContextType {
   updateLoggedItemQuantity: (id: string, quantity: number) => void;
   setSelectedDate: (date: Date) => void;
   getLoggedItemsForDate: (date: Date) => LoggedFoodItem[];
+  getWeekData: (weekDate: Date) => LoggedFoodItem[];
 }
 
 const FoodContext = createContext<FoodContextType | undefined>(undefined);
 
-export function FoodProvider({ children }: { children: ReactNode }) {
+export function FoodProvider({ children }: { children: React.ReactNode }) {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  
+  // Mock data for logged items - current week (incomplete) and previous week (complete)
   const [loggedItems, setLoggedItems] = useState<LoggedFoodItem[]>([
-    // Mock data to show how it looks for today
+    // Current week - only today's data
     {
-      id: "mock-1",
-      name: "Roti",
+      id: '1',
+      name: 'Roti',
+      emoji: '🫓',
+      category: 'Grains',
+      portion: '1 piece',
       quantity: 2,
-      portion: "piece",
-      calories: 160,
-      protein: 6,
-      carbs: 30,
-      fat: 2,
-      glycemicLoad: 15,
-      time: "10 minutes ago",
-      date: new Date().toDateString()
+      calories: 154,
+      protein: 5.5,
+      carbs: 29.4,
+      fat: 2.3,
+      glycemicLoad: 25,
+      time: '08:30',
+      date: new Date(),
     },
     {
-      id: "mock-2", 
-      name: "Dal",
+      id: '2',
+      name: 'Dal',
+      emoji: '🍛',
+      category: 'Legumes',
+      portion: '1 bowl',
       quantity: 1,
-      portion: "bowl",
-      calories: 120,
-      protein: 8,
-      carbs: 18,
-      fat: 1,
-      glycemicLoad: 10,
-      time: "15 minutes ago",
-      date: new Date().toDateString()
-    }
+      calories: 198,
+      protein: 14.5,
+      carbs: 32.1,
+      fat: 1.2,
+      glycemicLoad: 15,
+      time: '13:15',
+      date: new Date(),
+    },
+    // Previous week - complete data
+    ...Array.from({ length: 7 }, (_, dayIndex) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (7 + dayIndex));
+      
+      return [
+        {
+          id: `prev-${dayIndex}-1`,
+          name: 'Paratha',
+          emoji: '🥞',
+          category: 'Grains',
+          portion: '1 piece',
+          quantity: 1,
+          calories: 250 + Math.random() * 50,
+          protein: 8 + Math.random() * 4,
+          carbs: 35 + Math.random() * 10,
+          fat: 8 + Math.random() * 4,
+          glycemicLoad: 40 + Math.random() * 30,
+          time: '08:00',
+          date,
+        },
+        {
+          id: `prev-${dayIndex}-2`,
+          name: 'Chicken Curry',
+          emoji: '🍛',
+          category: 'Protein',
+          portion: '1 serving',
+          quantity: 1,
+          calories: 300 + Math.random() * 100,
+          protein: 25 + Math.random() * 10,
+          carbs: 15 + Math.random() * 10,
+          fat: 12 + Math.random() * 8,
+          glycemicLoad: 20 + Math.random() * 20,
+          time: '13:00',
+          date,
+        },
+        {
+          id: `prev-${dayIndex}-3`,
+          name: 'Rice',
+          emoji: '🍚',
+          category: 'Grains',
+          portion: '1 cup',
+          quantity: 1,
+          calories: 200 + Math.random() * 50,
+          protein: 4 + Math.random() * 2,
+          carbs: 45 + Math.random() * 10,
+          fat: 1 + Math.random() * 2,
+          glycemicLoad: 50 + Math.random() * 30,
+          time: '20:00',
+          date,
+        },
+      ];
+    }).flat(),
   ]);
 
   // Past food items for quick selection
@@ -91,61 +154,70 @@ export function FoodProvider({ children }: { children: ReactNode }) {
     const newLoggedItems: LoggedFoodItem[] = items.map(item => ({
       id: `logged-${item.id}-${Date.now()}-${Math.random()}`,
       name: item.name,
-      quantity: item.quantity,
+      emoji: item.emoji,
+      category: item.category,
       portion: item.portion,
+      quantity: item.quantity,
       calories: item.calories * item.quantity,
       protein: item.protein * item.quantity,
       carbs: item.carbs * item.quantity,
       fat: item.fat * item.quantity,
       glycemicLoad: item.glycemicLoad * item.quantity,
       time: "Just now",
-      date: date.toDateString()
+      date: date
     }));
 
     setLoggedItems(prev => [...newLoggedItems, ...prev]);
   };
 
   const removeLoggedItem = (id: string) => {
-    setLoggedItems(prev => prev.filter(item => item.id !== id));
+    setLoggedItems(items => items.filter(item => item.id !== id));
   };
 
   const updateLoggedItemQuantity = (id: string, quantity: number) => {
-    setLoggedItems(prev => prev.map(item => {
-      if (item.id === id) {
-        const baseCalories = item.calories / item.quantity;
-        const baseProtein = item.protein / item.quantity;
-        const baseCarbs = item.carbs / item.quantity;
-        const baseFat = item.fat / item.quantity;
-        const baseGlycemicLoad = item.glycemicLoad / item.quantity;
-        
-        return {
-          ...item,
-          quantity,
-          calories: baseCalories * quantity,
-          protein: baseProtein * quantity,
-          carbs: baseCarbs * quantity,
-          fat: baseFat * quantity,
-          glycemicLoad: baseGlycemicLoad * quantity,
-        };
-      }
-      return item;
-    }));
+    setLoggedItems(items =>
+      items.map(item =>
+        item.id === id
+          ? {
+              ...item,
+              quantity,
+              calories: (item.calories / item.quantity) * quantity,
+              protein: (item.protein / item.quantity) * quantity,
+              carbs: (item.carbs / item.quantity) * quantity,
+              fat: (item.fat / item.quantity) * quantity,
+              glycemicLoad: (item.glycemicLoad / item.quantity) * quantity,
+            }
+          : item
+      )
+    );
+  };
+
+  const getWeekData = (weekDate: Date) => {
+    const weekStart = startOfWeek(weekDate, { weekStartsOn: 1 });
+    const weekEnd = endOfWeek(weekDate, { weekStartsOn: 1 });
+    
+    return loggedItems.filter(item => 
+      isWithinInterval(item.date, { start: weekStart, end: weekEnd })
+    );
   };
 
   const getLoggedItemsForDate = (date: Date) => {
-    return loggedItems.filter(item => item.date === date.toDateString());
+    return loggedItems.filter(item => 
+      item.date.toDateString() === date.toDateString()
+    );
   };
 
   return (
-    <FoodContext.Provider value={{ 
-      loggedItems, 
+    <FoodContext.Provider value={{
+      loggedItems,
       pastFoodItems,
       selectedDate,
-      addLoggedItems, 
-      removeLoggedItem, 
+      addLoggedItems,
+      removeLoggedItem,
       updateLoggedItemQuantity,
       setSelectedDate,
-      getLoggedItemsForDate
+      getLoggedItemsForDate,
+      getWeekData,
     }}>
       {children}
     </FoodContext.Provider>
