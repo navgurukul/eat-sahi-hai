@@ -2,28 +2,26 @@ import { useState } from "react";
 import { MacroIndicators } from "@/components/MacroIndicators";
 import { FoodLogging } from "@/components/FoodLogging";
 import { BottomNavigation } from "@/components/BottomNavigation";
+import { DateSelector } from "@/components/DateSelector";
+import { useFoodContext } from "@/contexts/FoodContext";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
-
-  const getTimeBasedGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning! 🌅";
-    if (hour < 17) return "Good Afternoon! ☀️";
-    if (hour < 20) return "Good Evening! 🌆";
-    return "Good Night! 🌙";
-  };
+  const { selectedDate, setSelectedDate } = useFoodContext();
 
   const renderTabContent = () => {
     switch (activeTab) {
       case "home":
         return (
-          <div className="space-y-6 food-pattern-bg min-h-screen">
-            <h1 className="text-3xl font-fredoka font-semibold text-foreground text-center">
-              {getTimeBasedGreeting()}
-            </h1>
-            <MacroIndicators />
-            <FoodLogging />
+          <div className="food-pattern-bg min-h-screen">
+            <DateSelector 
+              selectedDate={selectedDate} 
+              onDateSelect={setSelectedDate} 
+            />
+            <div className="space-y-6 pt-4">
+              <MacroIndicators />
+              <FoodLogging />
+            </div>
           </div>
         );
       case "history":

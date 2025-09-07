@@ -1,26 +1,28 @@
-import { ChefHat, Trash2 } from "lucide-react";
+import { Edit2, Trash2, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFoodContext } from "@/contexts/FoodContext";
+import { useState } from "react";
 
-interface FoodItem {
+interface EditingItem {
   id: string;
-  name: string;
-  quantity: string;
-  portion: "thoda-sa" | "bharpet" | "zyada";
-  calories: number;
-  time: string;
+  quantity: number;
 }
 
 export function FoodLogging() {
-  const { loggedItems, removeLoggedItem } = useFoodContext();
+  const { selectedDate, getLoggedItemsForDate, removeLoggedItem, updateLoggedItemQuantity } = useFoodContext();
+  const [editingItem, setEditingItem] = useState<EditingItem | null>(null);
+  
+  const loggedItems = getLoggedItemsForDate(selectedDate);
 
-  const getPortionColor = (portion: string) => {
-    switch (portion) {
-      case "thoda-sa": return "text-success-foreground bg-success/20 border-success/40";
-      case "bharpet": return "text-warning-foreground bg-warning/20 border-warning/40";
-      case "zyada": return "text-destructive-foreground bg-destructive/20 border-destructive/40";
-      default: return "text-muted-foreground bg-muted border-muted-foreground/20";
+  const handleQuantityChange = (itemId: string, newQuantity: number) => {
+    if (newQuantity >= 0.5) {
+      updateLoggedItemQuantity(itemId, newQuantity);
+      setEditingItem(null);
     }
+  };
+
+  const startEditing = (itemId: string, currentQuantity: number) => {
+    setEditingItem({ id: itemId, quantity: currentQuantity });
   };
 
   return (
@@ -52,19 +54,61 @@ export function FoodLogging() {
                 transform: `perspective(600px) rotateX(${1 + index * 0.3}deg) rotateY(${-0.3 + index * 0.1}deg)`,
               }}
             >
-              <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h4 className="font-fredoka font-semibold text-lg text-card-foreground">
                       {item.name}
                     </h4>
-                    <span className={`text-xs px-3 py-1.5 rounded-full font-baloo font-semibold border-2 ${getPortionColor(item.portion)}`}>
+                    <span className="text-xs px-3 py-1.5 rounded-full font-baloo font-semibold bg-primary/10 text-primary border border-primary/20">
                       {item.portion}
                     </span>
                   </div>
-                  <p className="text-sm text-subtle-foreground mb-2 font-quicksand font-medium">
-                    {item.quantity} • <span className="text-accent font-semibold">{item.calories} cal</span>
-                  </p>
+                  
+                  {editingItem?.id === item.id ? (
+                    <div className="flex items-center gap-2 mb-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleQuantityChange(item.id, editingItem.quantity - 0.5)}
+                        disabled={editingItem.quantity <= 0.5}
+                        className="h-8 w-8 p-0 rounded-full"
+                      >
+                        <Minus className="h-3 w-3" />
+                      </Button>
+                      <span className="text-sm font-semibold min-w-[60px] text-center">
+                        {editingItem.quantity} {item.portion}
+                      </span>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleQuantityChange(item.id, editingItem.quantity + 0.5)}
+                        className="h-8 w-8 p-0 rounded-full"
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setEditingItem(null)}
+                        className="text-xs"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-subtle-foreground mb-2 font-quicksand font-medium">
+                      {item.quantity} {item.portion} • <span className="text-accent font-semibold">{Math.round(item.calories)} cal</span>
+                    </p>
+                  )}
+                  
+                  <div className="flex items-center gap-4 mb-2 text-xs">
+                    <span>P: {Math.round(item.protein)}g</span>
+                    <span>C: {Math.round(item.carbs)}g</span>
+                    <span>F: {Math.round(item.fat)}g</span>
+                    <span>GL: {Math.round(item.glycemicLoad)}</span>
+                  </div>
+                  
                   <p className="text-xs text-muted-foreground font-baloo font-medium">
                     {item.time}
                   </p>
@@ -74,9 +118,10 @@ export function FoodLogging() {
                   <Button 
                     variant="ghost" 
                     size="sm"
+                    onClick={() => startEditing(item.id, item.quantity)}
                     className="h-10 w-10 p-0 text-info hover:text-info-light hover:bg-info/20 rounded-full transition-all duration-200"
                   >
-                    <ChefHat className="h-5 w-5" />
+                    <Edit2 className="h-5 w-5" />
                   </Button>
                   <Button 
                     variant="ghost" 
