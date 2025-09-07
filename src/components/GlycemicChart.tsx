@@ -63,7 +63,7 @@ export function GlycemicChart({ data }: GlycemicChartProps) {
               <Line
                 type="monotone"
                 dataKey="glycemicLoad"
-                stroke="hsl(var(--primary))"
+                stroke="hsl(207 100% 38%)"
                 strokeWidth={2}
                 dot={false}
               />

@@ -36,13 +36,23 @@ export function FastTimer() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8">
+      {/* Fast Type Name at Top */}
+      <div className="text-center">
+        <p className="text-xl font-fredoka text-foreground mb-1">
+          {fastState.currentType.name}
+        </p>
+        <p className="text-sm text-muted-foreground max-w-xs">
+          {fastState.currentType.description}
+        </p>
+      </div>
+
       {/* Large Circular Timer */}
       <div className="relative">
         <ProgressRing
           value={getProgress()}
           max={100}
-          size={200}
-          strokeWidth={12}
+          size={220}
+          strokeWidth={16}
           color="calories"
           className="drop-shadow-lg"
         >
@@ -104,15 +114,6 @@ export function FastTimer() {
         </Button>
       </div>
 
-      {/* Fast Type Info */}
-      <div className="text-center">
-        <p className="text-lg font-fredoka text-foreground">
-          {fastState.currentType.name}
-        </p>
-        <p className="text-sm text-muted-foreground max-w-xs">
-          {fastState.currentType.description}
-        </p>
-      </div>
     </div>
   );
 }

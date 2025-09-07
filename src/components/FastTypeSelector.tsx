@@ -26,16 +26,16 @@ export function FastTypeSelector() {
         <SheetTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-between h-12 text-left font-normal"
+            className="w-full justify-between h-14 text-left font-normal border-2 border-primary/30 bg-gradient-to-r from-background to-background-secondary hover:border-primary/50 transition-all duration-200"
             disabled={fastState.isActive}
           >
             <div>
-              <div className="font-semibold">{fastState.currentType.name}</div>
-              <div className="text-xs text-muted-foreground">
+              <div className="font-fredoka font-semibold text-base">{fastState.currentType.name}</div>
+              <div className="text-xs text-muted-foreground font-quicksand">
                 {fastState.currentType.description}
               </div>
             </div>
-            <ChevronDown className="h-4 w-4 opacity-50" />
+            <ChevronDown className="h-5 w-5 opacity-70 text-primary" />
           </Button>
         </SheetTrigger>
         

@@ -54,19 +54,14 @@ export function FoodLogging() {
                 transform: `perspective(600px) rotateX(${1 + index * 0.3}deg) rotateY(${-0.3 + index * 0.1}deg)`,
               }}
             >
+              {editingItem?.id === item.id ? (
+                /* Edit Mode - Simplified */
                 <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h4 className="font-fredoka font-semibold text-lg text-card-foreground">
+                  <div className="flex-1">
+                    <h4 className="font-fredoka font-semibold text-lg text-card-foreground mb-4">
                       {item.name}
                     </h4>
-                    <span className="text-xs px-3 py-1.5 rounded-full font-baloo font-semibold bg-primary/10 text-primary border border-primary/20">
-                      {item.portion}
-                    </span>
-                  </div>
-                  
-                  {editingItem?.id === item.id ? (
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2">
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -76,7 +71,7 @@ export function FoodLogging() {
                       >
                         <Minus className="h-3 w-3" />
                       </Button>
-                      <span className="text-sm font-semibold min-w-[60px] text-center">
+                      <span className="text-sm font-semibold min-w-[80px] text-center">
                         {editingItem.quantity} {item.portion}
                       </span>
                       <Button 
@@ -87,52 +82,77 @@ export function FoodLogging() {
                       >
                         <Plus className="h-3 w-3" />
                       </Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="default" 
+                      size="sm"
+                      onClick={() => handleQuantityChange(item.id, editingItem.quantity)}
+                      className="px-4"
+                    >
+                      Save
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => setEditingItem(null)}
+                      className="px-4"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                /* Normal Mode */
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <h4 className="font-fredoka font-semibold text-lg text-card-foreground mb-2">
+                      {item.name}
+                    </h4>
+                    
+                    <div className="flex items-center gap-4 mb-2 text-xs">
+                      <span>P: {Math.round(item.protein)}g</span>
+                      <span>C: {Math.round(item.carbs)}g</span>
+                      <span>F: {Math.round(item.fat)}g</span>
+                      <span>GL: {Math.round(item.glycemicLoad)}</span>
+                    </div>
+                    
+                    <p className="text-xs text-muted-foreground font-baloo font-medium">
+                      {item.time}
+                    </p>
+                  </div>
+                  
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="text-right text-sm">
+                      <p className="text-subtle-foreground font-quicksand font-medium">
+                        {item.quantity} {item.portion}
+                      </p>
+                      <p className="text-accent font-semibold">
+                        {Math.round(item.calories)} cal
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
                       <Button 
                         variant="ghost" 
                         size="sm"
-                        onClick={() => setEditingItem(null)}
-                        className="text-xs"
+                        onClick={() => startEditing(item.id, item.quantity)}
+                        className="h-8 w-8 p-0 text-info hover:text-info-light hover:bg-info/20 rounded-full transition-all duration-200"
                       >
-                        Cancel
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => removeLoggedItem(item.id)}
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/20 rounded-full transition-all duration-200"
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
-                  ) : (
-                    <p className="text-sm text-subtle-foreground mb-2 font-quicksand font-medium">
-                      {item.quantity} {item.portion} • <span className="text-accent font-semibold">{Math.round(item.calories)} cal</span>
-                    </p>
-                  )}
-                  
-                  <div className="flex items-center gap-4 mb-2 text-xs">
-                    <span>P: {Math.round(item.protein)}g</span>
-                    <span>C: {Math.round(item.carbs)}g</span>
-                    <span>F: {Math.round(item.fat)}g</span>
-                    <span>GL: {Math.round(item.glycemicLoad)}</span>
                   </div>
-                  
-                  <p className="text-xs text-muted-foreground font-baloo font-medium">
-                    {item.time}
-                  </p>
                 </div>
-                
-                <div className="flex items-center gap-3">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => startEditing(item.id, item.quantity)}
-                    className="h-10 w-10 p-0 text-info hover:text-info-light hover:bg-info/20 rounded-full transition-all duration-200"
-                  >
-                    <Edit2 className="h-5 w-5" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => removeLoggedItem(item.id)}
-                    className="h-10 w-10 p-0 text-destructive hover:text-destructive hover:bg-destructive/20 rounded-full transition-all duration-200"
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </Button>
-                </div>
-              </div>
+              )}
             </div>
           ))}
         </div>

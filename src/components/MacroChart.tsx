@@ -59,17 +59,23 @@ export function MacroChart({ totalCalories, macros }: MacroChartProps) {
             <BarChart
               data={data}
               layout="horizontal"
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              margin={{ top: 5, right: 30, left: 60, bottom: 5 }}
             >
-              <XAxis type="number" axisLine={false} tickLine={false} />
+              <XAxis 
+                type="number" 
+                axisLine={false} 
+                tickLine={false}
+                tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+              />
               <YAxis 
                 type="category" 
                 dataKey="name" 
                 axisLine={false} 
                 tickLine={false}
                 tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
+                width={50}
               />
-              <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+              <Bar dataKey="value" radius={[0, 6, 6, 0]} maxBarSize={40}>
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
