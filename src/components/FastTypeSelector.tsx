@@ -30,7 +30,7 @@ export function FastTypeSelector() {
             disabled={fastState.isActive}
           >
             <div>
-              <div className="font-fredoka font-semibold text-base">{fastState.currentType.name}</div>
+              <div className="font-fredoka font-medium text-base">{fastState.currentType.name}</div>
               <div className="text-xs text-muted-foreground font-quicksand">
                 {fastState.currentType.description}
               </div>
@@ -56,7 +56,7 @@ export function FastTypeSelector() {
                 onClick={() => handleSelectType(type)}
               >
                 <div className="space-y-1">
-                  <div className="font-semibold">{type.name}</div>
+                  <div className="font-medium">{type.name}</div>
                   <div className="text-xs opacity-80">
                     {type.description}
                   </div>

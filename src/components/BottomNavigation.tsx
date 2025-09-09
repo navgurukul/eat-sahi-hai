@@ -60,7 +60,7 @@ export function BottomNavigation({
                   className={cn(
                     "text-[10px] xs:text-xs font-baloo font-medium leading-none truncate max-w-full",
                     isActive
-                      ? "text-primary-foreground font-semibold"
+                      ? "text-primary-foreground font-medium"
                       : "text-muted-foreground"
                   )}
                 >
@@ -105,7 +105,7 @@ export function BottomNavigation({
                   className={cn(
                     "text-[10px] xs:text-xs font-baloo font-medium leading-none truncate max-w-full",
                     isActive
-                      ? "text-primary-foreground font-semibold"
+                      ? "text-primary-foreground font-medium"
                       : "text-muted-foreground"
                   )}
                 >
