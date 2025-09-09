@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Search, Plus, Minus, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Search, Plus, Minus, Loader2, ChevronDown, ChevronUp, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -123,6 +123,12 @@ export default function FoodSelection() {
       });
       setSelectedItems(newSelected);
     }
+  };
+
+  const removeItem = (itemId: string) => {
+    const newSelected = new Map(selectedItems);
+    newSelected.delete(itemId);
+    setSelectedItems(newSelected);
   };
 
   const handleDone = async () => {
@@ -336,10 +342,21 @@ export default function FoodSelection() {
                 <div
                   key={item.id}
                   className={cn(
-                    "w-full bg-card p-4 rounded-xl border border-border/50 shadow-sm transition-all duration-300",
+                    "w-full bg-card p-4 rounded-xl border border-border/50 shadow-sm transition-all duration-300 relative",
                     isSelected && "border-primary bg-primary/5 shadow-md"
                   )}
                 >
+                  {/* Remove button - only show when item is selected */}
+                  {isSelected && (
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className="absolute top-2 right-2 p-1 rounded-full bg-destructive/10 hover:bg-destructive/20 text-destructive transition-colors group"
+                      title="Remove item"
+                    >
+                      <X className="h-3 w-3 group-hover:scale-110 transition-transform" />
+                    </button>
+                  )}
+
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-4">
                       <div className="text-3xl">{item.emoji}</div>
@@ -375,8 +392,8 @@ export default function FoodSelection() {
                         onClick={() =>
                           updateItemQuantity(item.id, quantity - 1)
                         }
-                        disabled={quantity <= 1}
                         className="h-8 w-8 p-0 rounded-full"
+                        title={quantity === 1 ? "Remove item" : "Decrease quantity"}
                       >
                         <Minus className="h-3 w-3" />
                       </Button>
