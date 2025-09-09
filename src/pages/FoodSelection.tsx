@@ -144,35 +144,50 @@ export default function FoodSelection() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-md mx-auto px-4 py-6">
+      <div className="max-w-md mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={() => navigate("/")}
-            className="p-2 rounded-xl hover:bg-accent/10 transition-colors"
-          >
-            <ArrowLeft className="h-6 w-6 text-foreground" />
-          </button>
-          <h1 className="text-xl font-fredoka font-semibold text-foreground">
-            Khana Select Karo
-          </h1>
-          <div className="w-8" />
+        <div className="sticky top-0 bg-background z-10 px-4 py-6 border-b border-border/20">
+          <div className="flex items-center justify-between mb-6">
+            <button
+              onClick={() => navigate("/")}
+              className="p-2 rounded-xl hover:bg-accent/10 transition-colors"
+            >
+              <ArrowLeft className="h-6 w-6 text-foreground" />
+            </button>
+            <h1 className="text-xl font-fredoka font-semibold text-foreground">
+              Khana Select Karo
+            </h1>
+            <div className="w-8" />
+          </div>
+
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Kya khana hai? Search karo..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 font-baloo bg-card"
+            />
+          </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Kya khana hai? Search karo..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 font-baloo bg-card"
-          />
-        </div>
+        {/* Sticky Action Button */}
+        {selectedCount > 0 && (
+          <div className="sticky top-[140px] z-20 px-4 py-3 bg-background/95 backdrop-blur-sm border-b border-border/20">
+            <Button
+              onClick={handleDone}
+              className="w-full bg-primary text-primary-foreground font-baloo font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              Khana Log Kare ({selectedCount} item
+              {selectedCount > 1 ? "s" : ""})
+            </Button>
+          </div>
+        )}
 
         {/* Food Items */}
-        <div className="space-y-3 pb-24">
-          <div className="flex items-center justify-between mb-4">
+        <div className="px-4 space-y-3 pb-24">
+          <div className="flex items-center justify-between mb-4 pt-6">
             <h2 className="text-lg font-fredoka font-semibold text-foreground">
               {searchQuery ? "Search Results 🔍" : "Khana Options 🍽️"}
             </h2>
@@ -284,21 +299,6 @@ export default function FoodSelection() {
             })
           )}
         </div>
-
-        {/* Bottom Action Button */}
-        {selectedCount > 0 && (
-          <div className="fixed bottom-20 left-0 right-0 p-4">
-            <div className="max-w-md mx-auto">
-              <Button
-                onClick={handleDone}
-                className="w-full bg-primary text-primary-foreground font-baloo font-semibold py-4 rounded-xl shadow-lg"
-              >
-                Khana Log Kare ({selectedCount} item
-                {selectedCount > 1 ? "s" : ""})
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
