@@ -67,7 +67,7 @@ export function DateSelector({
     <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/50 pb-4">
       {/* Current Date Display */}
       <div className="text-center mb-4">
-        <h2 className="text-xl font-fredoka font-medium text-foreground">
+        <h2 className="text-xl font-fredoka font-semibold text-foreground">
           {formatSelectedDate()}
         </h2>
       </div>
@@ -95,7 +95,7 @@ export function DateSelector({
               <span className="text-xs font-medium">
                 {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"][date.getDay()]}
               </span>
-              <span className="text-lg font-medium">{date.getDate()}</span>
+              <span className="text-lg font-semibold">{date.getDate()}</span>
             </button>
           );
         })}

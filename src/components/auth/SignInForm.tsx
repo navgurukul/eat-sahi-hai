@@ -49,6 +49,7 @@ export function SignInForm({ onSwitchToSignUp }: SignInFormProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center space-y-2">
+        <div className="text-4xl mb-3">🍽️</div>
         <h2 className="text-2xl font-bold text-foreground">Welcome back!</h2>
         <p className="text-muted-foreground">Track your khana journey</p>
       </div>

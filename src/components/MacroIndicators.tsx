@@ -85,7 +85,7 @@ export function MacroIndicators() {
       <div className="grid grid-cols-2 gap-4">
         {/* Calories Card */}
         <div className="bg-card p-4 rounded-xl border border-border/50 shadow-sm">
-          <h3 className="text-base font-baloo font-medium text-foreground mb-2">
+          <h3 className="text-sm font-baloo font-semibold text-foreground mb-2">
             🔥 Calories
           </h3>
           <div className="flex flex-col items-center">
@@ -105,7 +105,7 @@ export function MacroIndicators() {
 
         {/* Sugar Level Card */}
         <div className="bg-card p-4 rounded-xl border border-border/50 shadow-sm">
-          <h3 className="text-base font-baloo font-medium text-foreground mb-2">
+          <h3 className="text-sm font-baloo font-semibold text-foreground mb-2">
             🍯 Sugar Level
           </h3>
           <div className="flex flex-col items-center">
@@ -128,7 +128,7 @@ export function MacroIndicators() {
       {/* Protein, Carbs, Fat Cards */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-card p-3 rounded-xl border border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
-          <h3 className="text-base font-baloo font-medium text-foreground mb-2 text-center">
+          <h3 className="text-xs font-baloo font-semibold text-foreground mb-2 text-center">
             🥩 Protein
           </h3>
           <div className="flex flex-col items-center">
@@ -147,7 +147,7 @@ export function MacroIndicators() {
         </div>
 
         <div className="bg-card p-3 rounded-xl border border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
-          <h3 className="text-base font-baloo font-medium text-foreground mb-2 text-center">
+          <h3 className="text-xs font-baloo font-semibold text-foreground mb-2 text-center">
             🍞 Carbs
           </h3>
           <div className="flex flex-col items-center">
@@ -166,7 +166,7 @@ export function MacroIndicators() {
         </div>
 
         <div className="bg-card p-3 rounded-xl border border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
-          <h3 className="text-base font-baloo font-medium text-foreground mb-2 text-center">
+          <h3 className="text-xs font-baloo font-semibold text-foreground mb-2 text-center">
             🥑 Fat
           </h3>
           <div className="flex flex-col items-center">
@@ -190,7 +190,7 @@ export function MacroIndicators() {
         <div className="text-center">
           {macros.calories.current === 0 ? (
             <>
-              <div className="text-sm font-baloo text-muted-foreground font-medium">
+              <div className="text-sm font-baloo text-muted-foreground font-semibold">
                 Kuch khana add karo! 🍽️
               </div>
               <div className="text-xs text-muted-foreground">
@@ -199,7 +199,7 @@ export function MacroIndicators() {
             </>
           ) : macros.calories.current >= macros.calories.target ? (
             <>
-              <div className="text-sm font-baloo text-success font-medium">
+              <div className="text-sm font-baloo text-success font-semibold">
                 Pet bhar gaya! 😋
               </div>
               <div className="text-xs text-muted-foreground">
@@ -208,11 +208,12 @@ export function MacroIndicators() {
             </>
           ) : (
             <>
-              <div className="text-lg font-baloo font-bold bg-gradient-to-r from-primary to-success bg-clip-text text-transparent animate-pulse">
-                ✨ Aur khana hai! 🥗 ✨
+              <div className="text-sm font-baloo text-primary font-semibold">
+                Aur khana hai! 🥗
               </div>
-              <div className="text-sm text-foreground font-medium bg-gradient-to-r from-muted-foreground to-foreground bg-clip-text text-transparent">
-                🍽️ {macros.calories.target - macros.calories.current} kcal left for today 🍽️
+              <div className="text-xs text-muted-foreground">
+                {macros.calories.target - macros.calories.current} kcal left for
+                today
               </div>
             </>
           )}
