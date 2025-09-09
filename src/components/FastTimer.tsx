@@ -1,55 +1,83 @@
-import { Play, Pause, Square } from "lucide-react";
+import { Play, Square, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { useFastContext } from "@/contexts/FastContext";
 import { format } from "date-fns";
 
-export function FastTimer() {
-  const { fastState, startFast, stopFast } = useFastContext();
-  
+interface FastTimerProps {
+  selectedDate?: Date;
+}
+
+export function FastTimer({ selectedDate = new Date() }: FastTimerProps) {
+  const { fastState, startFast, stopFast, getFastsForDate } = useFastContext();
+
   const formatTime = (seconds: number): string => {
     if (seconds <= 0) return "00:00:00";
-    
+
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
-    
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+
+    return `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
-  const getProgress = (): number => {
-    if (!fastState.isActive || !fastState.startTime || !fastState.endTime) return 0;
-    
-    const totalDuration = fastState.endTime.getTime() - fastState.startTime.getTime();
-    const elapsed = Date.now() - fastState.startTime.getTime();
-    
-    return Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
-  };
+  const formatDuration = (minutes: number): string => {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
 
-  const handleStartStop = () => {
-    if (fastState.isActive) {
-      stopFast();
+    if (hours === 0) {
+      return `${remainingMinutes}m`;
+    } else if (remainingMinutes === 0) {
+      return `${hours}h`;
     } else {
-      startFast(fastState.currentType);
+      return `${hours}h ${remainingMinutes}m`;
     }
   };
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8">
-      {/* Fast Type Name at Top */}
-      <div className="text-center">
-        <p className="text-xl font-fredoka text-foreground mb-1">
-          {fastState.currentType.name}
-        </p>
-        <p className="text-sm text-muted-foreground max-w-xs">
-          {fastState.currentType.description}
-        </p>
-      </div>
+  // Calculate progress based on elapsed time (gradual progress)
+  const getProgressPercentage = (): number => {
+    if (!fastState.isActive || fastState.elapsedTime === 0) return 0;
 
+    // Progressive increase: 1% per minute for first 60 minutes, then slower
+    const minutes = fastState.elapsedTime / 60;
+
+    if (minutes <= 60) {
+      // 1% per minute for first hour
+      return Math.min(minutes, 60);
+    } else if (minutes <= 240) {
+      // 0.5% per minute for hours 1-4 (additional 30%)
+      return 60 + (minutes - 60) * 0.5;
+    } else {
+      // 0.25% per minute after 4 hours (slower progress)
+      return 90 + (minutes - 240) * 0.25;
+    }
+  };
+
+  const handleStartStop = async () => {
+    if (fastState.isActive) {
+      await stopFast();
+    } else {
+      await startFast(selectedDate);
+    }
+  };
+
+  const elapsedTime = fastState.elapsedTime;
+  const progressPercentage = getProgressPercentage();
+
+  // Get completed fasts for today to show last completed duration
+  const todaysFasts = getFastsForDate(new Date());
+  const lastCompletedFast = todaysFasts.find(
+    (fast) => !fast.isActive && fast.durationMinutes
+  );
+
+  return (
+    <div className="flex flex-col items-center justify-center space-y-6">
       {/* Large Circular Timer */}
       <div className="relative">
         <ProgressRing
-          value={getProgress()}
+          value={progressPercentage}
           max={100}
           size={220}
           strokeWidth={16}
@@ -58,46 +86,33 @@ export function FastTimer() {
         >
           <div className="text-center">
             <div className="text-2xl font-fredoka text-foreground mb-1">
-              {fastState.isActive ? formatTime(fastState.remainingTime) : "Ready to Fast"}
+              {fastState.isActive ? formatTime(elapsedTime) : "Ready to Fast"}
             </div>
-            {fastState.isActive && (
-              <div className="text-sm text-muted-foreground">
-                {Math.round(getProgress())}% Complete
-              </div>
-            )}
           </div>
         </ProgressRing>
       </div>
 
       {/* Timer Info */}
-      {fastState.isActive && fastState.startTime && fastState.endTime && (
+      {fastState.isActive && fastState.startTime && (
         <div className="text-center space-y-2">
-          <div className="grid grid-cols-2 gap-6 text-sm">
-            <div>
-              <p className="text-muted-foreground">Started</p>
-              <p className="font-semibold">
-                {format(fastState.startTime, 'h:mm a')}
-              </p>
-            </div>
-            <div>
-              <p className="text-muted-foreground">Ends at</p>
-              <p className="font-semibold">
-                {format(fastState.endTime, 'h:mm a')}
-              </p>
-            </div>
+          <div className="text-sm text-muted-foreground">
+            Started at {format(fastState.startTime, "h:mm a")}
+          </div>
+          <div className="text-xs text-primary font-semibold">
+            Keep going! Duration: {formatDuration(Math.floor(elapsedTime / 60))}
           </div>
         </div>
       )}
 
-      {/* Control Buttons */}
+      {/* Control Button */}
       <div className="flex space-x-4">
         <Button
           onClick={handleStartStop}
           size="lg"
           className={`px-8 py-3 font-baloo font-semibold ${
-            fastState.isActive 
-              ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' 
-              : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+            fastState.isActive
+              ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+              : "bg-primary hover:bg-primary/90 text-primary-foreground"
           }`}
         >
           {fastState.isActive ? (
@@ -113,7 +128,6 @@ export function FastTimer() {
           )}
         </Button>
       </div>
-
     </div>
   );
 }

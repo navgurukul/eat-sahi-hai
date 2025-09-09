@@ -1,28 +1,72 @@
-import { Edit2, Trash2, Plus, Minus } from "lucide-react";
+import { Edit2, Trash2, Plus, Minus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFoodContext } from "@/contexts/FoodContext";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface EditingItem {
   id: string;
   quantity: number;
+  isLoading?: boolean;
 }
 
+// Helper function to format quantity display for logged items
+const formatLoggedItemQuantity = (
+  quantity: number,
+  portionSize: string
+): string => {
+  // Extract unit name without measurements for logged items
+  const match = portionSize.match(/^(\d+(?:\.\d+)?)\s*([^-]+?)(?:\s*-\s*.+)?$/);
+  if (match) {
+    const [, , unitName] = match; // Only extract unit name, ignore base amount
+    const cleanUnitName = unitName.trim();
+    return `${quantity} ${cleanUnitName}`;
+  }
+
+  // If no number in portion, just use the quantity with portion
+  return `${quantity} ${portionSize}`;
+};
+
 export function FoodLogging() {
-  const { selectedDate, getLoggedItemsForDate, removeLoggedItem, updateLoggedItemQuantity } = useFoodContext();
+  const {
+    selectedDate,
+    getLoggedItemsForDate,
+    removeLoggedItem,
+    updateLoggedItemQuantity,
+  } = useFoodContext();
   const [editingItem, setEditingItem] = useState<EditingItem | null>(null);
-  
+
   const loggedItems = getLoggedItemsForDate(selectedDate);
 
-  const handleQuantityChange = (itemId: string, newQuantity: number) => {
-    if (newQuantity >= 0.5) {
-      updateLoggedItemQuantity(itemId, newQuantity);
+  const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity >= 1 && editingItem) {
+      // Just update the local editing state, don't save yet
+      setEditingItem({ ...editingItem, quantity: newQuantity });
+    }
+  };
+
+  const handleSave = async () => {
+    if (!editingItem) return;
+    
+    // Set loading state
+    setEditingItem(prev => prev ? { ...prev, isLoading: true } : null);
+    
+    try {
+      await updateLoggedItemQuantity(editingItem.id, editingItem.quantity);
+      toast.success("Food item updated successfully! 🎉");
       setEditingItem(null);
+    } catch (error) {
+      console.error("Error updating food item:", error);
+      toast.error("Failed to update food item. Please try again.");
+      // Reset loading state on error
+      setEditingItem(prev => prev ? { ...prev, isLoading: false } : null);
     }
   };
 
   const startEditing = (itemId: string, currentQuantity: number) => {
-    setEditingItem({ id: itemId, quantity: currentQuantity });
+    // Round to whole number if it's a decimal
+    const roundedQuantity = Math.round(currentQuantity);
+    setEditingItem({ id: itemId, quantity: roundedQuantity });
   };
 
   return (
@@ -30,7 +74,7 @@ export function FoodLogging() {
       <h2 className="text-2xl font-fredoka font-semibold text-foreground">
         Aaj ka khana log 📝
       </h2>
-      
+
       {/* Empty state or logged items */}
       {loggedItems.length === 0 ? (
         <div className="bg-card p-8 rounded-2xl border border-border/50 shadow-sm">
@@ -47,11 +91,13 @@ export function FoodLogging() {
       ) : (
         <div className="space-y-4">
           {loggedItems.map((item, index) => (
-            <div 
+            <div
               key={item.id}
               className="bg-card rounded-2xl p-5 border border-border/50 shadow-sm"
               style={{
-                transform: `perspective(600px) rotateX(${1 + index * 0.3}deg) rotateY(${-0.3 + index * 0.1}deg)`,
+                transform: `perspective(600px) rotateX(${
+                  1 + index * 0.3
+                }deg) rotateY(${-0.3 + index * 0.1}deg)`,
               }}
             >
               {editingItem?.id === item.id ? (
@@ -62,22 +108,30 @@ export function FoodLogging() {
                       {item.name}
                     </h4>
                     <div className="flex items-center gap-2">
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
-                        onClick={() => handleQuantityChange(item.id, editingItem.quantity - 0.5)}
-                        disabled={editingItem.quantity <= 0.5}
+                        onClick={() =>
+                          handleQuantityChange(editingItem.quantity - 1)
+                        }
+                        disabled={editingItem.quantity <= 1 || editingItem.isLoading}
                         className="h-8 w-8 p-0 rounded-full"
                       >
                         <Minus className="h-3 w-3" />
                       </Button>
                       <span className="text-sm font-semibold min-w-[80px] text-center">
-                        {editingItem.quantity} {item.portion}
+                        {formatLoggedItemQuantity(
+                          editingItem.quantity,
+                          item.portion
+                        )}
                       </span>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
-                        onClick={() => handleQuantityChange(item.id, editingItem.quantity + 0.5)}
+                        onClick={() =>
+                          handleQuantityChange(editingItem.quantity + 1)
+                        }
+                        disabled={editingItem.isLoading}
                         className="h-8 w-8 p-0 rounded-full"
                       >
                         <Plus className="h-3 w-3" />
@@ -85,18 +139,27 @@ export function FoodLogging() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button 
-                      variant="default" 
+                    <Button
+                      variant="default"
                       size="sm"
-                      onClick={() => handleQuantityChange(item.id, editingItem.quantity)}
+                      onClick={handleSave}
+                      disabled={editingItem.isLoading}
                       className="px-4"
                     >
-                      Save
+                      {editingItem.isLoading ? (
+                        <>
+                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        "Save"
+                      )}
                     </Button>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="sm"
                       onClick={() => setEditingItem(null)}
+                      disabled={editingItem.isLoading}
                       className="px-4"
                     >
                       Cancel
@@ -110,39 +173,39 @@ export function FoodLogging() {
                     <h4 className="font-fredoka font-semibold text-lg text-card-foreground mb-2">
                       {item.name}
                     </h4>
-                    
+
                     <div className="flex items-center gap-4 mb-2 text-xs">
-                      <span>P: {Math.round(item.protein)}g</span>
-                      <span>C: {Math.round(item.carbs)}g</span>
-                      <span>F: {Math.round(item.fat)}g</span>
+                      <span>Protein: {Math.round(item.protein)}g</span>
+                      <span>Carbs: {Math.round(item.carbs)}g</span>
+                      <span>Fat: {Math.round(item.fat)}g</span>
                       <span>GL: {Math.round(item.glycemicLoad)}</span>
                     </div>
-                    
+
                     <p className="text-xs text-muted-foreground font-baloo font-medium">
                       {item.time}
                     </p>
                   </div>
-                  
+
                   <div className="flex flex-col items-end gap-1">
                     <div className="text-right text-sm">
                       <p className="text-subtle-foreground font-quicksand font-medium">
-                        {item.quantity} {item.portion}
+                        {formatLoggedItemQuantity(item.quantity, item.portion)}
                       </p>
                       <p className="text-accent font-semibold">
                         {Math.round(item.calories)} cal
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
                         onClick={() => startEditing(item.id, item.quantity)}
                         className="h-8 w-8 p-0 text-info hover:text-info-light hover:bg-info/20 rounded-full transition-all duration-200"
                       >
                         <Edit2 className="h-4 w-4" />
                       </Button>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
                         onClick={() => removeLoggedItem(item.id)}
                         className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/20 rounded-full transition-all duration-200"
