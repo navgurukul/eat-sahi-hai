@@ -1,13 +1,23 @@
 import { Clock, CheckCircle } from "lucide-react";
 import { useFastContext } from "@/contexts/FastContext";
 import { format } from "date-fns";
+import { useEffect, useRef } from "react";
 
 interface FastHistoryProps {
   selectedDate: Date;
 }
 
 export function FastHistory({ selectedDate }: FastHistoryProps) {
-  const { getFastsForDate } = useFastContext();
+  const { getFastsForDate, fastHistory } = useFastContext();
+  const previousHistoryLength = useRef(fastHistory.length);
+
+  // Only update when history actually changes (new fast added/removed)
+  useEffect(() => {
+    if (fastHistory.length !== previousHistoryLength.current) {
+      console.log("[FastHistory] History length changed:", previousHistoryLength.current, "→", fastHistory.length);
+      previousHistoryLength.current = fastHistory.length;
+    }
+  }, [fastHistory.length]);
 
   const fastsForDate = getFastsForDate(selectedDate);
 
