@@ -85,26 +85,6 @@ const Auth = () => {
           </div>
         </div>
       </div>
-
-      {/* Mobile bottom decorative element */}
-      <div className="lg:hidden flex justify-center space-x-8 py-6 bg-muted/30">
-        <div className="text-center">
-          <div className="text-2xl mb-1">🔥</div>
-          <div className="text-xs text-muted-foreground">Calories</div>
-        </div>
-        <div className="text-center">
-          <div className="text-2xl mb-1">🍯</div>
-          <div className="text-xs text-muted-foreground">Sugar</div>
-        </div>
-        <div className="text-center">
-          <div className="text-2xl mb-1">🥩</div>
-          <div className="text-xs text-muted-foreground">Protein</div>
-        </div>
-        <div className="text-center">
-          <div className="text-2xl mb-1">🍞</div>
-          <div className="text-xs text-muted-foreground">Carbs</div>
-        </div>
-      </div>
     </div>
   );
 };

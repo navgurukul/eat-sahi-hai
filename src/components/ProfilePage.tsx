@@ -74,7 +74,7 @@ export function ProfilePage() {
     return (
       <div className="space-y-6">
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-fredoka font-semibold text-foreground">
+          <h1 className="text-2xl font-fredoka font-medium text-foreground">
             Profile 👤
           </h1>
           <p className="text-sm text-muted-foreground font-quicksand">
@@ -89,7 +89,7 @@ export function ProfilePage() {
     return (
       <div className="space-y-6">
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-fredoka font-semibold text-foreground">
+          <h1 className="text-2xl font-fredoka font-medium text-foreground">
             Profile 👤
           </h1>
           <p className="text-sm text-muted-foreground font-quicksand">
@@ -104,7 +104,7 @@ export function ProfilePage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h1 className="text-2xl font-fredoka font-semibold text-foreground">
+        <h1 className="text-2xl font-fredoka font-medium text-foreground">
           Profile 👤
         </h1>
         <p className="text-sm text-muted-foreground font-quicksand">
@@ -117,7 +117,7 @@ export function ProfilePage() {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <Avatar className="w-24 h-24">
-              <AvatarFallback className="text-2xl font-semibold bg-primary text-primary-foreground">
+              <AvatarFallback className="text-2xl font-medium bg-primary text-primary-foreground">
                 {getInitials(userProfile.fullName)}
               </AvatarFallback>
             </Avatar>
@@ -135,7 +135,7 @@ export function ProfilePage() {
                 <p className="text-sm font-medium text-muted-foreground">
                   Name
                 </p>
-                <p className="text-base font-semibold">
+                <p className="text-base font-medium">
                   {userProfile.fullName}
                 </p>
               </div>
@@ -147,7 +147,7 @@ export function ProfilePage() {
                 <p className="text-sm font-medium text-muted-foreground">
                   Email
                 </p>
-                <p className="text-base font-semibold">{userProfile.email}</p>
+                <p className="text-base font-medium">{userProfile.email}</p>
               </div>
             </div>
           </div>

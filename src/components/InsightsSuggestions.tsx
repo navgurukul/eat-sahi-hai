@@ -107,7 +107,7 @@ export function InsightsSuggestions({ weekData }: InsightsSuggestionsProps) {
               
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold text-sm">{suggestion.title}</h4>
+                  <h4 className="font-medium text-sm">{suggestion.title}</h4>
                   <Badge variant="outline" className="text-xs">
                     {suggestion.date}
                   </Badge>

@@ -71,7 +71,7 @@ export function FoodLogging() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-fredoka font-semibold text-foreground">
+      <h2 className="text-2xl font-fredoka font-medium text-foreground">
         Aaj ka khana log 📝
       </h2>
 
@@ -80,7 +80,7 @@ export function FoodLogging() {
         <div className="bg-card p-8 rounded-2xl border border-border/50 shadow-sm">
           <div className="text-center">
             <div className="text-6xl mb-4">🫗</div>
-            <h3 className="text-lg font-fredoka font-semibold text-foreground mb-2">
+            <h3 className="text-lg font-fredoka font-medium text-foreground mb-2">
               Khali pet hai abhi!
             </h3>
             <p className="text-sm text-muted-foreground font-quicksand">
@@ -104,7 +104,7 @@ export function FoodLogging() {
                 /* Edit Mode - Simplified */
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <h4 className="font-fredoka font-semibold text-lg text-card-foreground mb-4">
+                    <h4 className="font-fredoka font-medium text-lg text-card-foreground mb-4">
                       {item.name}
                     </h4>
                     <div className="flex items-center gap-2">
@@ -119,7 +119,7 @@ export function FoodLogging() {
                       >
                         <Minus className="h-3 w-3" />
                       </Button>
-                      <span className="text-sm font-semibold min-w-[80px] text-center">
+                      <span className="text-sm font-medium min-w-[80px] text-center">
                         {formatLoggedItemQuantity(
                           editingItem.quantity,
                           item.portion
@@ -170,7 +170,7 @@ export function FoodLogging() {
                 /* Normal Mode */
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <h4 className="font-fredoka font-semibold text-lg text-card-foreground mb-2">
+                    <h4 className="font-fredoka font-medium text-lg text-card-foreground mb-2">
                       {item.name}
                     </h4>
 
@@ -191,7 +191,7 @@ export function FoodLogging() {
                       <p className="text-subtle-foreground font-quicksand font-medium">
                         {formatLoggedItemQuantity(item.quantity, item.portion)}
                       </p>
-                      <p className="text-accent font-semibold">
+                      <p className="text-accent font-medium">
                         {Math.round(item.calories)} cal
                       </p>
                     </div>

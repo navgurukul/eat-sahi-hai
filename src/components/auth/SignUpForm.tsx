@@ -65,7 +65,6 @@ export function SignUpForm({ onSwitchToSignIn }: SignUpFormProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center space-y-2">
-        <div className="text-4xl mb-3">🥗</div>
         <h2 className="text-2xl font-bold text-foreground">Join Khana Track</h2>
         <p className="text-muted-foreground">
           Start your healthy eating journey

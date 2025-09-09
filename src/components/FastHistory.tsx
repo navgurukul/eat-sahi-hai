@@ -43,7 +43,7 @@ export function FastHistory({ selectedDate }: FastHistoryProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-fredoka font-semibold text-foreground">
+      <h3 className="text-lg font-fredoka font-medium text-foreground">
         Fast History - {format(selectedDate, "MMM d, yyyy")}
       </h3>
 
@@ -61,7 +61,7 @@ export function FastHistory({ selectedDate }: FastHistoryProps) {
                   ) : (
                     <CheckCircle className="h-4 w-4 text-success" />
                   )}
-                  <span className="font-fredoka font-semibold text-foreground">
+                  <span className="font-fredoka font-medium text-foreground">
                     {fast.isActive ? "Active Fast" : "Completed Fast"}
                   </span>
                 </div>

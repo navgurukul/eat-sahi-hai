@@ -98,7 +98,7 @@ export function FastTimer({ selectedDate = new Date() }: FastTimerProps) {
           <div className="text-sm text-muted-foreground">
             Started at {format(fastState.startTime, "h:mm a")}
           </div>
-          <div className="text-xs text-primary font-semibold">
+          <div className="text-xs text-primary font-medium">
             Keep going! Duration: {formatDuration(Math.floor(elapsedTime / 60))}
           </div>
         </div>
@@ -109,7 +109,7 @@ export function FastTimer({ selectedDate = new Date() }: FastTimerProps) {
         <Button
           onClick={handleStartStop}
           size="lg"
-          className={`px-8 py-3 font-baloo font-semibold ${
+          className={`px-8 py-3 font-baloo font-medium ${
             fastState.isActive
               ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground"
               : "bg-primary hover:bg-primary/90 text-primary-foreground"
