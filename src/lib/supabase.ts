@@ -28,6 +28,7 @@ export interface FoodDatabaseItem {
 // Database types for the user_food_logs table
 export interface UserFoodLogItem {
   id: number;
+  user_id: string; // Supabase Auth User ID
   food_name: string;
   emoji: string;
   category: string;
@@ -46,6 +47,7 @@ export interface UserFoodLogItem {
 // Database types for the user_fasts table
 export interface UserFastItem {
   id: number;
+  user_id: string; // Supabase Auth User ID
   fast_date: string; // Date in YYYY-MM-DD format
   start_time: string; // ISO timestamp
   end_time: string | null; // ISO timestamp or null if active

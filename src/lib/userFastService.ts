@@ -1,4 +1,5 @@
 import { supabase, UserFastItem } from "./supabase";
+import { AuthService } from "./authService";
 
 export interface FastLogItem {
   id: string;
@@ -19,6 +20,13 @@ export class UserFastService {
     notes?: string
   ): Promise<string | null> {
     try {
+      // Get current authenticated user
+      const user = await AuthService.getCurrentUser();
+      if (!user) {
+        console.error("[ERROR] No authenticated user found");
+        return null;
+      }
+
       const startTime = new Date().toISOString();
       const dateString = fastDate.toISOString().split("T")[0]; // YYYY-MM-DD format
 
@@ -26,6 +34,7 @@ export class UserFastService {
       const { data: existingFast, error: existingError } = await supabase
         .from("user_fasts")
         .select("*")
+        .eq("user_id", user.id) // Filter by current user
         .eq("fast_date", dateString)
         .eq("is_active", true)
         .maybeSingle();
@@ -41,6 +50,7 @@ export class UserFastService {
       }
 
       const fastEntry = {
+        user_id: user.id, // Add user ID to the entry
         fast_date: dateString,
         start_time: startTime,
         end_time: null,
@@ -72,6 +82,13 @@ export class UserFastService {
   // End a fast
   static async endFast(fastId: string): Promise<boolean> {
     try {
+      // Get current authenticated user
+      const user = await AuthService.getCurrentUser();
+      if (!user) {
+        console.error("[ERROR] No authenticated user found");
+        return false;
+      }
+
       const endTime = new Date().toISOString();
       const dbId = fastId.replace("db-", "");
 
@@ -82,6 +99,7 @@ export class UserFastService {
         .from("user_fasts")
         .select("start_time")
         .eq("id", dbId)
+        .eq("user_id", user.id) // Ensure user can only end their own fasts
         .maybeSingle();
 
       if (fetchError) {
@@ -110,7 +128,8 @@ export class UserFastService {
           duration_minutes: durationMinutes,
           is_active: false, // CRITICAL: Mark as inactive
         })
-        .eq("id", dbId);
+        .eq("id", dbId)
+        .eq("user_id", user.id); // Ensure user can only update their own fasts
 
       if (error) {
         console.error("Error ending fast:", error);
@@ -128,11 +147,19 @@ export class UserFastService {
   // Get fasts for a specific date
   static async getFastsForDate(date: Date): Promise<FastLogItem[]> {
     try {
+      // Get current authenticated user
+      const user = await AuthService.getCurrentUser();
+      if (!user) {
+        console.error("[ERROR] No authenticated user found");
+        return [];
+      }
+
       const dateString = date.toISOString().split("T")[0]; // YYYY-MM-DD format
 
       const { data, error } = await supabase
         .from("user_fasts")
         .select("*")
+        .eq("user_id", user.id) // Filter by current user
         .eq("fast_date", dateString)
         .order("start_time", { ascending: false });
 
@@ -168,12 +195,20 @@ export class UserFastService {
     endDate: Date
   ): Promise<FastLogItem[]> {
     try {
+      // Get current authenticated user
+      const user = await AuthService.getCurrentUser();
+      if (!user) {
+        console.error("[ERROR] No authenticated user found");
+        return [];
+      }
+
       const startDateString = startDate.toISOString().split("T")[0];
       const endDateString = endDate.toISOString().split("T")[0];
 
       const { data, error } = await supabase
         .from("user_fasts")
         .select("*")
+        .eq("user_id", user.id) // Filter by current user
         .gte("fast_date", startDateString)
         .lte("fast_date", endDateString)
         .order("start_time", { ascending: false });
@@ -207,11 +242,19 @@ export class UserFastService {
   // Get active fast for a specific date
   static async getActiveFastForDate(date: Date): Promise<FastLogItem | null> {
     try {
+      // Get current authenticated user
+      const user = await AuthService.getCurrentUser();
+      if (!user) {
+        console.error("[ERROR] No authenticated user found");
+        return null;
+      }
+
       const dateString = date.toISOString().split("T")[0];
 
       const { data, error } = await supabase
         .from("user_fasts")
         .select("*")
+        .eq("user_id", user.id) // Filter by current user
         .eq("fast_date", dateString)
         .eq("is_active", true)
         .maybeSingle();
@@ -244,13 +287,21 @@ export class UserFastService {
   // Delete a fast
   static async deleteFast(id: string): Promise<boolean> {
     try {
+      // Get current authenticated user
+      const user = await AuthService.getCurrentUser();
+      if (!user) {
+        console.error("[ERROR] No authenticated user found");
+        return false;
+      }
+
       // Extract the database ID from the prefixed ID
       const dbId = id.replace("db-", "");
 
       const { error } = await supabase
         .from("user_fasts")
         .delete()
-        .eq("id", dbId);
+        .eq("id", dbId)
+        .eq("user_id", user.id); // Ensure user can only delete their own fasts
 
       if (error) {
         console.error("Error deleting fast from database:", error);
@@ -267,12 +318,20 @@ export class UserFastService {
   // Update fast notes
   static async updateFastNotes(id: string, notes: string): Promise<boolean> {
     try {
+      // Get current authenticated user
+      const user = await AuthService.getCurrentUser();
+      if (!user) {
+        console.error("[ERROR] No authenticated user found");
+        return false;
+      }
+
       const dbId = id.replace("db-", "");
 
       const { error } = await supabase
         .from("user_fasts")
         .update({ notes })
-        .eq("id", dbId);
+        .eq("id", dbId)
+        .eq("user_id", user.id); // Ensure user can only update their own fasts
 
       if (error) {
         console.error("Error updating fast notes:", error);

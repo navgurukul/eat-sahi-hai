@@ -1,5 +1,6 @@
 import { supabase, UserFoodLogItem } from "./supabase";
 import { LoggedFoodItem, SelectedFoodItem } from "@/contexts/FoodContext";
+import { AuthService } from "./authService";
 
 export class UserFoodLogService {
   // Save logged food items to database
@@ -8,16 +9,28 @@ export class UserFoodLogService {
     loggedDate: Date
   ): Promise<boolean> {
     try {
+      // Get current authenticated user
+      const user = await AuthService.getCurrentUser();
+      if (!user) {
+        console.error("[ERROR] No authenticated user found");
+        return false;
+      }
+
       console.log("[DEBUG] saveLoggedItems called with:", {
+        userId: user.id,
         itemsCount: items.length,
         loggedDate: loggedDate.toISOString(),
-        items: items.map(item => ({ name: item.name, quantity: item.quantity }))
+        items: items.map((item) => ({
+          name: item.name,
+          quantity: item.quantity,
+        })),
       });
 
       const loggedAt = new Date().toISOString();
       const dateString = loggedDate.toISOString().split("T")[0]; // YYYY-MM-DD format
 
       const foodLogEntries = items.map((item) => ({
+        user_id: user.id, // Add user ID to each entry
         food_name: item.name,
         emoji: item.emoji,
         category: item.category,
@@ -32,7 +45,10 @@ export class UserFoodLogService {
         logged_date: dateString,
       }));
 
-      console.log("[DEBUG] Attempting to insert food log entries:", foodLogEntries);
+      console.log(
+        "[DEBUG] Attempting to insert food log entries:",
+        foodLogEntries
+      );
 
       const { error } = await supabase
         .from("user_food_logs")
@@ -54,11 +70,19 @@ export class UserFoodLogService {
   // Get logged food items for a specific date
   static async getLoggedItemsForDate(date: Date): Promise<LoggedFoodItem[]> {
     try {
+      // Get current authenticated user
+      const user = await AuthService.getCurrentUser();
+      if (!user) {
+        console.error("[ERROR] No authenticated user found");
+        return [];
+      }
+
       const dateString = date.toISOString().split("T")[0]; // YYYY-MM-DD format
 
       const { data, error } = await supabase
         .from("user_food_logs")
         .select("*")
+        .eq("user_id", user.id) // Filter by current user
         .eq("logged_date", dateString)
         .order("logged_at", { ascending: false });
 
@@ -103,12 +127,20 @@ export class UserFoodLogService {
     endDate: Date
   ): Promise<LoggedFoodItem[]> {
     try {
+      // Get current authenticated user
+      const user = await AuthService.getCurrentUser();
+      if (!user) {
+        console.error("[ERROR] No authenticated user found");
+        return [];
+      }
+
       const startDateString = startDate.toISOString().split("T")[0];
       const endDateString = endDate.toISOString().split("T")[0];
 
       const { data, error } = await supabase
         .from("user_food_logs")
         .select("*")
+        .eq("user_id", user.id) // Filter by current user
         .gte("logged_date", startDateString)
         .lte("logged_date", endDateString)
         .order("logged_at", { ascending: false });
@@ -151,13 +183,21 @@ export class UserFoodLogService {
   // Delete a logged food item
   static async deleteLoggedItem(id: string): Promise<boolean> {
     try {
+      // Get current authenticated user
+      const user = await AuthService.getCurrentUser();
+      if (!user) {
+        console.error("[ERROR] No authenticated user found");
+        return false;
+      }
+
       // Extract the database ID from the prefixed ID
       const dbId = id.replace("db-", "");
 
       const { error } = await supabase
         .from("user_food_logs")
         .delete()
-        .eq("id", dbId);
+        .eq("id", dbId)
+        .eq("user_id", user.id); // Ensure user can only delete their own items
 
       if (error) {
         console.error("Error deleting food log from database:", error);
@@ -177,6 +217,13 @@ export class UserFoodLogService {
     quantity: number
   ): Promise<boolean> {
     try {
+      // Get current authenticated user
+      const user = await AuthService.getCurrentUser();
+      if (!user) {
+        console.error("[ERROR] No authenticated user found");
+        return false;
+      }
+
       // Extract the database ID from the prefixed ID
       const dbId = id.replace("db-", "");
 
@@ -185,6 +232,7 @@ export class UserFoodLogService {
         .from("user_food_logs")
         .select("*")
         .eq("id", dbId)
+        .eq("user_id", user.id) // Ensure user can only update their own items
         .maybeSingle();
 
       if (fetchError) {
@@ -215,7 +263,8 @@ export class UserFoodLogService {
           fat_g: perUnitFat * quantity,
           glycemic_load: perUnitGL * quantity,
         })
-        .eq("id", dbId);
+        .eq("id", dbId)
+        .eq("user_id", user.id); // Ensure user can only update their own items
 
       if (updateError) {
         console.error("Error updating food log quantity:", updateError);

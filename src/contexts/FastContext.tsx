@@ -146,7 +146,42 @@ export function FastProvider({ children }: { children: React.ReactNode }) {
   };
 
   const refreshFastsFromDatabase = async () => {
-    await loadFastData();
+    try {
+      console.log("[DEBUG] Refreshing fasts from database...");
+      
+      // Get fasts for the last 30 days (always refresh, ignore local state)
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 30);
+
+      const fasts = await UserFastService.getFastsForDateRange(
+        startDate,
+        endDate
+      );
+      
+      console.log("[DEBUG] Fetched fasts from database:", fasts.length, "fasts");
+      setFastHistory(fasts);
+      
+      // Also check for any active fasts (but don't override local state if we're actively running a timer)
+      if (!fastState.isActive) {
+        const today = new Date();
+        const activeFast = await UserFastService.getActiveFastForDate(today);
+        
+        if (activeFast && activeFast.isActive) {
+          console.log("[DEBUG] Found active fast in database, resuming:", activeFast);
+          setFastState({
+            isActive: true,
+            startTime: activeFast.startTime,
+            currentFastId: activeFast.id,
+            elapsedTime: Math.floor(
+              (Date.now() - activeFast.startTime.getTime()) / 1000
+            ),
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error refreshing fast data:", error);
+    }
   };
 
   const startFast = async (fastDate: Date = new Date()) => {
@@ -202,7 +237,9 @@ export function FastProvider({ children }: { children: React.ReactNode }) {
         if (success) {
           console.log("Fast successfully stopped in database");
           // Refresh history to show the completed fast
+          console.log("[DEBUG] About to refresh fast history after stopping fast");
           await refreshFastsFromDatabase();
+          console.log("[DEBUG] Fast history refresh completed");
         } else {
           console.error("Failed to stop fast in database");
         }
@@ -248,11 +285,19 @@ export function FastProvider({ children }: { children: React.ReactNode }) {
 
   const getFastsForDate = (date: Date): FastLogItem[] => {
     const targetDateString = date.toDateString();
-
-    return fastHistory.filter((fast) => {
+    
+    console.log("[DEBUG] Getting fasts for date:", targetDateString);
+    console.log("[DEBUG] Total fasts in history:", fastHistory.length);
+    
+    const filtered = fastHistory.filter((fast) => {
       const fastDateString = fast.fastDate.toDateString();
-      return fastDateString === targetDateString;
+      const matches = fastDateString === targetDateString;
+      console.log("[DEBUG] Fast date:", fastDateString, "matches:", matches);
+      return matches;
     });
+    
+    console.log("[DEBUG] Filtered fasts for date:", filtered.length);
+    return filtered;
   };
 
   return (
