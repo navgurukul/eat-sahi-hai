@@ -8,7 +8,6 @@ import { BottomNavigation } from "@/components/BottomNavigation";
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { GlycemicChart } from "@/components/GlycemicChart";
 import { MacroChart } from "@/components/MacroChart";
-import { InsightsSuggestions } from "@/components/InsightsSuggestions";
 import { FastTimer } from "@/components/FastTimer";
 import { FastHistory } from "@/components/FastHistory";
 import { ProfileTab } from "@/components/ProfileTab";
@@ -107,8 +106,6 @@ const Index = () => {
             }}
           />
         )}
-
-        <InsightsSuggestions weekData={weekData} />
       </div>
     );
   }
