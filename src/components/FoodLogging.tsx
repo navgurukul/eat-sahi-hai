@@ -35,6 +35,27 @@ export function FoodLogging() {
     updateLoggedItemQuantity,
   } = useFoodContext();
   const [editingItem, setEditingItem] = useState<EditingItem | null>(null);
+  const [deletingItems, setDeletingItems] = useState<Set<string>>(new Set());
+
+  const handleDeleteItem = async (itemId: string) => {
+    // Add to deleting set for loading state
+    setDeletingItems(prev => new Set([...prev, itemId]));
+    
+    try {
+      await removeLoggedItem(itemId);
+      toast.success("Food item deleted successfully! 🗑️");
+    } catch (error) {
+      console.error("Error deleting food item:", error);
+      toast.error("Failed to delete food item. Please try again.");
+    } finally {
+      // Remove from deleting set
+      setDeletingItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(itemId);
+        return newSet;
+      });
+    }
+  };
 
   const loggedItems = getLoggedItemsForDate(selectedDate);
 
@@ -207,10 +228,15 @@ export function FoodLogging() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeLoggedItem(item.id)}
+                        onClick={() => handleDeleteItem(item.id)}
+                        disabled={deletingItems.has(item.id)}
                         className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/20 rounded-full transition-all duration-200"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        {deletingItems.has(item.id) ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                   </div>

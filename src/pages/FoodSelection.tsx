@@ -257,39 +257,6 @@ export default function FoodSelection() {
                     ))}
                   </div>
 
-                  {/* Nutrition Summary */}
-                  <div className="border-t border-border/50 pt-3">
-                    <h4 className="font-fredoka font-medium text-sm text-foreground mb-2">
-                      Total Nutrition:
-                    </h4>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="bg-primary/10 rounded-lg p-2 text-center">
-                        <div className="font-bold text-primary">
-                          {totals.calories}
-                        </div>
-                        <div className="text-muted-foreground">Calories</div>
-                      </div>
-                      <div className="bg-info/10 rounded-lg p-2 text-center">
-                        <div className="font-bold text-info">
-                          {totals.protein}g
-                        </div>
-                        <div className="text-muted-foreground">Protein</div>
-                      </div>
-                      <div className="bg-warning/10 rounded-lg p-2 text-center">
-                        <div className="font-bold text-warning">
-                          {totals.carbs}g
-                        </div>
-                        <div className="text-muted-foreground">Carbs</div>
-                      </div>
-                      <div className="bg-success/10 rounded-lg p-2 text-center">
-                        <div className="font-bold text-success">
-                          {totals.fat}g
-                        </div>
-                        <div className="text-muted-foreground">Fat</div>
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Confirm Button */}
                   <Button
                     onClick={handleDone}

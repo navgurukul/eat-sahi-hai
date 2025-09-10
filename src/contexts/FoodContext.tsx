@@ -435,18 +435,23 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
   };
 
   const removeLoggedItem = async (id: string) => {
-    // Try to delete from database first if it's a database item
+    // Optimistically remove from UI immediately
+    setLoggedItems((items) => items.filter((item) => item.id !== id));
+    
+    // Try to delete from database if it's a database item
     if (id.startsWith("db-")) {
-      const deletedFromDatabase = await UserFoodLogService.deleteLoggedItem(id);
-      if (deletedFromDatabase) {
-        // Refresh data from database
+      try {
+        const deletedFromDatabase = await UserFoodLogService.deleteLoggedItem(id);
+        if (!deletedFromDatabase) {
+          // If database deletion failed, revert the optimistic update
+          await refreshLoggedItemsFromDatabase();
+        }
+      } catch (error) {
+        console.error("Error deleting from database:", error);
+        // Revert the optimistic update on error
         await refreshLoggedItemsFromDatabase();
-        return;
       }
     }
-
-    // Fallback to local removal
-    setLoggedItems((items) => items.filter((item) => item.id !== id));
   };
 
   const updateLoggedItemQuantity = async (id: string, quantity: number) => {
