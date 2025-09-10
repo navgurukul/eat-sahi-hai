@@ -1,4 +1,5 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { MacroIndicators } from "@/components/MacroIndicators";
 import { FoodLogging } from "@/components/FoodLogging";
 import { TimeHeader } from "@/components/TimeHeader";
@@ -7,35 +8,66 @@ import { BottomNavigation } from "@/components/BottomNavigation";
 import { WeekNavigator } from "@/components/WeekNavigator";
 import { GlycemicChart } from "@/components/GlycemicChart";
 import { MacroChart } from "@/components/MacroChart";
-import { InsightsSuggestions } from "@/components/InsightsSuggestions";
-import { FastTypeSelector } from "@/components/FastTypeSelector";
 import { FastTimer } from "@/components/FastTimer";
+import { FastHistory } from "@/components/FastHistory";
+import { ProfileTab } from "@/components/ProfileTab";
 import { useFoodContext } from "@/contexts/FoodContext";
 import { format, startOfWeek, endOfWeek, eachDayOfInterval } from "date-fns";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("home");
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Get initial tab from URL path
+  const getInitialTab = () => {
+    const path = location.pathname;
+    if (path === "/home") return "home";
+    if (path === "/insights") return "insights";
+    if (path === "/fast") return "fast";
+    if (path === "/profile") return "profile";
+    return "home"; // Default to home for root path
+  };
+
+  const [activeTab, setActiveTab] = useState(getInitialTab());
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const { selectedDate, setSelectedDate, getWeekData } = useFoodContext();
 
+  // Update URL when tab changes
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    navigate(`/${tab}`);
+  };
+
+  // Update tab when URL changes (back/forward browser buttons)
+  useEffect(() => {
+    const newTab = getInitialTab();
+    if (newTab !== activeTab) {
+      setActiveTab(newTab);
+    }
+  }, [location.pathname]);
+
   function InsightsTab() {
     const weekData = getWeekData(currentWeek);
-    
+
     const generateGlycemicData = () => {
       const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
       const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 1 });
       const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
-      
-      return days.map(day => {
-        const dayData = weekData.filter(item => 
-          format(item.date, 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
+
+      return days.map((day) => {
+        const dayData = weekData.filter(
+          (item) =>
+            format(item.date, "yyyy-MM-dd") === format(day, "yyyy-MM-dd")
         );
-        const glycemicLoad = dayData.reduce((sum, item) => sum + (item.glycemicLoad || 0), 0);
-        
+        const glycemicLoad = dayData.reduce(
+          (sum, item) => sum + (item.glycemicLoad || 0),
+          0
+        );
+
         return {
-          date: format(day, 'yyyy-MM-dd'),
+          date: format(day, "yyyy-MM-dd"),
           glycemicLoad,
-          isHigh: glycemicLoad > 100
+          isHigh: glycemicLoad > 100,
         };
       });
     };
@@ -57,34 +89,51 @@ const Index = () => {
 
     return (
       <div className="space-y-6">
-        <WeekNavigator 
-          currentWeek={currentWeek} 
-          onWeekChange={setCurrentWeek} 
+        <WeekNavigator
+          currentWeek={currentWeek}
+          onWeekChange={setCurrentWeek}
         />
-        
+
         <GlycemicChart data={glycemicData} />
-        
+
         {weekData.length >= 3 && (
-          <MacroChart 
+          <MacroChart
             totalCalories={weeklyMacros.calories}
             macros={{
               protein: weeklyMacros.protein,
               carbs: weeklyMacros.carbs,
-              fat: weeklyMacros.fat
+              fat: weeklyMacros.fat,
             }}
           />
         )}
-        
-        <InsightsSuggestions weekData={weekData} />
       </div>
     );
   }
 
   function FastTab() {
     return (
-      <div className="space-y-6">
-        <FastTypeSelector />
-        <FastTimer />
+      <div className="space-y-4">
+        {/* Page Header */}
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl font-fredoka font-medium text-foreground">
+            Track Your Fasting Journey 🏃‍♂️
+          </h1>
+          <p className="text-sm text-muted-foreground font-quicksand">
+            Fast with confidence and track your progress
+          </p>
+        </div>
+
+        {/* Date Selector for Fast Logging */}
+        <DateSelector
+          selectedDate={selectedDate}
+          onDateSelect={setSelectedDate}
+        />
+
+        {/* Fast Timer */}
+        <FastTimer selectedDate={selectedDate} />
+
+        {/* Fast History */}
+        <FastHistory selectedDate={selectedDate} />
       </div>
     );
   }
@@ -94,9 +143,9 @@ const Index = () => {
       case "home":
         return (
           <div className="food-pattern-bg min-h-screen">
-            <DateSelector 
-              selectedDate={selectedDate} 
-              onDateSelect={setSelectedDate} 
+            <DateSelector
+              selectedDate={selectedDate}
+              onDateSelect={setSelectedDate}
             />
             <div className="space-y-6 pt-4">
               <MacroIndicators />
@@ -109,13 +158,7 @@ const Index = () => {
       case "fast":
         return <FastTab />;
       case "profile":
-        return (
-          <div className="space-y-6">
-            <div className="bg-muted/30 rounded-lg p-4 text-center">
-              <p className="text-muted-foreground">Profile view coming soon</p>
-            </div>
-          </div>
-        );
+        return <ProfileTab />;
       default:
         return null;
     }
@@ -123,10 +166,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-md mx-auto px-4 py-6">
-        {renderTabContent()}
-      </div>
-      <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <div className="max-w-md mx-auto px-4 py-6">{renderTabContent()}</div>
+      <BottomNavigation activeTab={activeTab} onTabChange={handleTabChange} />
     </div>
   );
 };
