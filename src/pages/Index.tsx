@@ -115,7 +115,7 @@ const Index = () => {
       <div className="space-y-4">
         {/* Page Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-2xl font-fredoka font-medium text-foreground">
+          <h1 className="text-2xl font-fredoka font-semibold text-foreground">
             Track Your Fasting Journey 🏃‍♂️
           </h1>
           <p className="text-sm text-muted-foreground font-quicksand">
