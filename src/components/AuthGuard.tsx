@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
-import { AuthService } from "@/lib/authService";
-import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -9,43 +7,11 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, loading } = useAuth();
   const location = useLocation();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const user = await AuthService.getCurrentUser();
-        console.log("[AuthGuard] Current user:", user);
-        setIsAuthenticated(!!user);
-      } catch (error) {
-        console.error("[AuthGuard] Auth check error:", error);
-        setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // Check auth on mount
-    checkAuth();
-
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log("[AuthGuard] Auth state changed:", event, session?.user);
-        setIsAuthenticated(!!session?.user);
-        setIsLoading(false);
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
   // Show loading state while checking authentication
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -56,7 +22,14 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
     );
   }
 
-  console.log("[AuthGuard] Auth state:", { isAuthenticated, requireAuth, path: location.pathname });
+  const isAuthenticated = !!user;
+
+  console.log("[AuthGuard] Auth state:", {
+    isAuthenticated,
+    requireAuth,
+    path: location.pathname,
+    user: user ? { id: user.id, email: user.email } : null,
+  });
 
   // If auth is required and user is not authenticated, redirect to auth
   if (requireAuth && !isAuthenticated) {

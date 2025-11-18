@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LogOut, User, Mail } from "lucide-react";
-import { AuthService } from "@/lib/authService";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 interface UserProfile {
@@ -14,45 +14,28 @@ interface UserProfile {
 
 export function ProfilePage() {
   const navigate = useNavigate();
+  const { user, signOut, loading } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
-    loadUserProfile();
-  }, []);
-
-  const loadUserProfile = async () => {
-    try {
-      const user = await AuthService.getCurrentUser();
-      if (user) {
-        setUserProfile({
-          email: user.email || "",
-          fullName:
-            user.user_metadata?.full_name ||
-            user.user_metadata?.display_name ||
-            "User",
-        });
-      }
-    } catch (error) {
-      console.error("Error loading user profile:", error);
-      // Don't redirect here - let AuthGuard handle authentication
-    } finally {
-      setIsLoading(false);
+    if (user) {
+      setUserProfile({
+        email: user.email || "",
+        fullName:
+          user.user_metadata?.full_name ||
+          user.user_metadata?.display_name ||
+          "User",
+      });
     }
-  };
+  }, [user]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      const { error } = await AuthService.signOut();
-      if (error) {
-        toast.error("Failed to log out. Please try again.");
-        console.error("Logout error:", error);
-      } else {
-        toast.success("Successfully logged out!");
-        navigate("/auth");
-      }
+      await signOut();
+      toast.success("Successfully logged out!");
+      navigate("/auth");
     } catch (error) {
       console.error("Unexpected logout error:", error);
       toast.error("An unexpected error occurred during logout.");
@@ -70,7 +53,7 @@ export function ProfilePage() {
       .substring(0, 2);
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="space-y-6">
         <div className="text-center space-y-2">
@@ -135,9 +118,7 @@ export function ProfilePage() {
                 <p className="text-sm font-medium text-muted-foreground">
                   Name
                 </p>
-                <p className="text-base font-medium">
-                  {userProfile.fullName}
-                </p>
+                <p className="text-base font-medium">{userProfile.fullName}</p>
               </div>
             </div>
 

@@ -1,5 +1,4 @@
 import { supabase, UserFastItem } from "./supabase";
-import { AuthService } from "./authService";
 
 export interface FastLogItem {
   id: string;
@@ -21,7 +20,9 @@ export class UserFastService {
   ): Promise<string | null> {
     try {
       // Get current authenticated user
-      const user = await AuthService.getCurrentUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         console.error("[ERROR] No authenticated user found");
         return null;
@@ -83,7 +84,9 @@ export class UserFastService {
   static async endFast(fastId: string): Promise<boolean> {
     try {
       // Get current authenticated user
-      const user = await AuthService.getCurrentUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         console.error("[ERROR] No authenticated user found");
         return false;
@@ -148,7 +151,9 @@ export class UserFastService {
   static async getFastsForDate(date: Date): Promise<FastLogItem[]> {
     try {
       // Get current authenticated user
-      const user = await AuthService.getCurrentUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         console.error("[ERROR] No authenticated user found");
         return [];
@@ -196,7 +201,9 @@ export class UserFastService {
   ): Promise<FastLogItem[]> {
     try {
       // Get current authenticated user
-      const user = await AuthService.getCurrentUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         console.error("[ERROR] No authenticated user found");
         return [];
@@ -243,7 +250,9 @@ export class UserFastService {
   static async getActiveFastForDate(date: Date): Promise<FastLogItem | null> {
     try {
       // Get current authenticated user
-      const user = await AuthService.getCurrentUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         console.error("[ERROR] No authenticated user found");
         return null;
@@ -288,7 +297,9 @@ export class UserFastService {
   static async deleteFast(id: string): Promise<boolean> {
     try {
       // Get current authenticated user
-      const user = await AuthService.getCurrentUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         console.error("[ERROR] No authenticated user found");
         return false;
@@ -319,7 +330,9 @@ export class UserFastService {
   static async updateFastNotes(id: string, notes: string): Promise<boolean> {
     try {
       // Get current authenticated user
-      const user = await AuthService.getCurrentUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         console.error("[ERROR] No authenticated user found");
         return false;

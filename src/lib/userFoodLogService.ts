@@ -1,6 +1,5 @@
 import { supabase, UserFoodLogItem } from "./supabase";
 import { LoggedFoodItem, SelectedFoodItem } from "@/contexts/FoodContext";
-import { AuthService } from "./authService";
 
 export class UserFoodLogService {
   // Save logged food items to database
@@ -10,7 +9,9 @@ export class UserFoodLogService {
   ): Promise<boolean> {
     try {
       // Get current authenticated user
-      const user = await AuthService.getCurrentUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         console.error("[ERROR] No authenticated user found");
         return false;
@@ -71,7 +72,9 @@ export class UserFoodLogService {
   static async getLoggedItemsForDate(date: Date): Promise<LoggedFoodItem[]> {
     try {
       // Get current authenticated user
-      const user = await AuthService.getCurrentUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         console.error("[ERROR] No authenticated user found");
         return [];
@@ -128,7 +131,9 @@ export class UserFoodLogService {
   ): Promise<LoggedFoodItem[]> {
     try {
       // Get current authenticated user
-      const user = await AuthService.getCurrentUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         console.error("[ERROR] No authenticated user found");
         return [];
@@ -184,7 +189,9 @@ export class UserFoodLogService {
   static async deleteLoggedItem(id: string): Promise<boolean> {
     try {
       // Get current authenticated user
-      const user = await AuthService.getCurrentUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         console.error("[ERROR] No authenticated user found");
         return false;
@@ -218,7 +225,9 @@ export class UserFoodLogService {
   ): Promise<boolean> {
     try {
       // Get current authenticated user
-      const user = await AuthService.getCurrentUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         console.error("[ERROR] No authenticated user found");
         return false;

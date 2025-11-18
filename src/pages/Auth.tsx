@@ -1,10 +1,13 @@
-import { useState } from "react";
-import { SignInForm } from "@/components/auth/SignInForm";
-import { SignUpForm } from "@/components/auth/SignUpForm";
+import { GoogleLoginButton } from "@/components/GoogleLoginButton";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const Auth = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
       {/* Mobile-first layout */}
@@ -77,11 +80,24 @@ const Auth = () => {
         {/* Auth Form Section */}
         <div className="lg:flex-1 flex items-center justify-center p-6 lg:p-12">
           <div className="w-full max-w-md">
-            {isSignUp ? (
-              <SignUpForm onSwitchToSignIn={() => setIsSignUp(false)} />
-            ) : (
-              <SignInForm onSwitchToSignUp={() => setIsSignUp(true)} />
-            )}
+            <Card>
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl">
+                  Welcome to Khana Track
+                </CardTitle>
+                <CardDescription>
+                  Sign in with your Google account to start tracking your
+                  nutrition
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <GoogleLoginButton />
+                <p className="text-xs text-muted-foreground text-center mt-4">
+                  By signing in, you agree to our terms of service and privacy
+                  policy.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
