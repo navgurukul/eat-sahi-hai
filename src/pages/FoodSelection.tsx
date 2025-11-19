@@ -44,7 +44,8 @@ export default function FoodSelection() {
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [modalItem, setModalItem] = useState<SelectedFoodItem | null>(null);
-  const [modalQuantity, setModalQuantity] = useState<number>(1); // supports fractions
+  const [modalQuantity, setModalQuantity] = useState<number | string>(1);
+  const numericQuantity = modalQuantity === "" ? 0 : Number(modalQuantity);
 
   const [selectedItems, setSelectedItems] = useState<
     Map<string, ItemWithQuantity>
@@ -309,15 +310,32 @@ export default function FoodSelection() {
                   <input
                     type="number"
                     step={0.5}
-                    min={0.5}
                     value={modalQuantity}
-                    onChange={(e) => setModalQuantity(Math.max(0.5, parseFloat(e.target.value || "0")))}
+                    onChange={(e) => {
+                      const value = e.target.value;
+
+                      if (value === "") {
+                        setModalQuantity("");
+                        return;
+                      }
+
+                      if (value.endsWith(".")) {
+                        setModalQuantity(value);
+                        return;
+                      }
+
+                      const num = parseFloat(value);
+                      if (!isNaN(num)) {
+                        setModalQuantity(num); 
+                      }
+                    }}
+
                     className="w-28 p-2 rounded-lg border text-center"
                   />
                   <div className="text-sm">
-                    {formatQuantityDisplay(modalQuantity, modalItem.portion)}
+                    {formatQuantityDisplay(numericQuantity, modalItem.portion)}
                     <div className="text-xs text-muted-foreground">
-                      {Math.round(modalItem.calories * modalQuantity)} cal
+                      {Math.round(modalItem.calories * numericQuantity)} cal
                     </div>
                   </div>
                 </div>
@@ -331,7 +349,7 @@ export default function FoodSelection() {
                     onClick={() => setModalQuantity(q)}
                     className={cn(
                       "px-3 py-1 rounded-lg border text-sm",
-                      modalQuantity === q ? "bg-primary/10 border-primary" : "bg-background"
+                      numericQuantity === q ? "bg-primary/10 border-primary" : "bg-background"
                     )}
                   >
                     {formatQuantityDisplay(q, modalItem.portion)}
@@ -344,13 +362,13 @@ export default function FoodSelection() {
                 <Button
                   onClick={() => {
                     // commit to selected items map
-                    updateItemQuantity(modalItem.id, modalQuantity);
+                    updateItemQuantity(modalItem.id, Math.max(0.5, numericQuantity));
                     setModalOpen(false);
                     setModalItem(null);
                   }}
                   className="flex-1 bg-primary text-primary-foreground"
                 >
-                  Add {formatQuantityDisplay(modalQuantity, modalItem.portion)}
+                  Add {formatQuantityDisplay(numericQuantity, modalItem.portion)}
                 </Button>
                 <Button
                   variant="outline"
@@ -445,21 +463,20 @@ export default function FoodSelection() {
                     <span>GL: {item.glycemicLoad}</span>
                   </div>
 
-                  {/* Quantity Selector */}
-                    <div className="flex justify-center">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setModalItem(item);
-                          setModalQuantity(1); // default starting value
-                          setModalOpen(true);
-                        }}
-                        className="font-baloo"
-                      >
-                        Add Item
-                      </Button>
-                    </div>
+                  <div className="flex justify-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setModalItem(item);
+                        setModalQuantity(1); // default starting value
+                        setModalOpen(true);
+                      }}
+                      className="font-baloo"
+                    >
+                      Add Item
+                    </Button>
+                  </div>
                 </div>
               );
             })
