@@ -1,3 +1,4 @@
+console.log("🔥 FoodSelection RENDERED");
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Search, Plus, Minus, Loader2, ChevronDown, ChevronUp, X } from "lucide-react";
@@ -7,9 +8,12 @@ import { cn } from "@/lib/utils";
 import { useFoodContext, SelectedFoodItem } from "@/contexts/FoodContext";
 import { useFoodSearch } from "@/hooks/useFoodSearch";
 import { debugSupabaseConnection } from "@/lib/debugSupabase";
+import { useRef } from "react";
+
 
 interface ItemWithQuantity extends SelectedFoodItem {
   selectedQuantity: number;
+
 }
 
 // Helper function to format quantity display dynamically
@@ -37,6 +41,11 @@ export default function FoodSelection() {
   const navigate = useNavigate();
   const { addLoggedItems, pastFoodItems, selectedDate } = useFoodContext();
   const [searchQuery, setSearchQuery] = useState("");
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalItem, setModalItem] = useState<SelectedFoodItem | null>(null);
+  const [modalQuantity, setModalQuantity] = useState<number>(1); // supports fractions
+
   const [selectedItems, setSelectedItems] = useState<
     Map<string, ItemWithQuantity>
   >(new Map());
@@ -196,7 +205,7 @@ export default function FoodSelection() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="Kya khana hai? Search karo..."
+              placeholder="Kya khana hai? Search hiiii karo..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 font-baloo bg-card"
@@ -269,6 +278,92 @@ export default function FoodSelection() {
             </div>
           </div>
         )}
+        {/* --- Quantity Modal --- */}
+        {modalOpen && modalItem && (
+          <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4">
+            <div
+              className="absolute inset-0 bg-black/40"
+              onClick={() => setModalOpen(false)}
+            />
+            <div className="relative w-full max-w-md bg-card rounded-2xl p-5 shadow-xl z-10">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="text-2xl">{modalItem.emoji}</div>
+                  <div>
+                    <h3 className="font-medium text-lg">{modalItem.name}</h3>
+                    <div className="text-xs text-muted-foreground">{modalItem.portion}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setModalOpen(false)}
+                  className="p-1 rounded-full hover:bg-border/20"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Numeric input */}
+              <div className="mb-3">
+                <label className="text-xs text-muted-foreground">Quantity</label>
+                <div className="flex items-center gap-3 mt-2">
+                  <input
+                    type="number"
+                    step={0.5}
+                    min={0.5}
+                    value={modalQuantity}
+                    onChange={(e) => setModalQuantity(Math.max(0.5, parseFloat(e.target.value || "0")))}
+                    className="w-28 p-2 rounded-lg border text-center"
+                  />
+                  <div className="text-sm">
+                    {formatQuantityDisplay(modalQuantity, modalItem.portion)}
+                    <div className="text-xs text-muted-foreground">
+                      {Math.round(modalItem.calories * modalQuantity)} cal
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Preset quick buttons */}
+              <div className="mb-4 flex flex-wrap gap-2">
+                {[0.5, 1, 1.5, 2].map((q) => (
+                  <button
+                    key={q}
+                    onClick={() => setModalQuantity(q)}
+                    className={cn(
+                      "px-3 py-1 rounded-lg border text-sm",
+                      modalQuantity === q ? "bg-primary/10 border-primary" : "bg-background"
+                    )}
+                  >
+                    {formatQuantityDisplay(q, modalItem.portion)}
+                  </button>
+                ))}
+              </div>
+
+              {/* Confirm */}
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => {
+                    // commit to selected items map
+                    updateItemQuantity(modalItem.id, modalQuantity);
+                    setModalOpen(false);
+                    setModalItem(null);
+                  }}
+                  className="flex-1 bg-primary text-primary-foreground"
+                >
+                  Add {formatQuantityDisplay(modalQuantity, modalItem.portion)}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setModalOpen(false)}
+                  className="flex-0"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {/* Food Items */}
         <div className="px-4 space-y-3 pb-24">
@@ -351,45 +446,20 @@ export default function FoodSelection() {
                   </div>
 
                   {/* Quantity Selector */}
-                  {isSelected ? (
-                    <div className="flex items-center justify-center gap-3">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          updateItemQuantity(item.id, quantity - 1)
-                        }
-                        className="h-8 w-8 p-0 rounded-full"
-                        title={quantity === 1 ? "Remove item" : "Decrease quantity"}
-                      >
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                      <span className="text-sm font-medium min-w-[80px] text-center">
-                        {formatQuantityDisplay(quantity, item.portion)}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          updateItemQuantity(item.id, quantity + 1)
-                        }
-                        className="h-8 w-8 p-0 rounded-full"
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ) : (
                     <div className="flex justify-center">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => updateItemQuantity(item.id, 1)}
+                        onClick={() => {
+                          setModalItem(item);
+                          setModalQuantity(1); // default starting value
+                          setModalOpen(true);
+                        }}
                         className="font-baloo"
                       >
                         Add Item
                       </Button>
                     </div>
-                  )}
                 </div>
               );
             })

@@ -1,8 +1,9 @@
-import { Edit2, Trash2, Plus, Minus, Loader2 } from "lucide-react";
+import { Edit2, Trash2, Plus, Minus, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFoodContext } from "@/contexts/FoodContext";
 import { useState } from "react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface EditingItem {
   id: string;
@@ -36,11 +37,14 @@ export function FoodLogging() {
   } = useFoodContext();
   const [editingItem, setEditingItem] = useState<EditingItem | null>(null);
   const [deletingItems, setDeletingItems] = useState<Set<string>>(new Set());
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalItem, setModalItem] = useState<any>(null);
+  const [modalQuantity, setModalQuantity] = useState(1);
 
   const handleDeleteItem = async (itemId: string) => {
     // Add to deleting set for loading state
     setDeletingItems(prev => new Set([...prev, itemId]));
-    
+
     try {
       await removeLoggedItem(itemId);
       toast.success("Food item deleted successfully! 🗑️");
@@ -68,10 +72,10 @@ export function FoodLogging() {
 
   const handleSave = async () => {
     if (!editingItem) return;
-    
+
     // Set loading state
     setEditingItem(prev => prev ? { ...prev, isLoading: true } : null);
-    
+
     try {
       await updateLoggedItemQuantity(editingItem.id, editingItem.quantity);
       toast.success("Food item updated successfully! 🎉");
@@ -86,8 +90,12 @@ export function FoodLogging() {
 
   const startEditing = (itemId: string, currentQuantity: number) => {
     // Round to whole number if it's a decimal
-    const roundedQuantity = Math.round(currentQuantity);
-    setEditingItem({ id: itemId, quantity: roundedQuantity });
+    const item = loggedItems.find((i) => i.id === itemId);
+    if (!item) return;
+
+    setModalItem(item);
+    setModalQuantity(currentQuantity);
+    setModalOpen(true);
   };
 
   return (
@@ -116,134 +124,152 @@ export function FoodLogging() {
               key={item.id}
               className="bg-card rounded-2xl p-5 border border-border/50 shadow-sm"
               style={{
-                transform: `perspective(600px) rotateX(${
-                  1 + index * 0.3
-                }deg) rotateY(${-0.3 + index * 0.1}deg)`,
+                transform: `perspective(600px) rotateX(${1 + index * 0.3
+                  }deg) rotateY(${-0.3 + index * 0.1}deg)`,
               }}
             >
-              {editingItem?.id === item.id ? (
-                /* Edit Mode - Simplified */
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h4 className="font-fredoka font-medium text-lg text-card-foreground mb-4">
-                      {item.name}
-                    </h4>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          handleQuantityChange(editingItem.quantity - 1)
-                        }
-                        disabled={editingItem.quantity <= 1 || editingItem.isLoading}
-                        className="h-8 w-8 p-0 rounded-full"
-                      >
-                        <Minus className="h-3 w-3" />
-                      </Button>
-                      <span className="text-sm font-medium min-w-[80px] text-center">
-                        {formatLoggedItemQuantity(
-                          editingItem.quantity,
-                          item.portion
-                        )}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          handleQuantityChange(editingItem.quantity + 1)
-                        }
-                        disabled={editingItem.isLoading}
-                        className="h-8 w-8 p-0 rounded-full"
-                      >
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h4 className="font-fredoka font-medium text-lg text-card-foreground mb-2">
+                    {item.name}
+                  </h4>
+
+                  <div className="flex items-center gap-4 mb-2 text-xs">
+                    <span>Protein: {Math.round(item.protein)}g</span>
+                    <span>Carbs: {Math.round(item.carbs)}g</span>
+                    <span>Fat: {Math.round(item.fat)}g</span>
+                    <span>GL: {Math.round(item.glycemicLoad)}</span>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground font-baloo font-medium">
+                    {item.time}
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-end gap-1">
+                  <div className="text-right text-sm">
+                    <p className="text-subtle-foreground font-quicksand font-medium">
+                      {formatLoggedItemQuantity(item.quantity, item.portion)}
+                    </p>
+                    <p className="text-accent font-medium">
+                      {Math.round(item.calories)} cal
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
-                      variant="default"
+                      variant="ghost"
                       size="sm"
-                      onClick={handleSave}
-                      disabled={editingItem.isLoading}
-                      className="px-4"
+                      onClick={() => startEditing(item.id, item.quantity)}
+                      className="h-8 w-8 p-0 text-info hover:text-info-light hover:bg-info/20 rounded-full transition-all duration-200"
                     >
-                      {editingItem.isLoading ? (
-                        <>
-                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                          Saving...
-                        </>
-                      ) : (
-                        "Save"
-                      )}
+                      <Edit2 className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setEditingItem(null)}
-                      disabled={editingItem.isLoading}
-                      className="px-4"
+                      onClick={() => handleDeleteItem(item.id)}
+                      disabled={deletingItems.has(item.id)}
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/20 rounded-full transition-all duration-200"
                     >
-                      Cancel
+                      {deletingItems.has(item.id) ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
-              ) : (
-                /* Normal Mode */
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h4 className="font-fredoka font-medium text-lg text-card-foreground mb-2">
-                      {item.name}
-                    </h4>
-
-                    <div className="flex items-center gap-4 mb-2 text-xs">
-                      <span>Protein: {Math.round(item.protein)}g</span>
-                      <span>Carbs: {Math.round(item.carbs)}g</span>
-                      <span>Fat: {Math.round(item.fat)}g</span>
-                      <span>GL: {Math.round(item.glycemicLoad)}</span>
-                    </div>
-
-                    <p className="text-xs text-muted-foreground font-baloo font-medium">
-                      {item.time}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col items-end gap-1">
-                    <div className="text-right text-sm">
-                      <p className="text-subtle-foreground font-quicksand font-medium">
-                        {formatLoggedItemQuantity(item.quantity, item.portion)}
-                      </p>
-                      <p className="text-accent font-medium">
-                        {Math.round(item.calories)} cal
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => startEditing(item.id, item.quantity)}
-                        className="h-8 w-8 p-0 text-info hover:text-info-light hover:bg-info/20 rounded-full transition-all duration-200"
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteItem(item.id)}
-                        disabled={deletingItems.has(item.id)}
-                        className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/20 rounded-full transition-all duration-200"
-                      >
-                        {deletingItems.has(item.id) ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
           ))}
+        </div>
+      )}
+      {modalOpen && modalItem && (
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setModalOpen(false)}
+          />
+          <div className="relative w-full max-w-md bg-card rounded-2xl p-5 shadow-xl z-10">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="text-2xl">{modalItem.emoji}</div>
+                <div>
+                  <h3 className="font-medium text-lg">{modalItem.name}</h3>
+                  <div className="text-xs text-muted-foreground">{modalItem.portion}</div>
+                </div>
+              </div>
+              <button
+                onClick={() => setModalOpen(false)}
+                className="p-1 rounded-full hover:bg-border/20"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Quantity input */}
+            <div className="mb-3">
+              <label className="text-xs text-muted-foreground">Quantity</label>
+              <div className="flex items-center gap-3 mt-2">
+                <input
+                  type="number"
+                  step={0.5}
+                  min={0.5}
+                  value={modalQuantity}
+                  onChange={(e) =>
+                    setModalQuantity(Math.max(0.5, parseFloat(e.target.value || "0")))
+                  }
+                  className="w-28 p-2 rounded-lg border text-center"
+                />
+                <div className="text-sm">
+                  {formatLoggedItemQuantity(modalQuantity, modalItem.portion)}
+                  <div className="text-xs text-muted-foreground">
+                    {Math.round(modalItem.calories * modalQuantity)} cal
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Presets */}
+            <div className="mb-4 flex flex-wrap gap-2">
+              {[0.5, 1, 1.5, 2].map((q) => (
+                <button
+                  key={q}
+                  onClick={() => setModalQuantity(q)}
+                  className={cn(
+                    "px-3 py-1 rounded-lg border text-sm",
+                    modalQuantity === q
+                      ? "bg-primary/10 border-primary"
+                      : "bg-background"
+                  )}
+                >
+                  {formatLoggedItemQuantity(q, modalItem.portion)}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={() => {
+                  updateLoggedItemQuantity(modalItem.id, modalQuantity);
+                  setModalOpen(false);
+                  toast.success("Food item updated!");
+                }}
+                className="flex-1 bg-primary text-primary-foreground"
+              >
+                Save {formatLoggedItemQuantity(modalQuantity, modalItem.portion)}
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={() => setModalOpen(false)}
+                className="flex-0"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
