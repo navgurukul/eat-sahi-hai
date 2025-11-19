@@ -39,7 +39,8 @@ export function FoodLogging() {
   const [deletingItems, setDeletingItems] = useState<Set<string>>(new Set());
   const [modalOpen, setModalOpen] = useState(false);
   const [modalItem, setModalItem] = useState<any>(null);
-  const [modalQuantity, setModalQuantity] = useState(1);
+  const [modalQuantity, setModalQuantity] = useState<number | string>(1);
+  const numericQuantity = modalQuantity === "" ? 0 : Number(modalQuantity);
 
   const handleDeleteItem = async (itemId: string) => {
     // Add to deleting set for loading state
@@ -215,17 +216,33 @@ export function FoodLogging() {
                 <input
                   type="number"
                   step={0.5}
-                  min={0.5}
                   value={modalQuantity}
-                  onChange={(e) =>
-                    setModalQuantity(Math.max(0.5, parseFloat(e.target.value || "0")))
-                  }
-                  className="w-28 p-2 rounded-lg border text-center"
-                />
+                  onChange={(e) => {
+                      const value = e.target.value;
+
+                      if (value === "") {
+                        setModalQuantity("");
+                        return;
+                      }
+
+                      if (value.endsWith(".")) {
+                        setModalQuantity(value);
+                        return;
+                      }
+
+                      const num = parseFloat(value);
+                      if (!isNaN(num)) {
+                        setModalQuantity(num); 
+                      }
+                    }}
+
+                    className="w-28 p-2 rounded-lg border text-center"
+                  />
+                  
                 <div className="text-sm">
-                  {formatLoggedItemQuantity(modalQuantity, modalItem.portion)}
+                  {formatLoggedItemQuantity(numericQuantity, modalItem.portion)}
                   <div className="text-xs text-muted-foreground">
-                    {Math.round(modalItem.calories * modalQuantity)} cal
+                    {Math.round(modalItem.calories * numericQuantity)} cal
                   </div>
                 </div>
               </div>
@@ -239,7 +256,7 @@ export function FoodLogging() {
                   onClick={() => setModalQuantity(q)}
                   className={cn(
                     "px-3 py-1 rounded-lg border text-sm",
-                    modalQuantity === q
+                    numericQuantity === q
                       ? "bg-primary/10 border-primary"
                       : "bg-background"
                   )}
@@ -252,13 +269,13 @@ export function FoodLogging() {
             <div className="flex gap-3">
               <Button
                 onClick={() => {
-                  updateLoggedItemQuantity(modalItem.id, modalQuantity);
+                  updateLoggedItemQuantity(modalItem.id, numericQuantity);
                   setModalOpen(false);
                   toast.success("Food item updated!");
                 }}
                 className="flex-1 bg-primary text-primary-foreground"
               >
-                Save {formatLoggedItemQuantity(modalQuantity, modalItem.portion)}
+                Save {formatLoggedItemQuantity(numericQuantity, modalItem.portion)}
               </Button>
 
               <Button
