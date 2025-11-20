@@ -19,7 +19,7 @@ const Auth = () => {
           Understand your meals with smart calorie and glycemic load insights.
         </p>
         <p className="text-lg opacity-90">
-          Pet bhar gaya? Let's keep track! 🍽️
+          Pet bhar gaya? Let's keep track!
         </p>
       </div>
 
