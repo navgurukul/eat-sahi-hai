@@ -17,16 +17,6 @@ export class UserFoodLogService {
         return false;
       }
 
-      console.log("[DEBUG] saveLoggedItems called with:", {
-        userId: user.id,
-        itemsCount: items.length,
-        loggedDate: loggedDate.toISOString(),
-        items: items.map((item) => ({
-          name: item.name,
-          quantity: item.quantity,
-        })),
-      });
-
       const loggedAt = new Date().toISOString();
       const dateString = loggedDate.toISOString().split("T")[0]; // YYYY-MM-DD format
 

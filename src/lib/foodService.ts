@@ -1,5 +1,6 @@
 import { supabase, FoodDatabaseItem } from "./supabase";
 import { SelectedFoodItem } from "@/contexts/FoodContext";
+import Fuse from "fuse.js";
 
 // Helper function to get emoji based on food name
 const getFoodEmoji = (foodName: string): string => {
@@ -87,24 +88,53 @@ const mapFoodDatabaseItemToSelectedFoodItem = (
 };
 
 export class FoodService {
+  // Fuzzy search configuration - optimized for typo tolerance
+  private static fuseOptions = {
+    keys: [
+      { name: "food_list", weight: 1.0 }, // Only search food names
+    ],
+    threshold: 0.5, // Balanced threshold for typo tolerance (0.0 = perfect, 1.0 = anything)
+    distance: 1000, // Higher distance allows more character variations
+    minMatchCharLength: 1, // Allow single character matches
+    includeScore: true,
+    includeMatches: true,
+    ignoreLocation: true, // Ignore position of match in string
+    ignoreFieldNorm: true, // Ignore field length normalization
+    useExtendedSearch: false,
+    findAllMatches: false,
+  };
+
+  // Perform fuzzy search on local data
+  private static performFuzzySearch(
+    data: FoodDatabaseItem[],
+    query: string,
+    limit: number = 20
+  ): SelectedFoodItem[] {
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    const fuse = new Fuse(data, this.fuseOptions);
+    const results = fuse.search(query);
+
+    // Sort by score (lower score = better match) and map to SelectedFoodItem
+    return results
+      .slice(0, limit)
+      .map((result) => mapFoodDatabaseItemToSelectedFoodItem(result.item));
+  }
+
   // Search foods in the database
   static async searchFoods(
     query: string,
     limit: number = 20
   ): Promise<SelectedFoodItem[]> {
     try {
-      console.log("FoodService.searchFoods called with query:", query);
-
       if (!query.trim()) {
-        console.log("Empty query, fetching all foods...");
         // If no query, return some popular items
         const { data, error } = await supabase
           .from("food_database")
           .select("*")
           .limit(limit);
-
-        console.log("Supabase response for all foods:", { data, error });
-        console.log("Raw data:", data);
 
         if (error) {
           console.error("Error fetching foods:", error);
@@ -112,23 +142,16 @@ export class FoodService {
         }
 
         if (!data || data.length === 0) {
-          console.log("No data returned from Supabase");
           return [];
         }
 
-        const mappedData =
-          data?.map(mapFoodDatabaseItemToSelectedFoodItem) || [];
-        console.log("Mapped food data:", mappedData);
-        return mappedData;
+        return data?.map(mapFoodDatabaseItemToSelectedFoodItem) || [];
       }
 
-      console.log("Searching for foods with query:", query);
-
-      // Try multiple search strategies
+      // Try multiple search strategies with fuzzy search fallback
       let data, error;
 
-      // Strategy 1: Case-insensitive partial match
-      console.log("Trying ilike search...");
+      // Strategy 1: Case-insensitive partial match (fastest, most direct)
       const result1 = await supabase
         .from("food_database")
         .select("*")
@@ -138,11 +161,27 @@ export class FoodService {
       data = result1.data;
       error = result1.error;
 
-      console.log("ilike search result:", { data, error, count: data?.length });
-
-      // Strategy 2: If no results, try case-sensitive search
+      // Strategy 2: If no results, try fuzzy search on all data
       if ((!data || data.length === 0) && !error) {
-        console.log("Trying case-sensitive like search...");
+        // Get more data for fuzzy search (we need a larger dataset to search through)
+        const allDataResult = await supabase
+          .from("food_database")
+          .select("*")
+          .limit(200); // Get more records for better fuzzy matching
+
+        if (allDataResult.data && allDataResult.data.length > 0) {
+          const fuzzyResults = this.performFuzzySearch(
+            allDataResult.data,
+            query,
+            limit
+          );
+
+          if (fuzzyResults.length > 0) {
+            return fuzzyResults;
+          }
+        }
+
+        // Strategy 3: If fuzzy search fails, try case-sensitive search
         const result2 = await supabase
           .from("food_database")
           .select("*")
@@ -151,36 +190,7 @@ export class FoodService {
 
         data = result2.data;
         error = result2.error;
-        console.log("like search result:", {
-          data,
-          error,
-          count: data?.length,
-        });
       }
-
-      // Strategy 3: If still no results, try text search (if supported)
-      if ((!data || data.length === 0) && !error) {
-        console.log("Trying text search...");
-        try {
-          const result3 = await supabase
-            .from("food_database")
-            .select("*")
-            .textSearch("food_list", query)
-            .limit(limit);
-
-          data = result3.data;
-          error = result3.error;
-          console.log("text search result:", {
-            data,
-            error,
-            count: data?.length,
-          });
-        } catch (textSearchError) {
-          console.log("Text search not supported or failed:", textSearchError);
-        }
-      }
-
-      console.log("Final search response:", { data, error });
 
       if (error) {
         console.error("Error searching foods:", error);
@@ -188,13 +198,10 @@ export class FoodService {
       }
 
       if (!data || data.length === 0) {
-        console.log("No search results found");
         return [];
       }
 
-      const mappedData = data?.map(mapFoodDatabaseItemToSelectedFoodItem) || [];
-      console.log("Mapped search results:", mappedData);
-      return mappedData;
+      return data?.map(mapFoodDatabaseItemToSelectedFoodItem) || [];
     } catch (error) {
       console.error("Error in searchFoods:", error);
       return [];
@@ -227,35 +234,10 @@ export class FoodService {
   // Get all foods (for fallback or general browsing)
   static async getAllFoods(limit: number = 50): Promise<SelectedFoodItem[]> {
     try {
-      console.log("\n=== FETCHING ALL FOODS ===");
-      console.log("Limit:", limit);
-
-      // Get total count first
-      const { count, error: countError } = await supabase
-        .from("food_database")
-        .select("*", { count: "exact", head: true });
-
-      console.log("Total records in database:", count);
-
-      if (countError) {
-        console.error("Error getting count:", countError);
-      }
-
       const { data, error } = await supabase
         .from("food_database")
         .select("*")
         .limit(limit);
-
-      console.log("getAllFoods response:", {
-        data,
-        error,
-        count: data?.length,
-      });
-
-      if (data && data.length > 0) {
-        console.log("Sample record from getAllFoods:", data[0]);
-        console.log("All field names:", Object.keys(data[0]));
-      }
 
       if (error) {
         console.error("Error fetching all foods:", error);
@@ -263,13 +245,10 @@ export class FoodService {
       }
 
       if (!data || data.length === 0) {
-        console.log("❌ NO DATA IN DATABASE - Database appears to be empty");
         return [];
       }
 
       const mappedData = data?.map(mapFoodDatabaseItemToSelectedFoodItem) || [];
-      console.log("Mapped all foods:", mappedData.length, "items");
-      console.log("First mapped item:", mappedData[0]);
       return mappedData;
     } catch (error) {
       console.error("Error in getAllFoods:", error);
