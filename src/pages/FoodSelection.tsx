@@ -57,7 +57,7 @@ const performLocalFuzzySearch = (
     ],
     threshold: 0.4,
     distance: 100,
-
+    minMatchCharLength: 1,
     includeScore: true,
   };
 
@@ -103,18 +103,23 @@ export default function FoodSelection() {
 
   // Determine which items to display
   const getDisplayItems = (): SelectedFoodItem[] => {
+    console.log("getDisplayItems called with:", {
+      searchQuery: searchQuery.trim(),
+      searchResults,
+      pastFoodItemsLength: pastFoodItems.length,
+    });
 
     if (searchQuery.trim()) {
       // If searching and Supabase data is available, use it
       if (searchResults && searchResults.length > 0) {
-
+        console.log("Using Supabase search results:", searchResults.length);
         return searchResults;
       }
 
       // Fallback to local fuzzy search if Supabase fails or has no results
       const fuzzyResults = performLocalFuzzySearch(pastFoodItems, searchQuery);
       if (fuzzyResults.length > 0) {
-
+        console.log("Using local fuzzy search results:", fuzzyResults.length);
         return fuzzyResults;
       }
 
