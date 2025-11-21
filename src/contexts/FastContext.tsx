@@ -147,8 +147,6 @@ export function FastProvider({ children }: { children: React.ReactNode }) {
 
   const refreshFastsFromDatabase = async () => {
     try {
-      console.log("[DEBUG] Refreshing fasts from database...");
-      
       // Get fasts for the last 30 days (always refresh, ignore local state)
       const endDate = new Date();
       const startDate = new Date();
@@ -158,17 +156,15 @@ export function FastProvider({ children }: { children: React.ReactNode }) {
         startDate,
         endDate
       );
-      
-      console.log("[DEBUG] Fetched", fasts.length, "fasts from database");
+
       setFastHistory(fasts);
-      
+
       // Also check for any active fasts (but don't override local state if we're actively running a timer)
       if (!fastState.isActive) {
         const today = new Date();
         const activeFast = await UserFastService.getActiveFastForDate(today);
-        
+
         if (activeFast && activeFast.isActive) {
-          console.log("[DEBUG] Found active fast in database, resuming:", activeFast.id);
           setFastState({
             isActive: true,
             startTime: activeFast.startTime,
@@ -179,8 +175,6 @@ export function FastProvider({ children }: { children: React.ReactNode }) {
           });
         }
       }
-      
-      console.log("[DEBUG] Fast history refresh completed");
     } catch (error) {
       console.error("Error refreshing fast data:", error);
     }
@@ -238,7 +232,7 @@ export function FastProvider({ children }: { children: React.ReactNode }) {
 
         if (success) {
           console.log("Fast successfully stopped in database");
-          
+
           // Always stop the local timer first to update UI immediately
           const newState = {
             isActive: false,
@@ -247,18 +241,19 @@ export function FastProvider({ children }: { children: React.ReactNode }) {
             elapsedTime: 0,
           };
           setFastState(newState);
-          
+
           // Clear from localStorage
           try {
             localStorage.removeItem(FAST_STATE_STORAGE_KEY);
           } catch (error) {
-            console.error("Error clearing fast state from localStorage:", error);
+            console.error(
+              "Error clearing fast state from localStorage:",
+              error
+            );
           }
-          
+
           // Then refresh history to show the completed fast
-          console.log("[DEBUG] About to refresh fast history after stopping fast");
           await refreshFastsFromDatabase();
-          console.log("[DEBUG] Fast history refresh completed");
         } else {
           console.error("Failed to stop fast in database");
           // Still stop local timer even if database fails
@@ -269,11 +264,14 @@ export function FastProvider({ children }: { children: React.ReactNode }) {
             elapsedTime: 0,
           };
           setFastState(newState);
-          
+
           try {
             localStorage.removeItem(FAST_STATE_STORAGE_KEY);
           } catch (error) {
-            console.error("Error clearing fast state from localStorage:", error);
+            console.error(
+              "Error clearing fast state from localStorage:",
+              error
+            );
           }
         }
       } else {
@@ -286,7 +284,7 @@ export function FastProvider({ children }: { children: React.ReactNode }) {
           elapsedTime: 0,
         };
         setFastState(newState);
-        
+
         try {
           localStorage.removeItem(FAST_STATE_STORAGE_KEY);
         } catch (error) {
@@ -314,7 +312,7 @@ export function FastProvider({ children }: { children: React.ReactNode }) {
 
   const getFastsForDate = (date: Date): FastLogItem[] => {
     const targetDateString = date.toDateString();
-    
+
     return fastHistory.filter((fast) => {
       const fastDateString = fast.fastDate.toDateString();
       return fastDateString === targetDateString;

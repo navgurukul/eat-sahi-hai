@@ -1,19 +1,25 @@
-console.log("🔥 FoodSelection RENDERED");
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Search, Plus, Minus, Loader2, ChevronDown, ChevronUp, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Search,
+  Plus,
+  Minus,
+  Loader2,
+  ChevronDown,
+  ChevronUp,
+  X,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useFoodContext, SelectedFoodItem } from "@/contexts/FoodContext";
 import { useFoodSearch } from "@/hooks/useFoodSearch";
-import { debugSupabaseConnection } from "@/lib/debugSupabase";
-import { useRef } from "react";
 
+import Fuse from "fuse.js";
 
 interface ItemWithQuantity extends SelectedFoodItem {
   selectedQuantity: number;
-
 }
 
 // Helper function to format quantity display dynamically
@@ -35,6 +41,34 @@ const formatQuantityDisplay = (
 
   // If no number in portion, just multiply the quantity
   return `${quantity} × ${portionSize}`;
+};
+
+// Local fuzzy search helper function
+const performLocalFuzzySearch = (
+  items: SelectedFoodItem[],
+  query: string
+): SelectedFoodItem[] => {
+  if (!query.trim() || items.length === 0) return [];
+
+  const fuseOptions = {
+    keys: [
+      { name: "name", weight: 0.8 },
+      { name: "category", weight: 0.2 },
+    ],
+    threshold: 0.4,
+    distance: 100,
+    minMatchCharLength: 1,
+    includeScore: true,
+  };
+
+  const fuse = new Fuse(items, fuseOptions);
+  const results = fuse.search(query);
+
+  console.log(
+    `Local fuzzy search for "${query}" found ${results.length} results`
+  );
+
+  return results.slice(0, 10).map((result) => result.item);
 };
 
 export default function FoodSelection() {
@@ -59,17 +93,6 @@ export default function FoodSelection() {
     error: searchError,
   } = useFoodSearch(searchQuery);
 
-  // Debug Supabase connection on component mount
-  useEffect(() => {
-    const testConnection = async () => {
-      console.log("=== SUPABASE DEBUG SESSION ===");
-      const result = await debugSupabaseConnection();
-      console.log("Supabase debug result:", result);
-      console.log("=== END DEBUG SESSION ===");
-    };
-    testConnection();
-  }, []);
-
   // Debug search results
   // useEffect(() => {
   //   console.log("Search query:", searchQuery);
@@ -92,11 +115,19 @@ export default function FoodSelection() {
         console.log("Using Supabase search results:", searchResults.length);
         return searchResults;
       }
-      // Fallback to local filtered data if Supabase fails or has no results
+
+      // Fallback to local fuzzy search if Supabase fails or has no results
+      const fuzzyResults = performLocalFuzzySearch(pastFoodItems, searchQuery);
+      if (fuzzyResults.length > 0) {
+        console.log("Using local fuzzy search results:", fuzzyResults.length);
+        return fuzzyResults;
+      }
+
+      // Final fallback to exact local search
       const filteredLocal = pastFoodItems.filter((item) =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      console.log("Using local filtered data:", filteredLocal.length);
+      console.log("Using local exact search fallback:", filteredLocal.length);
       return filteredLocal;
     }
 
@@ -292,7 +323,9 @@ export default function FoodSelection() {
                   <div className="text-2xl">{modalItem.emoji}</div>
                   <div>
                     <h3 className="font-medium text-lg">{modalItem.name}</h3>
-                    <div className="text-xs text-muted-foreground">{modalItem.portion}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {modalItem.portion}
+                    </div>
                   </div>
                 </div>
                 <button
@@ -305,7 +338,9 @@ export default function FoodSelection() {
 
               {/* Numeric input */}
               <div className="mb-3">
-                <label className="text-xs text-muted-foreground">Quantity</label>
+                <label className="text-xs text-muted-foreground">
+                  Quantity
+                </label>
                 <div className="flex items-center gap-3 mt-2">
                   <input
                     type="number"
@@ -326,10 +361,9 @@ export default function FoodSelection() {
 
                       const num = parseFloat(value);
                       if (!isNaN(num)) {
-                        setModalQuantity(num); 
+                        setModalQuantity(num);
                       }
                     }}
-
                     className="w-28 p-2 rounded-lg border text-center"
                   />
                   <div className="text-sm">
@@ -349,7 +383,9 @@ export default function FoodSelection() {
                     onClick={() => setModalQuantity(q)}
                     className={cn(
                       "px-3 py-1 rounded-lg border text-sm",
-                      numericQuantity === q ? "bg-primary/10 border-primary" : "bg-background"
+                      numericQuantity === q
+                        ? "bg-primary/10 border-primary"
+                        : "bg-background"
                     )}
                   >
                     {formatQuantityDisplay(q, modalItem.portion)}
@@ -361,13 +397,18 @@ export default function FoodSelection() {
               <div className="flex gap-3">
                 <Button
                   onClick={() => {
-                    updateItemQuantity(modalItem.id, Math.max(0.5, numericQuantity));
+                    // commit to selected items map
+                    updateItemQuantity(
+                      modalItem.id,
+                      Math.max(0.5, numericQuantity)
+                    );
                     setModalOpen(false);
                     setModalItem(null);
                   }}
                   className="flex-1 bg-primary text-primary-foreground"
                 >
-                  Add {formatQuantityDisplay(numericQuantity, modalItem.portion)}
+                  Add{" "}
+                  {formatQuantityDisplay(numericQuantity, modalItem.portion)}
                 </Button>
                 <Button
                   variant="outline"
@@ -380,7 +421,6 @@ export default function FoodSelection() {
             </div>
           </div>
         )}
-
 
         {/* Food Items */}
         <div className="px-4 space-y-3 pb-24">

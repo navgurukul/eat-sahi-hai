@@ -6,99 +6,56 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import nutritionHero from "@/assets/nutrition-hero.png";
 
 const Auth = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
-      {/* Mobile-first layout */}
-      <div className="flex flex-col lg:flex-row min-h-screen">
-        {/* Hero Section */}
-        <div className="lg:flex-1 relative overflow-hidden">
-          {/* Background with Food Pattern */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/80 to-success/70">
-            {/* Food pattern overlay */}
-            <div className="absolute inset-0 opacity-20">
-              <div className="text-6xl absolute top-10 left-10 rotate-12">
-                🍎
-              </div>
-              <div className="text-4xl absolute top-32 right-20 -rotate-12">
-                🥕
-              </div>
-              <div className="text-5xl absolute bottom-40 left-16 rotate-45">
-                🥗
-              </div>
-              <div className="text-3xl absolute bottom-20 right-12 -rotate-45">
-                🍇
-              </div>
-              <div className="text-4xl absolute top-1/2 left-1/3 rotate-12">
-                🍊
-              </div>
-              <div className="text-5xl absolute top-1/3 right-1/3 -rotate-12">
-                🥦
-              </div>
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      {/* Green Header Section - Mobile First */}
+      <div className="bg-green-500 text-white text-center px-6 py-16">
+        <h1 className="text-4xl font-medium mb-4">Khana Track</h1>
+        <p className="text-xl mb-2">Track your daily nutrition</p>
+        <p className="text-base mb-3">
+          Understand your meals with smart calorie and glycemic load insights.
+        </p>
+        <p className="text-lg opacity-90">
+          Pet bhar gaya? Let's keep track!
+        </p>
+      </div>
+
+      {/* Main Content Area - Overlapping Card */}
+      <div className="flex-1 flex items-start justify-center px-4 -mt-20">
+        <div className="w-full max-w-md">
+          <Card className="bg-white shadow-lg border-0 rounded-3xl overflow-hidden">
+            {/* Nutrition Hero Image - Larger Size */}
+            <div className="flex justify-center pt-8 pb-4">
+              <img
+                src={nutritionHero}
+                alt="Nutrition tracking illustration"
+                className="w-64 h-48 object-contain"
+              />
             </div>
-          </div>
 
-          {/* Content */}
-          <div className="relative z-10 flex flex-col justify-center items-center h-48 lg:h-full p-6 text-center">
-            <div className="max-w-md">
-              <h1 className="text-3xl lg:text-5xl font-bold text-white mb-4">
-                Khana Track
-              </h1>
-              <p className="text-lg lg:text-xl text-white/90 mb-2">
-                Track your daily nutrition
+            <CardHeader className="text-center px-8 pb-2">
+              <CardTitle className="text-2xl font-medium text-gray-900 mb-3">
+                Welcome to Khana Track
+              </CardTitle>
+              <CardDescription className="text-gray-600 text-base">
+                Sign in with your Google account to start tracking your
+                nutrition
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="px-8 pb-8">
+              <GoogleLoginButton />
+              <p className="text-center text-gray-700 mt-4 text-sm">
+                Healthy rehna hai? Chalo{" "}
+                <span className="font-bold text-green-500">track karein</span>
               </p>
-              <p className="text-sm lg:text-base text-white/80">
-                Pet bhar gaya? Let's keep track! 🍽️
-              </p>
+            </CardContent>
+          </Card>
 
-              {/* Feature highlights */}
-              <div className="hidden lg:flex flex-col space-y-4 mt-8">
-                <div className="flex items-center space-x-3 text-white/90">
-                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                    🔥
-                  </div>
-                  <span>Track calories and nutrition</span>
-                </div>
-                <div className="flex items-center space-x-3 text-white/90">
-                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                    📊
-                  </div>
-                  <span>Monitor sugar levels</span>
-                </div>
-                <div className="flex items-center space-x-3 text-white/90">
-                  <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                    🥗
-                  </div>
-                  <span>Log your daily meals</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Auth Form Section */}
-        <div className="lg:flex-1 flex items-center justify-center p-6 lg:p-12">
-          <div className="w-full max-w-md">
-            <Card>
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl">
-                  Welcome to Khana Track
-                </CardTitle>
-                <CardDescription>
-                  Sign in with your Google account to start tracking your
-                  nutrition
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <GoogleLoginButton />
-                <p className="text-xs text-muted-foreground text-center mt-4">
-                  By signing in, you agree to our terms of service and privacy
-                  policy.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+       
         </div>
       </div>
     </div>
