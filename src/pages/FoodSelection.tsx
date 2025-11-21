@@ -361,7 +361,6 @@ export default function FoodSelection() {
               <div className="flex gap-3">
                 <Button
                   onClick={() => {
-                    // commit to selected items map
                     updateItemQuantity(modalItem.id, Math.max(0.5, numericQuantity));
                     setModalOpen(false);
                     setModalItem(null);
