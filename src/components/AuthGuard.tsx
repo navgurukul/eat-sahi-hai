@@ -40,7 +40,7 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
   // If auth is not required (auth page) and user is authenticated, redirect to home
   if (!requireAuth && isAuthenticated) {
     console.log("[AuthGuard] Redirecting to home - user is authenticated");
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/onboarding" replace />;
   }
 
   return <>{children}</>;

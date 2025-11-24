@@ -6,9 +6,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Navigate } from "react-router-dom";
 import nutritionHero from "@/assets/nutrition-hero.png";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Auth = () => {
+
+  const { user, loading } = useAuth();
+
+  if (loading) return <p>Loading...</p>;
+
+  if (user) {
+  return <Navigate to="/onboarding" replace state={{ user }} />;
+}
+
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       {/* Green Header Section - Mobile First */}
@@ -55,7 +66,7 @@ const Auth = () => {
             </CardContent>
           </Card>
 
-       
+
         </div>
       </div>
     </div>
@@ -63,3 +74,4 @@ const Auth = () => {
 };
 
 export default Auth;
+

@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import FoodSelection from "./pages/FoodSelection";
 import NotFound from "./pages/NotFound";
+import Onboarding from "./pages/Onboarding";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,14 @@ const App = () => (
                   element={
                     <AuthGuard>
                       <FoodSelection />
+                    </AuthGuard>
+                  }
+                />
+                <Route
+                  path="/onboarding"
+                  element={
+                    <AuthGuard>
+                      <Onboarding/>
                     </AuthGuard>
                   }
                 />
