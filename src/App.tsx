@@ -11,7 +11,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import FoodSelection from "./pages/FoodSelection";
 import NotFound from "./pages/NotFound";
-import Onboarding from "./pages/Onboarding";
+import Onboarding from "./pages/onboarding/Onboarding";
 
 const queryClient = new QueryClient();
 
