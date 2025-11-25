@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { startOfWeek, endOfWeek, isWithinInterval, subWeeks } from "date-fns";
 import { useAllFoods } from "@/hooks/useFoodSearch";
 import { UserFoodLogService } from "@/lib/userFoodLogService";
+import { UserProfileService } from "@/lib/userProfileService";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Storage key for localStorage (fallback)
 const LOGGED_ITEMS_STORAGE_KEY = "eat-sahi-hai-logged-items";
@@ -53,7 +55,6 @@ interface FoodContextType {
 
 const FoodContext = createContext<FoodContextType | undefined>(undefined);
 
-
 const loadLoggedItemsFromStorage = (): LoggedFoodItem[] => {
   try {
     const stored = localStorage.getItem(LOGGED_ITEMS_STORAGE_KEY);
@@ -79,7 +80,6 @@ const saveLoggedItemsToStorage = (items: LoggedFoodItem[]) => {
     console.error("Failed to save logged items to localStorage:", error);
   }
 };
-
 
 const getInitialLoggedItems = (): LoggedFoodItem[] => {
   // Load from localStorage first
@@ -154,16 +154,36 @@ const getInitialLoggedItems = (): LoggedFoodItem[] => {
 
 export function FoodProvider({ children }: { children: React.ReactNode }) {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  // This will come from Onboarding later
- const [dailyCaloriesTarget, setDailyCaloriesTarget] = useState<number>(() => {
-  const saved = localStorage.getItem("dailyCaloriesTarget");
-  return saved ? parseInt(saved, 10) : 2000;
-});
+  const { user } = useAuth();
 
-useEffect(() => {
-  localStorage.setItem("dailyCaloriesTarget", dailyCaloriesTarget.toString());
-}, [dailyCaloriesTarget]);
+  // Load daily calorie target from user profile or fallback to localStorage
+  const [dailyCaloriesTarget, setDailyCaloriesTarget] = useState<number>(() => {
+    const saved = localStorage.getItem("dailyCaloriesTarget");
+    return saved ? parseInt(saved, 10) : 2000;
+  });
 
+  // Load user profile and set calorie target when user is authenticated
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (user) {
+        try {
+          const profile = await UserProfileService.getUserProfile();
+          if (profile && profile.daily_calories_target) {
+            setDailyCaloriesTarget(profile.daily_calories_target);
+          }
+        } catch (error) {
+          console.error("Error loading user profile:", error);
+        }
+      }
+    };
+
+    loadUserProfile();
+  }, [user]);
+
+  // Save to localStorage when target changes (for offline access)
+  useEffect(() => {
+    localStorage.setItem("dailyCaloriesTarget", dailyCaloriesTarget.toString());
+  }, [dailyCaloriesTarget]);
 
   // Fetch foods from Supabase (with React Query caching)
   const { data: supabaseFoods } = useAllFoods();
@@ -172,7 +192,6 @@ useEffect(() => {
   const [loggedItems, setLoggedItems] = useState<LoggedFoodItem[]>(
     getInitialLoggedItems
   );
-
 
   // Save to localStorage whenever loggedItems change (fallback persistence)
   useEffect(() => {
@@ -456,7 +475,9 @@ useEffect(() => {
     // Try to delete from database if it's a database item
     if (id.startsWith("db-")) {
       try {
-        const deletedFromDatabase = await UserFoodLogService.deleteLoggedItem(id);
+        const deletedFromDatabase = await UserFoodLogService.deleteLoggedItem(
+          id
+        );
         if (!deletedFromDatabase) {
           // If database deletion failed, revert the optimistic update
           await refreshLoggedItemsFromDatabase();
@@ -486,14 +507,14 @@ useEffect(() => {
       items.map((item) =>
         item.id === id
           ? {
-            ...item,
-            quantity,
-            calories: (item.calories / item.quantity) * quantity,
-            protein: (item.protein / item.quantity) * quantity,
-            carbs: (item.carbs / item.quantity) * quantity,
-            fat: (item.fat / item.quantity) * quantity,
-            glycemicLoad: (item.glycemicLoad / item.quantity) * quantity,
-          }
+              ...item,
+              quantity,
+              calories: (item.calories / item.quantity) * quantity,
+              protein: (item.protein / item.quantity) * quantity,
+              carbs: (item.carbs / item.quantity) * quantity,
+              fat: (item.fat / item.quantity) * quantity,
+              glycemicLoad: (item.glycemicLoad / item.quantity) * quantity,
+            }
           : item
       )
     );
@@ -548,5 +569,3 @@ export const useFoodContext = () => {
   }
   return context;
 };
-
-

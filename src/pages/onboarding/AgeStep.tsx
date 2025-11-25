@@ -19,17 +19,22 @@ export default function AgeStep({ age, updateAge }: AgeStepProps) {
         <img src={AgeIcon} alt="User" className="h-32 w-32 object-contain" />
       </div>
 
-      <div className="max-w-sm mx-auto relative ">
-        <Input
-          type="number"
-          placeholder="Enter your age"
-          value={age}
-          onChange={(e) => updateAge(e.target.value)}
-          className="text-center text-l h-16 border-2 focus:border-primary"
-        />
-        <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">
-          years
-        </span>
+      <div className="max-w-sm mx-auto">
+        <div className="relative">
+          <Input
+            type="number"
+            placeholder="Enter your age"
+            value={age}
+            onChange={(e) => updateAge(e.target.value)}
+            className="text-center text-l h-16 border-2 focus:border-primary"
+            min="1"
+            max="149"
+          />
+          <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">
+            years
+          </span>
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">Age should be between 1-149 years</p>
       </div>
     </div>
   );

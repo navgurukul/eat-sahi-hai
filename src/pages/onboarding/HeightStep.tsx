@@ -56,31 +56,41 @@ export default function HeightStep({
             value={heightCm}
             onChange={(e) => updateHeightCm(e.target.value)}
             className="text-center text-l h-16 border-2 focus:border-primary"
+            min="50"
+            max="300"
           />
           <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">cm</span>
+          <p className="text-xs text-muted-foreground mt-1">Height should be between 50-300 cm</p>
         </div>
       ) : (
-        <div className="flex justify-center gap-4 max-w-sm mx-auto">
-          <div className="relative flex-1">
-            <Input
-              type="number"
-              placeholder="Feet"
-              value={heightFeet}
-              onChange={(e) => updateHeightFeet(e.target.value)}
-              className="text-center text-2xl h-16 border-2 focus:border-primary"
-            />
-            <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">ft</span>
+        <div className="max-w-sm mx-auto">
+          <div className="flex justify-center gap-4">
+            <div className="relative flex-1">
+              <Input
+                type="number"
+                placeholder="Feet"
+                value={heightFeet}
+                onChange={(e) => updateHeightFeet(e.target.value)}
+                className="text-center text-2xl h-16 border-2 focus:border-primary"
+                min="1"
+                max="9"
+              />
+              <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">ft</span>
+            </div>
+            <div className="relative flex-1">
+              <Input
+                type="number"
+                placeholder="Inches"
+                value={heightInch}
+                onChange={(e) => updateHeightInch(e.target.value)}
+                className="text-center text-2xl h-16 border-2 focus:border-primary"
+                min="0"
+                max="11"
+              />
+              <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">in</span>
+            </div>
           </div>
-          <div className="relative flex-1">
-            <Input
-              type="number"
-              placeholder="Inches"
-              value={heightInch}
-              onChange={(e) => updateHeightInch(e.target.value)}
-              className="text-center text-2xl h-16 border-2 focus:border-primary"
-            />
-            <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">in</span>
-          </div>
+          <p className="text-xs text-muted-foreground mt-1">Height should be between 1'8" - 9'10"</p>
         </div>
       )}
     </div>

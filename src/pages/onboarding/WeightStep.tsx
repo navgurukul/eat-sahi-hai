@@ -45,30 +45,39 @@ export default function WeightStep({
         </button>
       </div>
 
-      <div className="max-w-sm mx-auto relative">
-        {weightUnit === "kg" ? (
-          <>
-            <Input
-              type="number"
-              placeholder="Enter your weight in kg"
-              value={weightKg}
-              onChange={(e) => updateWeightKg(e.target.value)}
-              className="text-center text-l h-16 border-2 focus:border-primary"
-            />
-            <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">kg</span>
-          </>
-        ) : (
-          <>
-            <Input
-              type="number"
-              placeholder="Enter your weight in lbs"
-              value={weightLbs}
-              onChange={(e) => updateWeightLbs(e.target.value)}
-              className="text-center text-2xl h-16 border-2 focus:border-primary"
-            />
-            <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">lbs</span>
-          </>
-        )}
+      <div className="max-w-sm mx-auto">
+        <div className="relative">
+          {weightUnit === "kg" ? (
+            <>
+              <Input
+                type="number"
+                placeholder="Enter your weight in kg"
+                value={weightKg}
+                onChange={(e) => updateWeightKg(e.target.value)}
+                className="text-center text-l h-16 border-2 focus:border-primary"
+                min="20"
+                max="500"
+              />
+              <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">kg</span>
+            </>
+          ) : (
+            <>
+              <Input
+                type="number"
+                placeholder="Enter your weight in lbs"
+                value={weightLbs}
+                onChange={(e) => updateWeightLbs(e.target.value)}
+                className="text-center text-2xl h-16 border-2 focus:border-primary"
+                min="44"
+                max="1100"
+              />
+              <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">lbs</span>
+            </>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground mt-1">
+          Weight should be between {weightUnit === "kg" ? "20-500 kg" : "44-1100 lbs"}
+        </p>
       </div>
     </div>
   );
