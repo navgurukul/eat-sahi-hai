@@ -23,7 +23,7 @@ const goalOptions = [
 
 export default function GoalStep({ gender, selectedGoal, updateGoal }: GoalStepProps) {
   return (
-    <div className="space-y-6 animate-slide-in text-center">
+    <div className="space-y-4 animate-slide-in text-center">
       <h2 className="text-3xl font-bold">Fitness Goal</h2>
       <p className="text-muted-foreground">What do you want to achieve?</p>
 
@@ -44,7 +44,7 @@ export default function GoalStep({ gender, selectedGoal, updateGoal }: GoalStepP
             <Card
               key={option.value}
               className={cn(
-                "p-6 cursor-pointer transition-smooth hover:shadow-elegant-lg hover:scale-[1.02] border-2 overflow-hidden",
+                "p-2 cursor-pointer transition-smooth hover:shadow-elegant-lg hover:scale-[1.02] border-2 overflow-hidden",
                 selectedGoal === option.value
                   ? "border-primary bg-primary/5"
                   : "border-border hover:border-primary/50"

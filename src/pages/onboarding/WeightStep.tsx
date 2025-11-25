@@ -21,7 +21,7 @@ export default function WeightStep({
   updateWeightLbs,
 }: WeightStepProps) {
   return (
-    <div className="space-y-6 animate-slide-in text-center">
+    <div className="space-y-2 animate-slide-in text-center">
       <h2 className="text-3xl font-bold">What's your weight?</h2>
       <p className="text-muted-foreground">Current weight for personalized goals</p>
 
@@ -53,7 +53,7 @@ export default function WeightStep({
               placeholder="Enter your weight in kg"
               value={weightKg}
               onChange={(e) => updateWeightKg(e.target.value)}
-              className="text-center text-2xl h-16 border-2 focus:border-primary"
+              className="text-center text-l h-16 border-2 focus:border-primary"
             />
             <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">kg</span>
           </>

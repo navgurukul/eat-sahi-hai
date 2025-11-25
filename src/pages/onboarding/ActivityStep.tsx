@@ -30,7 +30,7 @@ const activityOptions = [
 export default function ActivityStep({ gender, selectedActivity, updateActivity }: ActivityStepProps) {
   return (
     <div className="space-y-6 animate-slide-in text-center">
-      <h2 className="text-3xl font-bold">Activity Level</h2>
+      <h2 className="text-3xl font-bold">Activity Level (optional)</h2>
       <p className="text-muted-foreground">How active are you typically?</p>
 
       <div className="grid gap-3 max-w-lg mx-auto mt-4">

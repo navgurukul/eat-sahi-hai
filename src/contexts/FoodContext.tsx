@@ -155,7 +155,15 @@ const getInitialLoggedItems = (): LoggedFoodItem[] => {
 export function FoodProvider({ children }: { children: React.ReactNode }) {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   // This will come from Onboarding later
-  const [dailyCaloriesTarget, setDailyCaloriesTarget] = useState<number>(2000);
+ const [dailyCaloriesTarget, setDailyCaloriesTarget] = useState<number>(() => {
+  const saved = localStorage.getItem("dailyCaloriesTarget");
+  return saved ? parseInt(saved, 10) : 2000;
+});
+
+useEffect(() => {
+  localStorage.setItem("dailyCaloriesTarget", dailyCaloriesTarget.toString());
+}, [dailyCaloriesTarget]);
+
 
   // Fetch foods from Supabase (with React Query caching)
   const { data: supabaseFoods } = useAllFoods();
@@ -164,7 +172,7 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
   const [loggedItems, setLoggedItems] = useState<LoggedFoodItem[]>(
     getInitialLoggedItems
   );
-  
+
 
   // Save to localStorage whenever loggedItems change (fallback persistence)
   useEffect(() => {

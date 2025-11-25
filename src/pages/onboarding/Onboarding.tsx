@@ -82,7 +82,7 @@ export default function Onboarding() {
         // If final step → save calories → send to home
         if (currentStep === steps.length) {
             const calories = calculateCalories();
-            setDailyCaloriesTarget(calories); // <-- UPDATE GLOBAL CONTEXT
+            setDailyCaloriesTarget(calories);
             navigate("/home");
             return;
         }
@@ -142,8 +142,6 @@ export default function Onboarding() {
         return Math.round(tdee);
     };
 
-
-
     const isStepValid = () => {
         const step = steps[currentStep - 1];
 
@@ -159,7 +157,7 @@ export default function Onboarding() {
             case "gender":
                 return data.gender !== "";
             case "activity":
-                return data.activity !== "";
+                return true;
             case "goal":
                 return data.goal !== "";
             case "summary":
@@ -168,7 +166,6 @@ export default function Onboarding() {
                 return false;
         }
     };
-
 
 
     const [heightUnit, setHeightUnit] = useState<"cm" | "ft">("cm");
@@ -234,19 +231,19 @@ export default function Onboarding() {
 
     const renderSummary = (calories: number) => (
         console.log("Total Calories to display:", calories),
-        <div className="space-y-6 animate-fade-in text-center">
+        <div className="space-y-4 animate-fade-in text-center">
             <h2 className="text-3xl font-bold">Your Fitness Profile</h2>
             <p className="text-muted-foreground">Here's your personalized summary</p>
 
-            <Card className="max-w-lg mx-auto p-8 " style={{ backgroundColor: "#21C45D" }}>
-                <div className="text-center space-y-2 mb-6">
+            <Card className="max-w-lg mx-auto p-4 " style={{ backgroundColor: "#21C45D" }}>
+                <div className="text-center space-y-2 mb-2">
                     <p className="text-white/90 text-sm font-medium">Daily Calorie Target</p>
-                    <p className="text-6xl font-bold text-white">{calories}</p>
+                    <p className="text-6xl text-white">{calories}</p>
                     <p className="text-white/80 text-sm">calories per day</p>
                 </div>
             </Card>
 
-            <div className="max-w-lg mx-auto grid grid-cols-2 gap-4">
+            <div className="max-w-lg mx-auto grid grid-cols-2 gap-2">
                 <Card className="p-4 shadow-elegant">
                     <p className="text-sm text-muted-foreground mb-1">Gender</p>
                     <p className="font-semibold text-lg capitalize">{data.gender}</p>
@@ -263,11 +260,11 @@ export default function Onboarding() {
                     <p className="text-sm text-muted-foreground mb-1">Weight</p>
                     <p className="font-semibold text-lg">{data.weight} kg</p>
                 </Card>
-                <Card className="p-4 shadow-elegant col-span-2">
+                <Card className="p-4 shadow-elegant ">
                     <p className="text-sm text-muted-foreground mb-1">Activity Level</p>
                     <p className="font-semibold capitalize">{activityOptions.find(a => a.value === data.activity)?.label}</p>
                 </Card>
-                <Card className="p-4 shadow-elegant col-span-2">
+                <Card className="p-4 shadow-elegant">
                     <p className="text-sm text-muted-foreground mb-1">Goal</p>
                     <p className="font-semibold">{goalOptions.find(g => g.value === data.goal)?.label}</p>
                 </Card>
@@ -285,7 +282,6 @@ export default function Onboarding() {
                             <span className="text-sm font-medium text-muted-foreground">
                                 Step {currentStep} of {steps.length}
                             </span>
-                            <span className="text-sm font-medium text-primary">{Math.round(progress)}%</span>
                         </div>
                         <Progress value={progress} className="h-2" />
                         <div className="flex justify-between">
