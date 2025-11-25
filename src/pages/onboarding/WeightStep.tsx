@@ -23,7 +23,9 @@ export default function WeightStep({
   return (
     <div className="space-y-2 animate-slide-in text-center">
       <h2 className="text-3xl font-bold">What's your weight?</h2>
-      <p className="text-muted-foreground">Current weight for personalized goals</p>
+      <p className="text-muted-foreground">
+        Current weight for personalized goals
+      </p>
 
       <div className="flex justify-center mb-4">
         <img src={WeightIcon} alt="User" className="h-32 w-32 object-contain" />
@@ -32,13 +34,19 @@ export default function WeightStep({
       {/* Unit Selection */}
       <div className="flex justify-center gap-4 mb-2">
         <button
-          className={cn("px-4 py-2 border rounded-lg", weightUnit === "kg" ? "bg-primary text-white" : "bg-card")}
+          className={cn(
+            "px-4 py-2 border rounded-lg",
+            weightUnit === "kg" ? "bg-primary text-white" : "bg-card"
+          )}
           onClick={() => setWeightUnit("kg")}
         >
           kg
         </button>
         <button
-          className={cn("px-4 py-2 border rounded-lg", weightUnit === "lbs" ? "bg-primary text-white" : "bg-card")}
+          className={cn(
+            "px-4 py-2 border rounded-lg",
+            weightUnit === "lbs" ? "bg-primary text-white" : "bg-card"
+          )}
           onClick={() => setWeightUnit("lbs")}
         >
           lbs
@@ -58,7 +66,9 @@ export default function WeightStep({
                 min="20"
                 max="500"
               />
-              <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">kg</span>
+              <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">
+                kg
+              </span>
             </>
           ) : (
             <>
@@ -71,12 +81,15 @@ export default function WeightStep({
                 min="44"
                 max="1100"
               />
-              <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">lbs</span>
+              <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">
+                lbs
+              </span>
             </>
           )}
         </div>
         <p className="text-xs text-muted-foreground mt-1">
-          Weight should be between {weightUnit === "kg" ? "20-500 kg" : "44-1100 lbs"}
+          Weight should be between{" "}
+          {weightUnit === "kg" ? "20-500 kg" : "44-1100 lbs"}
         </p>
       </div>
     </div>

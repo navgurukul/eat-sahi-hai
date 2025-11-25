@@ -12,7 +12,9 @@ export default function AgeStep({ age, updateAge }: AgeStepProps) {
     <div className="space-y-1 animate-slide-in text-center">
       <div className="text-center space-y-1">
         <h2 className="text-3xl font-bold">How old are you?</h2>
-        <p className="text-muted-foreground">This helps calculate your metabolic rate</p>
+        <p className="text-muted-foreground">
+          This helps calculate your metabolic rate
+        </p>
       </div>
 
       <div className="flex justify-center -mb-2">
@@ -34,7 +36,9 @@ export default function AgeStep({ age, updateAge }: AgeStepProps) {
             years
           </span>
         </div>
-        <p className="text-xs text-muted-foreground mt-1">Age should be between 1-149 years</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Age should be between 1-149 years
+        </p>
       </div>
     </div>
   );

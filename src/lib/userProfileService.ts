@@ -51,20 +51,23 @@ export class UserProfileService {
       // Use upsert with onConflict to handle both insert and update cases
       const { data, error } = await supabase
         .from("user_profiles")
-        .upsert({
-          user_id: user.id,
-          gender: profileData.gender,
-          age: profileData.age,
-          height_cm: profileData.height_cm,
-          weight_kg: profileData.weight_kg,
-          activity_level: profileData.activity_level,
-          fitness_goal: profileData.fitness_goal,
-          daily_calories_target: profileData.daily_calories_target,
-          bmr: profileData.bmr,
-          tdee: profileData.tdee,
-        }, {
-          onConflict: 'user_id'
-        })
+        .upsert(
+          {
+            user_id: user.id,
+            gender: profileData.gender,
+            age: profileData.age,
+            height_cm: profileData.height_cm,
+            weight_kg: profileData.weight_kg,
+            activity_level: profileData.activity_level,
+            fitness_goal: profileData.fitness_goal,
+            daily_calories_target: profileData.daily_calories_target,
+            bmr: profileData.bmr,
+            tdee: profileData.tdee,
+          },
+          {
+            onConflict: "user_id",
+          }
+        )
         .select()
         .single();
 
@@ -75,22 +78,27 @@ export class UserProfileService {
           message: error.message,
           details: error.details,
           hint: error.hint,
-          userId: user.id
+          userId: user.id,
         });
-        
+
         // Return specific error messages for validation failures
-        if (error.code === '23514') { // Check constraint violation
-          if (error.message.includes('height_cm_check')) {
-            throw new Error('Height must be between 50 and 300 cm (1.6 - 9.8 feet)');
+        if (error.code === "23514") {
+          // Check constraint violation
+          if (error.message.includes("height_cm_check")) {
+            throw new Error(
+              "Height must be between 50 and 300 cm (1.6 - 9.8 feet)"
+            );
           }
-          if (error.message.includes('weight_kg_check')) {
-            throw new Error('Weight must be between 20 and 500 kg (44 - 1100 lbs)');
+          if (error.message.includes("weight_kg_check")) {
+            throw new Error(
+              "Weight must be between 20 and 500 kg (44 - 1100 lbs)"
+            );
           }
-          if (error.message.includes('age')) {
-            throw new Error('Age must be between 1 and 149 years');
+          if (error.message.includes("age")) {
+            throw new Error("Age must be between 1 and 149 years");
           }
         }
-        
+
         return false;
       }
 

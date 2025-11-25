@@ -115,10 +115,14 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
     // If accessing onboarding page, check if it's needed
     if (location.pathname === "/onboarding") {
       if (onboardingComplete === true) {
-        console.log("[AuthGuard] Redirecting from onboarding to home - already completed");
+        console.log(
+          "[AuthGuard] Redirecting from onboarding to home - already completed"
+        );
         return <Navigate to="/home" replace />;
       }
-      console.log("[AuthGuard] Allowing access to onboarding page - not completed");
+      console.log(
+        "[AuthGuard] Allowing access to onboarding page - not completed"
+      );
       return <>{children}</>;
     }
 
