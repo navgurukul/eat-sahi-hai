@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { User, Activity, Target, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 // Icons & Images
 import maleIcon from "@/assets/male-icon.png";
@@ -69,6 +70,7 @@ const goalOptions = [
 
 export default function Onboarding() {
     const [currentStep, setCurrentStep] = useState(1);
+    const navigate = useNavigate();
     const [data, setData] = useState<OnboardingData>({
         gender: "",
         age: "",
@@ -98,6 +100,7 @@ export default function Onboarding() {
 
         // Move to next step
         if (currentStep < steps.length) setCurrentStep(currentStep + 1);
+        else navigate("/home");
     };
     const handleBack = () => currentStep > 1 && setCurrentStep(currentStep - 1);
 
@@ -520,14 +523,15 @@ export default function Onboarding() {
     );
 
     const renderSummary = (calories: number) => (
+        console.log("Total Calories to display:", calories),
         <div className="space-y-6 animate-fade-in text-center">
             <h2 className="text-3xl font-bold">Your Fitness Profile</h2>
             <p className="text-muted-foreground">Here's your personalized summary</p>
 
-            <Card className="max-w-lg mx-auto p-8 gradient-fitness">
+            <Card className="max-w-lg mx-auto p-8 " style={{ backgroundColor: "#21C45D" }}>
                 <div className="text-center space-y-2 mb-6">
                     <p className="text-white/90 text-sm font-medium">Daily Calorie Target</p>
-                    <p className="text-6xl font-bold text-white">"hii"</p>
+                    <p className="text-6xl font-bold text-white">{calories}</p>
                     <p className="text-white/80 text-sm">calories per day</p>
                 </div>
             </Card>
