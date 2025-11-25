@@ -9,10 +9,12 @@ export function DateSelector({
   selectedDate,
   onDateSelect,
 }: DateSelectorProps) {
-  const generatePast7Days = () => {
+  const generateScrollableDates = () => {
     const dates = [];
     const today = new Date();
-    for (let i = 6; i >= 0; i--) {
+
+    // Generate past 30 days + today (no future dates)
+    for (let i = 30; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(today.getDate() - i);
       dates.push(date);
@@ -20,7 +22,7 @@ export function DateSelector({
     return dates;
   };
 
-  const past7Days = generatePast7Days();
+  const scrollableDates = generateScrollableDates();
   const today = new Date();
 
   const formatSelectedDate = () => {
@@ -64,7 +66,7 @@ export function DateSelector({
   };
 
   return (
-    <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/50 pb-4">
+    <div className="sticky top-0 z-50 bg-white border-b border-border/20 pb-4 shadow-sm">
       {/* Current Date Display */}
       <div className="text-center mb-4">
         <h2 className="text-xl font-fredoka font-medium text-foreground">
@@ -72,9 +74,16 @@ export function DateSelector({
         </h2>
       </div>
 
-      {/* Date Selection - Horizontal Scroll */}
-      <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide px-2">
-        {past7Days.map((date, index) => {
+      {/* Date Selection - Horizontal Scroll with Circular Buttons */}
+      <div
+        className="flex items-center gap-2 overflow-x-auto px-2 pb-2 scrollbar-hide"
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
+
+        {scrollableDates.map((date, index) => {
           const isSelected = isSameDate(date, selectedDate);
           const isToday = isSameDate(date, today);
 
@@ -83,19 +92,35 @@ export function DateSelector({
               key={index}
               onClick={() => onDateSelect(date)}
               className={cn(
-                "flex flex-col items-center justify-center min-w-[48px] h-16 rounded-xl transition-all duration-200 flex-shrink-0",
-                "font-quicksand text-sm",
-                isSelected &&
-                  "bg-primary text-primary-foreground shadow-md scale-105",
-                !isSelected &&
-                  "bg-card hover:bg-accent/10 text-card-foreground",
-                isToday && !isSelected && "ring-2 ring-primary/30"
+                "flex flex-col items-center justify-center min-w-[48px] transition-all duration-300 flex-shrink-0",
+                "font-quicksand hover:scale-105"
               )}
             >
-              <span className="text-xs font-medium">
+              {/* Weekday Label */}
+              <span className="text-xs font-bold text-muted-foreground mb-1">
                 {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"][date.getDay()]}
               </span>
-              <span className="text-lg font-medium">{date.getDate()}</span>
+
+              {/* Circular Date Button */}
+              <div
+                className={cn(
+                  "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300",
+                  "relative",
+                  isSelected && [
+                    "bg-primary text-primary-foreground font-bold shadow-lg",
+                    "ring-2 ring-primary/20",
+                  ],
+                  !isSelected && [
+                    "border-2 border-dashed border-primary/40 text-foreground",
+                    "hover:border-primary/60 hover:bg-primary/5",
+                  ],
+                  isToday && !isSelected && "border-primary/60 border-solid"
+                )}
+              >
+                <span className={cn("text-base font-bold")}>
+                  {date.getDate()}
+                </span>
+              </div>
             </button>
           );
         })}
