@@ -30,7 +30,7 @@ const Index = () => {
 
   const [activeTab, setActiveTab] = useState(getInitialTab());
   const [currentWeek, setCurrentWeek] = useState(new Date());
-  const { selectedDate, setSelectedDate, getWeekData } = useFoodContext();
+  const { selectedDate, setSelectedDate, getWeekData, dailyCaloriesTarget } = useFoodContext();
 
   // Update URL when tab changes
   const handleTabChange = (tab: string) => {
@@ -141,6 +141,7 @@ const Index = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case "home":
+
         return (
           <div className="food-pattern-bg min-h-screen">
             <DateSelector
@@ -148,7 +149,8 @@ const Index = () => {
               onDateSelect={setSelectedDate}
             />
             <div className="space-y-6 pt-4">
-              <MacroIndicators />
+              <MacroIndicators dailyCaloriesTarget={dailyCaloriesTarget} />
+
               <FoodLogging />
             </div>
           </div>

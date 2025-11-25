@@ -2,32 +2,34 @@ import { ProgressRing } from "@/components/ui/progress-ring";
 import { useFoodContext } from "@/contexts/FoodContext";
 
 // Daily target values - these can be made configurable later
-const DAILY_TARGETS = {
-  calories: 2000,
-  protein: 120, // grams
-  carbs: 250, // grams
-  fat: 67, // grams
-  glycemicLoad: 100, // glycemic load units
-};
 
-export function MacroIndicators() {
+
+export function MacroIndicators({ dailyCaloriesTarget }: { dailyCaloriesTarget: number }) {
   const { selectedDate, getLoggedItemsForDate } = useFoodContext();
+
 
   // Get logged items for the selected date
   const loggedItems = getLoggedItemsForDate(selectedDate);
+const proteinTarget = Math.round(dailyCaloriesTarget * 0.3 / 4); 
+  const carbsTarget = Math.round(dailyCaloriesTarget * 0.4 / 4);
+  const fatTarget = Math.round(dailyCaloriesTarget * 0.3 / 9);
 
+  const DAILY_TARGETS = {
+    calories: dailyCaloriesTarget,
+    protein: proteinTarget,
+    carbs: carbsTarget,
+    fat: fatTarget,
+    glycemicLoad: 100,
+  };
   // Calculate dynamic totals from logged food items for the specific date only
   const calculateDayTotals = () => {
-    // Double-check we only calculate for items on the selected date
     const itemsForSelectedDate = loggedItems.filter((item) => {
-      const itemDate = new Date(item.date);
+      const itemDate = new Date(item.date).toDateString();
       const selectedDateString = selectedDate.toDateString();
-      const itemDateString = itemDate.toDateString();
-      return itemDateString === selectedDateString;
+      return itemDate === selectedDateString;
     });
 
-    // Calculate totals from the filtered items
-    const totals = itemsForSelectedDate.reduce(
+    return itemsForSelectedDate.reduce(
       (totals, item) => ({
         calories: totals.calories + (item.calories || 0),
         protein: totals.protein + (item.protein || 0),
@@ -37,8 +39,6 @@ export function MacroIndicators() {
       }),
       { calories: 0, protein: 0, carbs: 0, fat: 0, glycemicLoad: 0 }
     );
-
-    return totals;
   };
 
   const dayTotals = calculateDayTotals();

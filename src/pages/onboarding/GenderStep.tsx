@@ -1,12 +1,18 @@
 // components/onboardingSteps/GenderStep.tsx
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { genderOptions } from "./constants"; // You can export genderOptions from a constants file
+import { User } from "lucide-react";
+import maleIcon from "../../assets/male-icon.png";
+import femaleIcon from "../../assets/female-icon.png";
 
 interface GenderStepProps {
   selectedGender: string;
   updateGender: (gender: string) => void;
 }
+
+const genderOptions = [ { value: "male", label: "Male", icon: User, image: maleIcon }, {
+   value: "female", label: "Female", icon: User, image: femaleIcon }, ];
+  
 
 export default function GenderStep({ selectedGender, updateGender }: GenderStepProps) {
   return (

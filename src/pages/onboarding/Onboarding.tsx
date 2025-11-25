@@ -12,6 +12,7 @@ import HeightStep from "./HeightStep";
 import WeightStep from "./WeightStep";
 import ActivityStep from "./ActivityStep";
 import GoalStep from "./GoalStep";
+import { useFoodContext } from "../../contexts/FoodContext";
 
 interface OnboardingData {
     gender: string;
@@ -50,6 +51,7 @@ const goalOptions = [
 export default function Onboarding() {
     const [currentStep, setCurrentStep] = useState(1);
     const navigate = useNavigate();
+    const { setDailyCaloriesTarget } = useFoodContext();
     const [data, setData] = useState<OnboardingData>({
         gender: "",
         age: "",
@@ -61,7 +63,7 @@ export default function Onboarding() {
 
     const progress = (currentStep / steps.length) * 100;
     const handleNext = () => {
-        // Step 3: Height conversion
+        // Convert height if needed
         if (currentStep === 3) {
             if (heightUnit === "ft") {
                 const totalCm = (parseFloat(heightFeet) || 0) * 30.48 + (parseFloat(heightInch) || 0) * 2.54;
@@ -69,7 +71,7 @@ export default function Onboarding() {
             }
         }
 
-        // Step 4: Weight conversion
+        // Convert weight if needed
         if (currentStep === 4) {
             if (weightUnit === "lbs") {
                 const weightKg = (parseFloat(weightLbs) || 0) * 0.453592;
@@ -77,10 +79,18 @@ export default function Onboarding() {
             }
         }
 
-        // Move to next step
-        if (currentStep < steps.length) setCurrentStep(currentStep + 1);
-        else navigate("/home");
+        // If final step → save calories → send to home
+        if (currentStep === steps.length) {
+            const calories = calculateCalories();
+            setDailyCaloriesTarget(calories); // <-- UPDATE GLOBAL CONTEXT
+            navigate("/home");
+            return;
+        }
+
+        // Otherwise → next step
+        setCurrentStep(currentStep + 1);
     };
+
     const handleBack = () => currentStep > 1 && setCurrentStep(currentStep - 1);
 
     const updateData = (key: keyof OnboardingData, value: string) => {
@@ -186,32 +196,32 @@ export default function Onboarding() {
 
 
             case 4:
-      return (
-        <WeightStep
-          weightUnit={weightUnit}
-          setWeightUnit={setWeightUnit}
-          weightKg={data.weight}
-          weightLbs={weightLbs}
-          updateWeightKg={(val) => updateData("weight", val)}
-          updateWeightLbs={setWeightLbs}
-        />
-      );
-    case 5:
-      return (
-        <ActivityStep
-          gender={data.gender}
-          selectedActivity={data.activity}
-          updateActivity={(val) => updateData("activity", val)}
-        />
-      );
-    case 6:
-      return (
-        <GoalStep
-          gender={data.gender}
-          selectedGoal={data.goal}
-          updateGoal={(val) => updateData("goal", val)}
-        />
-      );
+                return (
+                    <WeightStep
+                        weightUnit={weightUnit}
+                        setWeightUnit={setWeightUnit}
+                        weightKg={data.weight}
+                        weightLbs={weightLbs}
+                        updateWeightKg={(val) => updateData("weight", val)}
+                        updateWeightLbs={setWeightLbs}
+                    />
+                );
+            case 5:
+                return (
+                    <ActivityStep
+                        gender={data.gender}
+                        selectedActivity={data.activity}
+                        updateActivity={(val) => updateData("activity", val)}
+                    />
+                );
+            case 6:
+                return (
+                    <GoalStep
+                        gender={data.gender}
+                        selectedGoal={data.goal}
+                        updateGoal={(val) => updateData("goal", val)}
+                    />
+                );
             case 7:
                 const calories = calculateCalories();
                 return renderSummary(calories);

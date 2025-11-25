@@ -47,18 +47,12 @@ interface FoodContextType {
   getLoggedItemsForDate: (date: Date) => LoggedFoodItem[];
   getWeekData: (weekDate: Date) => LoggedFoodItem[];
   refreshLoggedItemsFromDatabase: () => Promise<void>;
+  dailyCaloriesTarget: number;
+  setDailyCaloriesTarget: (value: number) => void;
 }
 
 const FoodContext = createContext<FoodContextType | undefined>(undefined);
 
-// Helper functions for localStorage
-const saveLoggedItemsToStorage = (items: LoggedFoodItem[]) => {
-  try {
-    localStorage.setItem(LOGGED_ITEMS_STORAGE_KEY, JSON.stringify(items));
-  } catch (error) {
-    console.error("Failed to save logged items to localStorage:", error);
-  }
-};
 
 const loadLoggedItemsFromStorage = (): LoggedFoodItem[] => {
   try {
@@ -76,6 +70,16 @@ const loadLoggedItemsFromStorage = (): LoggedFoodItem[] => {
   }
   return [];
 };
+
+// Save items to localStorage
+const saveLoggedItemsToStorage = (items: LoggedFoodItem[]) => {
+  try {
+    localStorage.setItem(LOGGED_ITEMS_STORAGE_KEY, JSON.stringify(items));
+  } catch (error) {
+    console.error("Failed to save logged items to localStorage:", error);
+  }
+};
+
 
 const getInitialLoggedItems = (): LoggedFoodItem[] => {
   // Load from localStorage first
@@ -150,6 +154,8 @@ const getInitialLoggedItems = (): LoggedFoodItem[] => {
 
 export function FoodProvider({ children }: { children: React.ReactNode }) {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  // This will come from Onboarding later
+  const [dailyCaloriesTarget, setDailyCaloriesTarget] = useState<number>(2000);
 
   // Fetch foods from Supabase (with React Query caching)
   const { data: supabaseFoods } = useAllFoods();
@@ -158,6 +164,7 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
   const [loggedItems, setLoggedItems] = useState<LoggedFoodItem[]>(
     getInitialLoggedItems
   );
+  
 
   // Save to localStorage whenever loggedItems change (fallback persistence)
   useEffect(() => {
@@ -437,7 +444,7 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
   const removeLoggedItem = async (id: string) => {
     // Optimistically remove from UI immediately
     setLoggedItems((items) => items.filter((item) => item.id !== id));
-    
+
     // Try to delete from database if it's a database item
     if (id.startsWith("db-")) {
       try {
@@ -471,14 +478,14 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
       items.map((item) =>
         item.id === id
           ? {
-              ...item,
-              quantity,
-              calories: (item.calories / item.quantity) * quantity,
-              protein: (item.protein / item.quantity) * quantity,
-              carbs: (item.carbs / item.quantity) * quantity,
-              fat: (item.fat / item.quantity) * quantity,
-              glycemicLoad: (item.glycemicLoad / item.quantity) * quantity,
-            }
+            ...item,
+            quantity,
+            calories: (item.calories / item.quantity) * quantity,
+            protein: (item.protein / item.quantity) * quantity,
+            carbs: (item.carbs / item.quantity) * quantity,
+            fat: (item.fat / item.quantity) * quantity,
+            glycemicLoad: (item.glycemicLoad / item.quantity) * quantity,
+          }
           : item
       )
     );
@@ -496,7 +503,6 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
   const getLoggedItemsForDate = (date: Date) => {
     // Filter items for the specific date, ensuring we only return items for that exact date
     const targetDateString = date.toDateString();
-
     const filteredItems = loggedItems.filter((item) => {
       const itemDateString = item.date.toDateString();
       return itemDateString === targetDateString;
@@ -509,7 +515,7 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
     <FoodContext.Provider
       value={{
         loggedItems,
-        pastFoodItems, // Now dynamically computed from Supabase or fallback
+        pastFoodItems,
         selectedDate,
         addLoggedItems,
         removeLoggedItem,
@@ -518,6 +524,8 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
         getLoggedItemsForDate,
         getWeekData,
         refreshLoggedItemsFromDatabase,
+        dailyCaloriesTarget,
+        setDailyCaloriesTarget,
       }}
     >
       {children}
@@ -525,10 +533,12 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useFoodContext() {
+export const useFoodContext = () => {
   const context = useContext(FoodContext);
-  if (context === undefined) {
-    throw new Error("useFoodContext must be used within a FoodProvider");
+  if (!context) {
+    throw new Error("useFoodContext must be used within FoodProvider");
   }
   return context;
-}
+};
+
+
