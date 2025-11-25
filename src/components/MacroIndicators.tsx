@@ -10,16 +10,17 @@ export function MacroIndicators({ dailyCaloriesTarget }: { dailyCaloriesTarget: 
 
   // Get logged items for the selected date
   const loggedItems = getLoggedItemsForDate(selectedDate);
-const proteinTarget = Math.round(dailyCaloriesTarget * 0.3 / 4); 
+  const proteinTarget = Math.round(dailyCaloriesTarget * 0.3 / 4);
   const carbsTarget = Math.round(dailyCaloriesTarget * 0.4 / 4);
   const fatTarget = Math.round(dailyCaloriesTarget * 0.3 / 9);
+  const sugarTarget = Math.round((dailyCaloriesTarget * 0.10) / 4);
 
   const DAILY_TARGETS = {
     calories: dailyCaloriesTarget,
     protein: proteinTarget,
     carbs: carbsTarget,
     fat: fatTarget,
-    glycemicLoad: 100,
+    glycemicLoad: sugarTarget,
   };
   // Calculate dynamic totals from logged food items for the specific date only
   const calculateDayTotals = () => {
@@ -77,6 +78,7 @@ const proteinTarget = Math.round(dailyCaloriesTarget * 0.3 / 4);
       current: Math.round(dayTotals.fat),
       target: DAILY_TARGETS.fat,
     },
+    
   };
 
   return (
@@ -183,6 +185,8 @@ const proteinTarget = Math.round(dailyCaloriesTarget * 0.3 / 4);
             </p>
           </div>
         </div>
+        
+
       </div>
 
       {/* Dynamic nutrition message */}
