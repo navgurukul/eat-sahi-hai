@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { startOfWeek, endOfWeek, isWithinInterval, subWeeks } from "date-fns";
 import { useAllFoods } from "@/hooks/useFoodSearch";
 import { UserFoodLogService } from "@/lib/userFoodLogService";
+import { UserProfileService } from "@/lib/userProfileService";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Storage key for localStorage (fallback)
 const LOGGED_ITEMS_STORAGE_KEY = "eat-sahi-hai-logged-items";
@@ -47,18 +49,11 @@ interface FoodContextType {
   getLoggedItemsForDate: (date: Date) => LoggedFoodItem[];
   getWeekData: (weekDate: Date) => LoggedFoodItem[];
   refreshLoggedItemsFromDatabase: () => Promise<void>;
+  dailyCaloriesTarget: number;
+  setDailyCaloriesTarget: (value: number) => void;
 }
 
 const FoodContext = createContext<FoodContextType | undefined>(undefined);
-
-// Helper functions for localStorage
-const saveLoggedItemsToStorage = (items: LoggedFoodItem[]) => {
-  try {
-    localStorage.setItem(LOGGED_ITEMS_STORAGE_KEY, JSON.stringify(items));
-  } catch (error) {
-    console.error("Failed to save logged items to localStorage:", error);
-  }
-};
 
 const loadLoggedItemsFromStorage = (): LoggedFoodItem[] => {
   try {
@@ -75,6 +70,15 @@ const loadLoggedItemsFromStorage = (): LoggedFoodItem[] => {
     console.error("Failed to load logged items from localStorage:", error);
   }
   return [];
+};
+
+// Save items to localStorage
+const saveLoggedItemsToStorage = (items: LoggedFoodItem[]) => {
+  try {
+    localStorage.setItem(LOGGED_ITEMS_STORAGE_KEY, JSON.stringify(items));
+  } catch (error) {
+    console.error("Failed to save logged items to localStorage:", error);
+  }
 };
 
 const getInitialLoggedItems = (): LoggedFoodItem[] => {
@@ -150,6 +154,36 @@ const getInitialLoggedItems = (): LoggedFoodItem[] => {
 
 export function FoodProvider({ children }: { children: React.ReactNode }) {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const { user } = useAuth();
+
+  // Load daily calorie target from user profile or fallback to localStorage
+  const [dailyCaloriesTarget, setDailyCaloriesTarget] = useState<number>(() => {
+    const saved = localStorage.getItem("dailyCaloriesTarget");
+    return saved ? parseInt(saved, 10) : 2000;
+  });
+
+  // Load user profile and set calorie target when user is authenticated
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (user) {
+        try {
+          const profile = await UserProfileService.getUserProfile();
+          if (profile && profile.daily_calories_target) {
+            setDailyCaloriesTarget(profile.daily_calories_target);
+          }
+        } catch (error) {
+          console.error("Error loading user profile:", error);
+        }
+      }
+    };
+
+    loadUserProfile();
+  }, [user]);
+
+  // Save to localStorage when target changes (for offline access)
+  useEffect(() => {
+    localStorage.setItem("dailyCaloriesTarget", dailyCaloriesTarget.toString());
+  }, [dailyCaloriesTarget]);
 
   // Fetch foods from Supabase (with React Query caching)
   const { data: supabaseFoods } = useAllFoods();
@@ -437,11 +471,13 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
   const removeLoggedItem = async (id: string) => {
     // Optimistically remove from UI immediately
     setLoggedItems((items) => items.filter((item) => item.id !== id));
-    
+
     // Try to delete from database if it's a database item
     if (id.startsWith("db-")) {
       try {
-        const deletedFromDatabase = await UserFoodLogService.deleteLoggedItem(id);
+        const deletedFromDatabase = await UserFoodLogService.deleteLoggedItem(
+          id
+        );
         if (!deletedFromDatabase) {
           // If database deletion failed, revert the optimistic update
           await refreshLoggedItemsFromDatabase();
@@ -496,7 +532,6 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
   const getLoggedItemsForDate = (date: Date) => {
     // Filter items for the specific date, ensuring we only return items for that exact date
     const targetDateString = date.toDateString();
-
     const filteredItems = loggedItems.filter((item) => {
       const itemDateString = item.date.toDateString();
       return itemDateString === targetDateString;
@@ -509,7 +544,7 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
     <FoodContext.Provider
       value={{
         loggedItems,
-        pastFoodItems, // Now dynamically computed from Supabase or fallback
+        pastFoodItems,
         selectedDate,
         addLoggedItems,
         removeLoggedItem,
@@ -518,6 +553,8 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
         getLoggedItemsForDate,
         getWeekData,
         refreshLoggedItemsFromDatabase,
+        dailyCaloriesTarget,
+        setDailyCaloriesTarget,
       }}
     >
       {children}
@@ -525,10 +562,10 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useFoodContext() {
+export const useFoodContext = () => {
   const context = useContext(FoodContext);
-  if (context === undefined) {
-    throw new Error("useFoodContext must be used within a FoodProvider");
+  if (!context) {
+    throw new Error("useFoodContext must be used within FoodProvider");
   }
   return context;
-}
+};
