@@ -10,9 +10,12 @@ export function MacroIndicators({ dailyCaloriesTarget }: { dailyCaloriesTarget: 
 
   // Get logged items for the selected date
   const loggedItems = getLoggedItemsForDate(selectedDate);
-  const proteinTarget = Math.round(dailyCaloriesTarget * 0.30 / 4);
-  const carbsTarget   = Math.round(dailyCaloriesTarget * 0.40 / 4);
-  const fatTarget     = Math.round(dailyCaloriesTarget * 0.30 / 9);
+  // const proteinTarget = Math.round(dailyCaloriesTarget * 0.30 / 4);
+  // const carbsTarget   = Math.round(dailyCaloriesTarget * 0.40 / 4);
+  // const fatTarget     = Math.round(dailyCaloriesTarget * 0.30 / 9);
+  const proteinTarget = Math.round(dailyCaloriesTarget * 0.25 / 4); // Changed 0.30 to 0.25
+const carbsTarget   = Math.round(dailyCaloriesTarget * 0.45 / 4); // Changed 0.40 to 0.45
+const fatTarget     = Math.round(dailyCaloriesTarget * 0.30 / 9); // Keep same
 
   // dynamic sugar per WHO (10% of calories) — or choose fixed 25g if you prefer
   const sugarTarget = Math.round((dailyCaloriesTarget * 0.10) / 4);

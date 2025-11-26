@@ -1,3 +1,5 @@
+
+
 import { supabase } from "./supabaseClient";
 
 export interface UserProfile {
@@ -238,7 +240,98 @@ export class UserProfileService {
   }
 
   /**
-   * Recalculate calories based on updated profile data
+   * Calculate comprehensive nutrition targets based on industry standards
+   * NEW IMPROVED METHOD
+   */
+  static calculateNutritionTargets(profileData: {
+    gender: string;
+    age: number;
+    height_cm: number;
+    weight_kg: number;
+    activity_level: string;
+    fitness_goal: string;
+  }): {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+    sugar: number;
+    bmr: number;
+    tdee: number;
+  } {
+    const { gender, age, height_cm, weight_kg, activity_level, fitness_goal } =
+      profileData;
+
+    // Mifflin-St Jeor Equation for BMR
+    let bmr =
+      gender === "male"
+        ? 10 * weight_kg + 6.25 * height_cm - 5 * age + 5
+        : 10 * weight_kg + 6.25 * height_cm - 5 * age - 161;
+
+    // Activity multipliers
+    const activityMultipliers = {
+      sedentary: 1.2,
+      light: 1.375,
+      moderate: 1.55,
+      active: 1.725,
+      "very-active": 1.9,
+    };
+
+    const multiplier =
+      activityMultipliers[activity_level as keyof typeof activityMultipliers] ||
+      1.2;
+    let tdee = bmr * multiplier;
+
+    // Goal adjustments
+
+    let calories = tdee;
+    if (fitness_goal === "lose") calories -= 500;
+    else if (fitness_goal === "gain") calories += 500;
+
+    // Safety bounds to prevent unhealthy low-calorie diets
+
+    const minCalories = gender === "male" ? 1500 : 1200;
+    calories = Math.max(calories, minCalories);
+
+    // IMPROVED MACRO CALCULATIONS
+
+    // Protein: Based on body weight and goal (industry standard)
+    let proteinPerKg = 1.8; // Default
+    if (fitness_goal === "lose")
+      proteinPerKg = 2.0; // Higher protein for weight loss
+    else if (fitness_goal === "gain")
+      proteinPerKg = 2.2; // Higher protein for muscle gain
+    else proteinPerKg = 1.6; // Maintenance
+
+    const proteinGrams = Math.round(weight_kg * proteinPerKg);
+    const proteinCalories = proteinGrams * 4;
+
+    // Fat: 25-30% of total calories (industry standard)
+    const fatPercentage = fitness_goal === "lose" ? 0.25 : 0.3;
+    const fatCalories = calories * fatPercentage;
+    const fatGrams = Math.round(fatCalories / 9);
+
+    // Carbs: Remaining calories (flexible based on protein and fat)
+    const remainingCalories = calories - proteinCalories - fatCalories;
+    const carbGrams = Math.round(Math.max(0, remainingCalories / 4));
+
+    // Sugar: WHO recommendation (max 10% of total calories)
+    const sugarGrams = Math.round((calories * 0.1) / 4);
+
+    return {
+      calories: Math.round(calories),
+      protein: proteinGrams,
+      carbs: carbGrams,
+      fat: fatGrams,
+      sugar: sugarGrams,
+      bmr: Math.round(bmr * 100) / 100,
+      tdee: Math.round(tdee * 100) / 100,
+    };
+  }
+
+  /**
+   * Legacy method for backward compatibility
+   * Keep this for existing code that uses it
    */
   static calculateCalories(profileData: {
     gender: string;

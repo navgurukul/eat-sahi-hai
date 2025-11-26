@@ -14,46 +14,55 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
   const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(
     null
   );
-  const [checkingOnboarding, setCheckingOnboarding] = useState(true);
+  const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(false);
 
-  // Check onboarding status when user is authenticated
+  // Check onboarding status
   useEffect(() => {
     const checkOnboardingStatus = async () => {
-      console.log("[AuthGuard] Starting onboarding check...", {
-        user: user?.id,
-        requireAuth,
-        loading,
-        path: location.pathname,
-      });
+      if (user && !isCheckingOnboarding) {
+        // Force recheck if we're on /home and status is false (likely stale)
+        const shouldRecheck =
+          onboardingComplete === null ||
+          (location.pathname === "/home" && onboardingComplete === false);
 
-      if (user && requireAuth) {
-        try {
-          setCheckingOnboarding(true);
-          console.log(
-            "[AuthGuard] Checking onboarding status for user:",
-            user.id
-          );
-          const hasCompleted =
-            await UserProfileService.hasCompletedOnboarding();
-          console.log("[AuthGuard] Onboarding check result:", hasCompleted);
-          setOnboardingComplete(hasCompleted);
-        } catch (error) {
-          console.error("[AuthGuard] Error checking onboarding status:", error);
-          setOnboardingComplete(false);
+        if (shouldRecheck) {
+          setIsCheckingOnboarding(true);
+          try {
+            console.log(
+              "[AuthGuard] Checking onboarding status for user:",
+              user.id,
+              "path:",
+              location.pathname
+            );
+            const profile = await UserProfileService.getUserProfile();
+            console.log("[AuthGuard] Profile check result:", profile);
+
+            const isComplete = profile !== null;
+            console.log("[AuthGuard] Onboarding complete:", isComplete);
+            setOnboardingComplete(isComplete);
+          } catch (error) {
+            console.error("[AuthGuard] Error checking onboarding:", error);
+            setOnboardingComplete(false);
+          } finally {
+            setIsCheckingOnboarding(false);
+          }
         }
-      } else {
-        setOnboardingComplete(null);
       }
-      setCheckingOnboarding(false);
     };
 
-    if (!loading) {
+    if (!loading && user) {
       checkOnboardingStatus();
     }
-  }, [user, loading, requireAuth, location.pathname]);
+  }, [
+    user,
+    loading,
+    location.pathname,
+    onboardingComplete,
+    isCheckingOnboarding,
+  ]);
 
-  // Show loading state while checking authentication and onboarding
-  if (loading || (requireAuth && user && checkingOnboarding)) {
+  // Show loading state
+  if (loading || (user && isCheckingOnboarding)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -66,83 +75,45 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
 
   const isAuthenticated = !!user;
 
-  console.log("[AuthGuard] Auth state:", {
-    isAuthenticated,
-    requireAuth,
+  console.log("[AuthGuard] State:", {
     path: location.pathname,
-    user: user ? { id: user.id, email: user.email } : null,
+    isAuthenticated,
+    onboardingComplete,
   });
 
-  // If auth is required and user is not authenticated, redirect to auth
+  // Not authenticated - redirect to auth
   if (requireAuth && !isAuthenticated) {
-    console.log("[AuthGuard] Redirecting to auth - user not authenticated");
     return <Navigate to="/auth" replace />;
   }
 
-  // If auth is not required (auth page) and user is authenticated
-  if (!requireAuth && isAuthenticated) {
-    // Check if onboarding is complete
-    if (onboardingComplete === true) {
-      console.log(
-        "[AuthGuard] Redirecting to home - user is authenticated and onboarded"
-      );
-      return <Navigate to="/home" replace />;
-    } else if (onboardingComplete === false) {
-      console.log(
-        "[AuthGuard] Redirecting to onboarding - user needs to complete profile"
-      );
-      return <Navigate to="/onboarding" replace />;
-    }
-    // Still checking onboarding status, show loading
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-4xl mb-4">🍽️</div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // If auth is required and user is authenticated, check onboarding
-  if (requireAuth && isAuthenticated) {
-    console.log("[AuthGuard] Authenticated user on protected route:", {
-      path: location.pathname,
-      onboardingComplete,
-      checkingOnboarding,
-    });
-
-    // If accessing onboarding page, check if it's needed
-    if (location.pathname === "/onboarding") {
+  // Authenticated user logic
+  if (isAuthenticated) {
+    // On auth page - redirect based on onboarding
+    if (!requireAuth) {
       if (onboardingComplete === true) {
-        console.log(
-          "[AuthGuard] Redirecting from onboarding to home - already completed"
-        );
         return <Navigate to="/home" replace />;
       }
-      console.log(
-        "[AuthGuard] Allowing access to onboarding page - not completed"
-      );
-      return <>{children}</>;
+      if (onboardingComplete === false) {
+        return <Navigate to="/onboarding" replace />;
+      }
     }
 
-    // For other protected routes, check onboarding completion
-    if (onboardingComplete === false) {
-      console.log("[AuthGuard] Redirecting to onboarding - profile incomplete");
+    // On onboarding page but complete - redirect to home
+    if (location.pathname === "/onboarding" && onboardingComplete === true) {
+      return <Navigate to="/home" replace />;
+    }
+
+    // On protected route but incomplete - redirect to onboarding
+    if (
+      requireAuth &&
+      location.pathname !== "/onboarding" &&
+      onboardingComplete === false
+    ) {
       return <Navigate to="/onboarding" replace />;
     }
 
-    if (onboardingComplete === null) {
-      console.log("[AuthGuard] Still checking onboarding status...");
-      return (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-4xl mb-4">🍽️</div>
-            <p className="text-muted-foreground">Checking profile...</p>
-          </div>
-        </div>
-      );
-    }
+    // Allow access
+    return <>{children}</>;
   }
 
   return <>{children}</>;
