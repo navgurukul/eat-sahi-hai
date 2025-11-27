@@ -87,7 +87,7 @@ export default function WeightStep({
             </>
           )}
         </div>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-xs text-muted-foreground mt-4">
           Weight should be between{" "}
           {weightUnit === "kg" ? "20-500 kg" : "44-1100 lbs"}
         </p>

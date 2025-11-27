@@ -36,8 +36,8 @@ export default function AgeStep({ age, updateAge }: AgeStepProps) {
             years
           </span>
         </div>
-        <p className="text-xs text-muted-foreground mt-1">
-          Age should be between 1-149 years
+        <p className="text-xs text-muted-foreground mt-4">
+          Age should be between 1-100 years
         </p>
       </div>
     </div>

@@ -432,7 +432,7 @@ export default function Onboarding() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background" style={{backgroundColor: '#f9f6f0ff'}}>
       {/* Progress Bar */}
       <div className="sticky top-0 z-10 bg-card shadow-md">
         <div className="container max-w-4xl mx-auto px-4 py-6">
