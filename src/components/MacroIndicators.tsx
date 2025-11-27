@@ -3,22 +3,22 @@ import { useFoodContext } from "@/contexts/FoodContext";
 
 // Daily target values - these can be made configurable later
 
-
-export function MacroIndicators({ dailyCaloriesTarget }: { dailyCaloriesTarget: number }) {
+export function MacroIndicators({
+  dailyCaloriesTarget,
+}: {
+  dailyCaloriesTarget: number;
+}) {
   const { selectedDate, getLoggedItemsForDate } = useFoodContext();
-
 
   // Get logged items for the selected date
   const loggedItems = getLoggedItemsForDate(selectedDate);
-  // const proteinTarget = Math.round(dailyCaloriesTarget * 0.30 / 4);
-  // const carbsTarget   = Math.round(dailyCaloriesTarget * 0.40 / 4);
-  // const fatTarget     = Math.round(dailyCaloriesTarget * 0.30 / 9);
-  const proteinTarget = Math.round(dailyCaloriesTarget * 0.25 / 4); // Changed 0.30 to 0.25
-const carbsTarget   = Math.round(dailyCaloriesTarget * 0.45 / 4); // Changed 0.40 to 0.45
-const fatTarget     = Math.round(dailyCaloriesTarget * 0.30 / 9); // Keep same
+
+  const proteinTarget = Math.round((dailyCaloriesTarget * 0.25) / 4); // Changed 0.30 to 0.25
+  const carbsTarget = Math.round((dailyCaloriesTarget * 0.45) / 4); // Changed 0.40 to 0.45
+  const fatTarget = Math.round((dailyCaloriesTarget * 0.3) / 9); // Keep same
 
   // dynamic sugar per WHO (10% of calories) — or choose fixed 25g if you prefer
-  const sugarTarget = Math.round((dailyCaloriesTarget * 0.10) / 4);
+  const sugarTarget = Math.round((dailyCaloriesTarget * 0.1) / 4);
 
   const DAILY_TARGETS = {
     calories: Math.round(dailyCaloriesTarget),
@@ -83,7 +83,6 @@ const fatTarget     = Math.round(dailyCaloriesTarget * 0.30 / 9); // Keep same
       current: Math.round(dayTotals.fat),
       target: DAILY_TARGETS.fat,
     },
-    
   };
 
   return (
@@ -190,8 +189,6 @@ const fatTarget     = Math.round(dailyCaloriesTarget * 0.30 / 9); // Keep same
             </p>
           </div>
         </div>
-        
-
       </div>
 
       {/* Dynamic nutrition message */}
@@ -221,7 +218,8 @@ const fatTarget     = Math.round(dailyCaloriesTarget * 0.30 / 9); // Keep same
                 ✨ Aur khana hai! 🥗 ✨
               </div>
               <div className="text-sm text-foreground font-medium bg-gradient-to-r from-muted-foreground to-foreground bg-clip-text text-transparent">
-                🍽️ {macros.calories.target - macros.calories.current} kcal left for today 🍽️
+                🍽️ {macros.calories.target - macros.calories.current} kcal left
+                for today 🍽️
               </div>
             </>
           )}
