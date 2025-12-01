@@ -16,9 +16,9 @@ interface GoalStepProps {
 }
 
 const goalOptions = [
-    { value: "lose", label: "Lose Weight", description: "Create a calorie deficit", icon: TrendingUp },
-    { value: "maintain", label: "Maintain", description: "Keep current weight", icon: Activity },
-    { value: "gain", label: "Gain Weight", description: "Build muscle mass", icon: Target },
+  { value: "lose", label: "Lose Weight", description: "Create a calorie deficit", icon: TrendingUp },
+  { value: "maintain", label: "Maintain", description: "Keep current weight", icon: Activity },
+  { value: "gain", label: "Gain Weight", description: "Build muscle mass", icon: Target },
 ];
 
 export default function GoalStep({ gender, selectedGoal, updateGoal }: GoalStepProps) {
@@ -52,7 +52,15 @@ export default function GoalStep({ gender, selectedGoal, updateGoal }: GoalStepP
               onClick={() => updateGoal(option.value)}
             >
               <div className="flex items-center gap-4">
-                <img src={imgSrc} alt={option.label} className="h-20 w-20 object-cover rounded-lg flex-shrink-0" />
+                <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 overflow-hidden rounded-lg bg-gray-100">
+                  <img
+                    src={imgSrc}
+                    alt={option.label}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* <img src={imgSrc} alt={option.label} className="h-20 w-20 object-cover rounded-lg flex-shrink-0" /> */}
                 <div className="flex-1 text-left">
                   <h3 className="font-semibold text-lg">{option.label}</h3>
                   <p className="text-sm text-muted-foreground">{option.description}</p>

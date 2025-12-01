@@ -112,7 +112,7 @@ export function ProfilePage() {
         <CardContent className="space-y-6">
           {/* User Info */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+            {/* <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
               <User className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
@@ -120,7 +120,7 @@ export function ProfilePage() {
                 </p>
                 <p className="text-base font-medium">{userProfile.fullName}</p>
               </div>
-            </div>
+            </div> */}
 
             <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
               <Mail className="h-5 w-5 text-muted-foreground" />
@@ -149,3 +149,167 @@ export function ProfilePage() {
     </div>
   );
 }
+
+
+
+// import { useState } from "react";
+// import { Card, CardContent } from "@/components/ui/card";
+// import { Input } from "@/components/ui/input";
+// import { Button } from "@/components/ui/button";
+// import { User, Activity, Heart, Flame } from "lucide-react";
+
+// export default function ProfilePage() {
+//   const [profile, setProfile] = useState({
+//     name: "",
+//     age: "",
+//     gender: "",
+//     height: "",
+//     weight: "",
+//     activityLevel: "",
+//     goal: "",
+//   });
+
+//   const activityOptions = [
+//     "Sedentary",
+//     "Lightly Active",
+//     "Moderately Active",
+//     "Very Active",
+//     "Super Active",
+//   ];
+
+//   const goalOptions = [
+//     "Lose Weight",
+//     "Maintain Weight",
+//     "Gain Weight",
+//   ];
+
+//   const handleChange = (e: any) => {
+//     setProfile({
+//       ...profile,
+//       [e.target.name]: e.target.value,
+//     });
+//   };
+
+//   const handleSave = () => {
+//     console.log("Saved profile:", profile);
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-gradient-to-b from-gray-100 to-white p-6 flex justify-center">
+//       <Card className="w-full max-w-xl shadow-xl rounded-2xl">
+//         <CardContent className="p-6 space-y-6">
+
+//           {/* Header */}
+//           <div className="text-center space-y-2">
+//             <h2 className="text-3xl font-bold">Your Fitness Profile</h2>
+//             <p className="text-muted-foreground text-sm">
+//               Personal details that help calculate your fitness metrics
+//             </p>
+//           </div>
+
+//           {/* Personal Details */}
+//           <div className="space-y-4">
+//             <h3 className="font-semibold text-lg flex items-center gap-2">
+//               <User className="h-5 w-5" /> Personal Info
+//             </h3>
+
+//             <Input
+//               placeholder="Name"
+//               name="name"
+//               value={profile.name}
+//               onChange={handleChange}
+//             />
+
+//             <Input
+//               placeholder="Age"
+//               name="age"
+//               type="number"
+//               value={profile.age}
+//               onChange={handleChange}
+//             />
+
+//             <Input
+//               placeholder="Gender"
+//               name="gender"
+//               value={profile.gender}
+//               onChange={handleChange}
+//             />
+//           </div>
+
+//           {/* Body Measurements */}
+//           <div className="space-y-4">
+//             <h3 className="font-semibold text-lg flex items-center gap-2">
+//               <Activity className="h-5 w-5" /> Body Measurements
+//             </h3>
+
+//             <Input
+//               placeholder="Height (cm)"
+//               name="height"
+//               type="number"
+//               value={profile.height}
+//               onChange={handleChange}
+//             />
+
+//             <Input
+//               placeholder="Weight (kg)"
+//               name="weight"
+//               type="number"
+//               value={profile.weight}
+//               onChange={handleChange}
+//             />
+//           </div>
+
+//           {/* Activity Level */}
+//           <div className="space-y-4">
+//             <h3 className="font-semibold text-lg flex items-center gap-2">
+//               <Heart className="h-5 w-5" /> Activity Level
+//             </h3>
+
+//             <select
+//               name="activityLevel"
+//               value={profile.activityLevel}
+//               onChange={handleChange}
+//               className="w-full border rounded-lg p-3"
+//             >
+//               <option value="">Select activity level</option>
+//               {activityOptions.map((level) => (
+//                 <option key={level} value={level}>
+//                   {level}
+//                 </option>
+//               ))}
+//             </select>
+//           </div>
+
+//           {/* Fitness Goal */}
+//           <div className="space-y-4">
+//             <h3 className="font-semibold text-lg flex items-center gap-2">
+//               <Flame className="h-5 w-5" /> Fitness Goal
+//             </h3>
+
+//             <select
+//               name="goal"
+//               value={profile.goal}
+//               onChange={handleChange}
+//               className="w-full border rounded-lg p-3"
+//             >
+//               <option value="">Select goal</option>
+//               {goalOptions.map((goal) => (
+//                 <option key={goal} value={goal}>
+//                   {goal}
+//                 </option>
+//               ))}
+//             </select>
+//           </div>
+
+//           {/* Save Button */}
+//           <Button
+//             onClick={handleSave}
+//             className="w-full py-3 text-lg rounded-xl"
+//           >
+//             Save Profile
+//           </Button>
+//         </CardContent>
+//       </Card>
+//     </div>
+//   );
+// }
