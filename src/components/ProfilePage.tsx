@@ -3,32 +3,54 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, User, Mail } from "lucide-react";
+import { LogOut, User, Mail, TrendingUp, Activity, Target } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { UserProfileService } from "@/lib/userProfileService";
 
 interface UserProfile {
   email: string;
   fullName: string;
 }
 
+interface FitnessData {
+  gender: string;
+  age: number;
+  height_cm: number;
+  weight_kg: number;
+  activity_level: string;
+  fitness_goal: string;
+  daily_calories_target: number;
+}
+
 export function ProfilePage() {
   const navigate = useNavigate();
   const { user, signOut, loading } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [fitnessData, setFitnessData] = useState<any>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      setUserProfile({
-        email: user.email || "",
-        fullName:
-          user.user_metadata?.full_name ||
-          user.user_metadata?.display_name ||
-          "User",
-      });
-    }
+   useEffect(() => {
+    if (!user) return;
+
+    setUserProfile({
+      email: user.email || "",
+      fullName:
+        user.user_metadata?.full_name ||
+        user.user_metadata?.display_name ||
+        "User",
+    });
+
+    loadFitnessProfile();
   }, [user]);
+
+  const loadFitnessProfile = async () => {
+    const profile = await UserProfileService.getUserProfile();
+
+    if (profile) {
+      setFitnessData(profile);
+    }
+  };
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -55,14 +77,10 @@ export function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-fredoka font-medium text-foreground">
-            Profile 👤
-          </h1>
-          <p className="text-sm text-muted-foreground font-quicksand">
-            Loading your profile...
-          </p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4 animate-fade-in">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-lg text-muted-foreground">Loading your profile...</p>
         </div>
       </div>
     );
@@ -70,246 +88,108 @@ export function ProfilePage() {
 
   if (!userProfile) {
     return (
-      <div className="space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-fredoka font-medium text-foreground">
-            Profile 👤
-          </h1>
-          <p className="text-sm text-muted-foreground font-quicksand">
-            Please log in to view your profile
-          </p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <Card className="max-w-md w-full animate-fade-in">
+          <CardContent className="pt-6 text-center space-y-4">
+            <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto">
+              <Mail className="w-10 h-10 text-muted-foreground" />
+            </div>
+            <h2 className="text-2xl font-bold">Not Logged In</h2>
+            <p className="text-muted-foreground">
+              Please log in to view your profile
+            </p>
+            <Button onClick={() => navigate("/auth")} className="w-full">
+              Go to Login
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-2xl font-fredoka font-medium text-foreground">
-          Profile 👤
-        </h1>
-        <p className="text-sm text-muted-foreground font-quicksand">
-          Your account information
-        </p>
-      </div>
 
-      {/* Profile Card */}
-      <Card>
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <Avatar className="w-24 h-24">
-              <AvatarFallback className="text-2xl font-medium bg-primary text-primary-foreground">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/10 py-8 px-4">
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* Header with Avatar */}
+        <div className="text-center space-y-4 animate-fade-in">
+          <div className="relative inline-block">
+            <Avatar className="w-32 h-32 border-4 border-primary/20 shadow-md hover:scale-105 transition-transform duration-300">
+              <AvatarFallback className="text-4xl font-bold bg-gradient-to-br from-primary to-primary/70 text-primary-foreground">
                 {getInitials(userProfile.fullName)}
               </AvatarFallback>
             </Avatar>
-          </div>
-          <CardTitle className="text-2xl font-fredoka">
-            {userProfile.fullName}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* User Info */}
-          <div className="space-y-4">
-            {/* <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
-              <User className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Name
-                </p>
-                <p className="text-base font-medium">{userProfile.fullName}</p>
-              </div>
-            </div> */}
-
-            <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
-              <Mail className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Email
-                </p>
-                <p className="text-base font-medium">{userProfile.email}</p>
-              </div>
+            <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-fitness-success rounded-full flex items-center justify-center border-4 border-background shadow-lg animate-pulse">
+              <TrendingUp className="w-6 h-6 text-fitness-success-foreground" />
             </div>
           </div>
 
-          {/* Logout Button */}
-          <Button
-            variant="destructive"
-            size="lg"
-            className="w-full justify-center"
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-          >
-            <LogOut className="h-5 w-5 mr-2" />
-            {isLoggingOut ? "Logging out..." : "Logout"}
-          </Button>
-        </CardContent>
-      </Card>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            {userProfile.fullName}
+          </h1>
+          <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm">
+            <Mail className="w-4 h-4" />
+            {userProfile.email}
+          </div>
+        </div>
+
+        {/* Fitness Profile Card */}
+        {fitnessData && (
+          <Card className="overflow-hidden border border-gray-200 rounded-xl hover:shadow-xl transition-all duration-300 animate-fade-in">
+            <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
+                  <Activity className="w-6 h-6 text-primary-foreground" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl">Your Fitness Profile</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Personalized health metrics
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardContent className="p-6 space-y-6">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-4">
+                {[
+                  { label: "Gender", value: fitnessData.gender, emoji: "👤" },
+                  { label: "Age", value: fitnessData.age, emoji: "🎂", unit: "years" },
+                  { label: "Height", value: fitnessData.height_cm, emoji: "📏", unit: "cm" },
+                  { label: "Weight", value: fitnessData.weight_kg, emoji: "⚖️", unit: "kg" },
+                  { label: "Activity", value: fitnessData.activity_level, emoji: "💪" },
+                  { label: "Goal", value: fitnessData.fitness_goal, emoji: "🎯" },
+                ].map((item, index) => (
+                  <Card
+                    key={index}
+                    className="text-center border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-transform hover:-translate-y-1"
+                  >
+                    <div className="text-2xl mb-2">{item.emoji}</div>
+                    <p className="text-xs text-muted-foreground uppercase font-medium">{item.label}</p>
+                    <p className="text-lg font-bold capitalize">
+                      {item.value} {item.unit && <span className="text-sm font-normal">{item.unit}</span>}
+                    </p>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+        )}
+
+        {/* Logout Button */}
+        <Button
+          variant="destructive"
+          size="lg"
+          className="w-full justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+        >
+          <LogOut className="h-5 w-5 mr-2" />
+          {isLoggingOut ? "Logging out..." : "Logout"}
+        </Button>
+      </div>
     </div>
   );
 }
-
-
-
-// import { useState } from "react";
-// import { Card, CardContent } from "@/components/ui/card";
-// import { Input } from "@/components/ui/input";
-// import { Button } from "@/components/ui/button";
-// import { User, Activity, Heart, Flame } from "lucide-react";
-
-// export default function ProfilePage() {
-//   const [profile, setProfile] = useState({
-//     name: "",
-//     age: "",
-//     gender: "",
-//     height: "",
-//     weight: "",
-//     activityLevel: "",
-//     goal: "",
-//   });
-
-//   const activityOptions = [
-//     "Sedentary",
-//     "Lightly Active",
-//     "Moderately Active",
-//     "Very Active",
-//     "Super Active",
-//   ];
-
-//   const goalOptions = [
-//     "Lose Weight",
-//     "Maintain Weight",
-//     "Gain Weight",
-//   ];
-
-//   const handleChange = (e: any) => {
-//     setProfile({
-//       ...profile,
-//       [e.target.name]: e.target.value,
-//     });
-//   };
-
-//   const handleSave = () => {
-//     console.log("Saved profile:", profile);
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gradient-to-b from-gray-100 to-white p-6 flex justify-center">
-//       <Card className="w-full max-w-xl shadow-xl rounded-2xl">
-//         <CardContent className="p-6 space-y-6">
-
-//           {/* Header */}
-//           <div className="text-center space-y-2">
-//             <h2 className="text-3xl font-bold">Your Fitness Profile</h2>
-//             <p className="text-muted-foreground text-sm">
-//               Personal details that help calculate your fitness metrics
-//             </p>
-//           </div>
-
-//           {/* Personal Details */}
-//           <div className="space-y-4">
-//             <h3 className="font-semibold text-lg flex items-center gap-2">
-//               <User className="h-5 w-5" /> Personal Info
-//             </h3>
-
-//             <Input
-//               placeholder="Name"
-//               name="name"
-//               value={profile.name}
-//               onChange={handleChange}
-//             />
-
-//             <Input
-//               placeholder="Age"
-//               name="age"
-//               type="number"
-//               value={profile.age}
-//               onChange={handleChange}
-//             />
-
-//             <Input
-//               placeholder="Gender"
-//               name="gender"
-//               value={profile.gender}
-//               onChange={handleChange}
-//             />
-//           </div>
-
-//           {/* Body Measurements */}
-//           <div className="space-y-4">
-//             <h3 className="font-semibold text-lg flex items-center gap-2">
-//               <Activity className="h-5 w-5" /> Body Measurements
-//             </h3>
-
-//             <Input
-//               placeholder="Height (cm)"
-//               name="height"
-//               type="number"
-//               value={profile.height}
-//               onChange={handleChange}
-//             />
-
-//             <Input
-//               placeholder="Weight (kg)"
-//               name="weight"
-//               type="number"
-//               value={profile.weight}
-//               onChange={handleChange}
-//             />
-//           </div>
-
-//           {/* Activity Level */}
-//           <div className="space-y-4">
-//             <h3 className="font-semibold text-lg flex items-center gap-2">
-//               <Heart className="h-5 w-5" /> Activity Level
-//             </h3>
-
-//             <select
-//               name="activityLevel"
-//               value={profile.activityLevel}
-//               onChange={handleChange}
-//               className="w-full border rounded-lg p-3"
-//             >
-//               <option value="">Select activity level</option>
-//               {activityOptions.map((level) => (
-//                 <option key={level} value={level}>
-//                   {level}
-//                 </option>
-//               ))}
-//             </select>
-//           </div>
-
-//           {/* Fitness Goal */}
-//           <div className="space-y-4">
-//             <h3 className="font-semibold text-lg flex items-center gap-2">
-//               <Flame className="h-5 w-5" /> Fitness Goal
-//             </h3>
-
-//             <select
-//               name="goal"
-//               value={profile.goal}
-//               onChange={handleChange}
-//               className="w-full border rounded-lg p-3"
-//             >
-//               <option value="">Select goal</option>
-//               {goalOptions.map((goal) => (
-//                 <option key={goal} value={goal}>
-//                   {goal}
-//                 </option>
-//               ))}
-//             </select>
-//           </div>
-
-//           {/* Save Button */}
-//           <Button
-//             onClick={handleSave}
-//             className="w-full py-3 text-lg rounded-xl"
-//           >
-//             Save Profile
-//           </Button>
-//         </CardContent>
-//       </Card>
-//     </div>
-//   );
-// }
