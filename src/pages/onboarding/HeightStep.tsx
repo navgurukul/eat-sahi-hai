@@ -67,10 +67,10 @@ export default function HeightStep({
             min="50"
             max="300"
           />
-          <span className="absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground">
+          <span className="absolute right-10 bottom-11 -translate-y-1/2 text-muted-foreground">
             cm
           </span>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-4">
             Height should be between 50-300 cm
           </p>
         </div>
@@ -106,7 +106,7 @@ export default function HeightStep({
               </span>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-4">
             Height should be between 1'8" - 9'10"
           </p>
         </div>
