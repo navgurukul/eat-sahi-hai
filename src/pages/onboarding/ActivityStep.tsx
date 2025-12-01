@@ -19,11 +19,11 @@ interface ActivityStepProps {
 }
 
 const activityOptions = [
-    { value: "sedentary", label: "Sedentary", description: "Little or no exercise", multiplier: 1.2 },
-    { value: "light", label: "Light", description: "Exercise 1-3 days/week", multiplier: 1.375 },
-    { value: "moderate", label: "Moderate", description: "Exercise 3-5 days/week", multiplier: 1.55 },
-    { value: "active", label: "Active", description: "Exercise 6-7 days/week", multiplier: 1.725 },
-    { value: "very-active", label: "Very Active", description: "Hard exercise daily", multiplier: 1.9 },
+  { value: "sedentary", label: "Sedentary", description: "Little or no exercise", multiplier: 1.2 },
+  { value: "light", label: "Light", description: "Exercise 1-3 days/week", multiplier: 1.375 },
+  { value: "moderate", label: "Moderate", description: "Exercise 3-5 days/week", multiplier: 1.55 },
+  { value: "active", label: "Active", description: "Exercise 6-7 days/week", multiplier: 1.725 },
+  { value: "very-active", label: "Very Active", description: "Hard exercise daily", multiplier: 1.9 },
 ];
 
 
@@ -62,7 +62,14 @@ export default function ActivityStep({ gender, selectedActivity, updateActivity 
               onClick={() => updateActivity(option.value)}
             >
               <div className="flex items-center gap-4">
-                <img src={imgSrc} alt={option.label} className="h-16 w-16 object-cover rounded-lg flex-shrink-0" />
+                <div className="flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 overflow-hidden rounded-lg bg-gray-100">
+                  <img
+                    src={imgSrc}
+                    alt={option.label}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
                 <div className="flex-1 text-left">
                   <h3 className="font-semibold">{option.label}</h3>
                   <p className="text-sm text-muted-foreground">{option.description}</p>
