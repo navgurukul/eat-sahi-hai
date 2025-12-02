@@ -81,12 +81,18 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
     fullPath: location.pathname + location.hash,
     isAuthenticated,
     onboardingComplete,
-    requireAuth
+    requireAuth,
   });
 
   // Special case: If user is authenticated, has completed onboarding, but is on onboarding page
-  if (isAuthenticated && onboardingComplete === true && location.pathname.startsWith("/onboarding")) {
-    console.log("[AuthGuard] ⚡ IMMEDIATE REDIRECT: User has completed profile but is on onboarding page");
+  if (
+    isAuthenticated &&
+    onboardingComplete === true &&
+    location.pathname.startsWith("/onboarding")
+  ) {
+    console.log(
+      "[AuthGuard] ⚡ IMMEDIATE REDIRECT: User has completed profile but is on onboarding page"
+    );
     return <Navigate to="/home" replace />;
   }
 
@@ -108,8 +114,13 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
     }
 
     // On onboarding page but complete - redirect to home
-    if (location.pathname.startsWith("/onboarding") && onboardingComplete === true) {
-      console.log("[AuthGuard] 🚀 REDIRECTING: Onboarding complete, going to home");
+    if (
+      location.pathname.startsWith("/onboarding") &&
+      onboardingComplete === true
+    ) {
+      console.log(
+        "[AuthGuard] 🚀 REDIRECTING: Onboarding complete, going to home"
+      );
       return <Navigate to="/home" replace />;
     }
 
