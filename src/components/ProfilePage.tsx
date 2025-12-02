@@ -316,17 +316,13 @@ export function ProfilePage() {
 
     let tdee = bmr * activityMultiplier;
 
-    // Base goal adjustment
     if (fitness_goal === "lose") tdee -= 500;
     else if (fitness_goal === "gain") tdee += 500;
 
-    // BMI-based adjustments for extreme cases
     if (bmiCategory === "severely_underweight") {
       if (fitness_goal === "gain") {
-        // More aggressive weight gain for severely underweight
         tdee += 300;
       } else if (fitness_goal === "lose") {
-        // Don't allow weight loss for severely underweight
         tdee = bmr * activityMultiplier;
         bmiWarning += " - Weight loss not recommended";
       }
@@ -477,7 +473,6 @@ export function ProfilePage() {
                     { label: "Weight", value: fitnessData.weight_kg, emoji: "⚖️", unit: "kg" },
                     { label: "Activity", value: fitnessData.activity_level, emoji: "💪" },
                     { label: "Goal", value: fitnessData.fitness_goal, emoji: "🎯" },
-                    { label: "Calories", value: calories || fitnessData.daily_calories_target, emoji: "🔥", unit: "cal" },
                   ].map((item, index) => (
                     <Card
                       key={index}
