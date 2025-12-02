@@ -426,56 +426,6 @@ export default function Onboarding() {
           </Card>
         </div>
       </div>
-
-          // <Card className="overflow-hidden border-2 hover:shadow-2xl transition-all duration-500 animate-fade-in">
-          //   <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b">
-          //     <div className="flex items-center gap-3">
-          //       <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-          //         <Activity className="w-6 h-6 text-primary-foreground" />
-          //       </div>
-          //       <div>
-          //         <CardTitle className="text-2xl">Your Fitness Profile</CardTitle>
-          //         <p className="text-sm text-muted-foreground mt-1">
-          //           Personalized health metrics
-          //         </p>
-          //       </div>
-          //     </div>
-          //   </CardHeader>
-
-          //   <CardContent className="p-8 space-y-6">
-          //     {/* Daily Calorie Target */}
-          //     <div className="rounded-3xl p-8 text-center space-y-2 bg-green-500 text-white shadow-lg transition-all hover:scale-105">
-          //       <div className="inline-block p-4 bg-white/20 rounded-full backdrop-blur-sm">
-          //         <Target className="w-8 h-8 text-white" />
-          //       </div>
-          //       <p className="text-sm font-medium uppercase tracking-wider">
-          //         Daily Calorie Target
-          //       </p>
-          //       <p className="text-5xl font-bold">{calories}</p>
-          //       <p className="text-sm">calories per day</p>
-          //     </div>
-
-          //     {/* Stats Grid */}
-          //     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-4">
-          //       {[
-          //         { label: "Gender", value: data.gender, emoji: "👤" },
-          //         { label: "Age", value: data.age, emoji: "🎂", unit: "years" },
-          //         { label: "Height", value: data.height, emoji: "📏", unit: "cm" },
-          //         { label: "Weight", value: data.weight, emoji: "⚖️", unit: "kg" },
-          //         { label: "Activity", value: data.activity, emoji: "💪" },
-          //         { label: "Goal", value: data.goal, emoji: "🎯" },
-          //       ].map((item, index) => (
-          //         <Card key={index} className="text-center border-2 p-4 hover:shadow-lg transition-all hover:-translate-y-1">
-          //           <div className="text-2xl mb-2">{item.emoji}</div>
-          //           <p className="text-xs text-muted-foreground uppercase font-medium">{item.label}</p>
-          //           <p className="text-lg font-bold capitalize">
-          //             {item.value} {item.unit && <span className="text-sm font-normal">{item.unit}</span>}
-          //           </p>
-          //         </Card>
-          //       ))}
-          //     </div>
-          //   </CardContent>
-          // </Card>
     )
   );
 
