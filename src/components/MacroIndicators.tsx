@@ -1,6 +1,10 @@
+import { useState } from "react";
+import { Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { MacroSettingsModal } from "../components/MacroSettingsModal";
+import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { useFoodContext } from "@/contexts/FoodContext";
-
 // Daily target values - these can be made configurable later
 
 export function MacroIndicators({
@@ -9,16 +13,14 @@ export function MacroIndicators({
   dailyCaloriesTarget: number;
 }) {
   const { selectedDate, getLoggedItemsForDate } = useFoodContext();
-
-  // Get logged items for the selected date
+  const { calculateMacroFromCalories, calculateSugarTarget } = useUserPreferences();
+  const [showSettings, setShowSettings] = useState(false);
   const loggedItems = getLoggedItemsForDate(selectedDate);
-
-  const proteinTarget = Math.round((dailyCaloriesTarget * 0.25) / 4); // Changed 0.30 to 0.25
-  const carbsTarget = Math.round((dailyCaloriesTarget * 0.45) / 4); // Changed 0.40 to 0.45
-  const fatTarget = Math.round((dailyCaloriesTarget * 0.3) / 9); // Keep same
-
-  // dynamic sugar per WHO (10% of calories) — or choose fixed 25g if you prefer
-  const sugarTarget = Math.round((dailyCaloriesTarget * 0.1) / 4);
+  const macroTargets = calculateMacroFromCalories(dailyCaloriesTarget);
+  const proteinTarget = macroTargets.protein;
+  const carbsTarget = macroTargets.carbs;
+  const fatTarget = macroTargets.fat;
+  const sugarTarget = calculateSugarTarget(dailyCaloriesTarget);
 
   const DAILY_TARGETS = {
     calories: Math.round(dailyCaloriesTarget),
@@ -61,6 +63,17 @@ export function MacroIndicators({
     return "#6b7280"; // Gray for 0 or invalid values
   };
 
+  const getSugarGuidance = (current: number, target: number) => {
+    const percentage = (current / target) * 100;
+
+    if (current === 0) return { text: "No sugar logged", color: "text-gray-500" };
+    if (percentage <= 50) return { text: "Very Good", color: "text-green-500" };
+    if (percentage <= 80) return { text: "Good", color: "text-blue-500" };
+    if (percentage <= 100) return { text: "Moderate", color: "text-yellow-500" };
+    if (percentage <= 120) return { text: "High", color: "text-orange-500" };
+    return { text: "Very High", color: "text-red-500" };
+  };
+
   // Round the values for display
   const macros = {
     calories: {
@@ -85,8 +98,27 @@ export function MacroIndicators({
     },
   };
 
+  const sugarGuidance = getSugarGuidance(macros.glycemic.current, macros.glycemic.target);
+
   return (
     <div className="space-y-4">
+       <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">Daily Nutrition Targets</h2>
+            <p className="text-sm text-muted-foreground">
+              Track your daily macros and sugar intake
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowSettings(true)}
+            className="flex items-center gap-2"
+          >
+            <Settings className="h-4 w-4" />
+            Customize
+          </Button>
+        </div>
       {/* Main Metrics - Calories & Sugar Level */}
       <div className="grid grid-cols-2 gap-4">
         {/* Calories Card */}
@@ -225,6 +257,12 @@ export function MacroIndicators({
           )}
         </div>
       </div>
+
+      <MacroSettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        dailyCaloriesTarget={dailyCaloriesTarget}
+      />
     </div>
   );
 }
