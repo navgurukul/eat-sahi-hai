@@ -85,21 +85,10 @@ export function MacroSettingsModal({ isOpen, onClose, dailyCaloriesTarget }: Mac
   };
 
   const handlePercentageChange = (type: keyof typeof percentageSplit, value: number) => {
-    const newSplit = { ...percentageSplit };
-    const oldValue = newSplit[type];
-    const diff = value - oldValue;
-
-    const otherTypes = Object.keys(percentageSplit).filter(k => k !== type) as Array<keyof typeof percentageSplit>;
-    const totalOther = otherTypes.reduce((sum, key) => sum + newSplit[key], 0);
-
-    otherTypes.forEach(key => {
-      if (totalOther > 0) {
-        newSplit[key] = Math.max(0, Math.round((newSplit[key] - (newSplit[key] / totalOther) * diff) * 10) / 10);
-      }
-    });
-
-    newSplit[type] = value;
-    setPercentageSplit(newSplit);
+    setPercentageSplit(prev => ({
+      ...prev,
+      [type]: value
+    }));
   };
 
   const calculateTotalCaloriesFromCustom = () => {
@@ -140,6 +129,19 @@ export function MacroSettingsModal({ isOpen, onClose, dailyCaloriesTarget }: Mac
   };
 
   const sugarGuidance = getSugarGuidance();
+
+  const autoBalancePercentages = () => {
+    const total = percentageSplit.protein + percentageSplit.carbs + percentageSplit.fat;
+
+    if (total === 100) return; // Already balanced
+
+    // Adjust proportionally to reach 100%
+    setPercentageSplit(prev => ({
+      protein: Math.round((prev.protein / total) * 100),
+      carbs: Math.round((prev.carbs / total) * 100),
+      fat: 100 - Math.round((prev.protein / total) * 100) - Math.round((prev.carbs / total) * 100)
+    }));
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -266,8 +268,18 @@ export function MacroSettingsModal({ isOpen, onClose, dailyCaloriesTarget }: Mac
                         </span>
                       )}
                     </div>
-                    {remainingPercentage === 0 && (
-                      <div className="text-xs text-green-700 mt-1">✓ Perfect! Total is 100%</div>
+                    {remainingPercentage !== 0 && (
+                      <div className="flex justify-end mt-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={autoBalancePercentages}
+                          className="text-xs"
+                        >
+                          Auto-balance to 100%
+                        </Button>
+                      </div>
                     )}
                   </div>
 
