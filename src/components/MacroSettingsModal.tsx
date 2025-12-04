@@ -504,28 +504,6 @@ export function MacroSettingsModal({ isOpen, onClose, dailyCaloriesTarget }: Mac
                       >
                         WHO Max (10%)
                       </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSugarMode('grams');
-                          setSugarGrams(25);
-                        }}
-                      >
-                        25g (6 tsp)
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSugarMode('grams');
-                          setSugarGrams(50);
-                        }}
-                      >
-                        50g (12 tsp)
-                      </Button>
                     </div>
                   </div>
                 </div>
@@ -562,6 +540,33 @@ export function MacroSettingsModal({ isOpen, onClose, dailyCaloriesTarget }: Mac
                         <div>High</div>
                         <div className="font-medium">60g+</div>
                       </div>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="text-sm font-medium">Quick Presets:</div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSugarMode('grams');
+                          setSugarGrams(25);
+                        }}
+                      >
+                        25g (6 tsp)
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSugarMode('grams');
+                          setSugarGrams(50);
+                        }}
+                      >
+                        50g (12 tsp)
+                      </Button>
                     </div>
                   </div>
                 </div>
