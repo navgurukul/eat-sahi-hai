@@ -19,10 +19,8 @@ export function MacroSettingsModal({ isOpen, onClose, dailyCaloriesTarget }: Mac
     preferences,
     updateMacroSplit,
     updateCustomTargets,
-    toggleUseCustomTargets,
     calculateMacroFromCalories,
-    updateSugarPreferences,
-    calculateSugarTarget,
+    updateGlycemicPreferences,
   } = useUserPreferences();
 
   const [macroMode, setMacroMode] = useState<'percentage' | 'custom'>(
@@ -41,15 +39,10 @@ export function MacroSettingsModal({ isOpen, onClose, dailyCaloriesTarget }: Mac
     fat: number;
   }>(preferences.customMacroTargets || calculateMacroFromCalories(dailyCaloriesTarget));
 
-  const [sugarMode, setSugarMode] = useState<'percentage' | 'grams'>(
-    preferences.sugarPreferences?.mode || 'percentage'
+  const [glTarget, setGlTarget] = useState<number>(
+    preferences.glycemicPreferences?.dailyGLTarget || 100
   );
-  const [sugarPercentage, setSugarPercentage] = useState<number>(
-    preferences.sugarPreferences?.percentage || 10
-  );
-  const [sugarGrams, setSugarGrams] = useState<number>(
-    preferences.sugarPreferences?.grams || Math.round((dailyCaloriesTarget * 0.1) / 4)
-  );
+
   const [remainingPercentage, setRemainingPercentage] = useState(0);
   const [activeTab, setActiveTab] = useState('macros');
 
@@ -74,11 +67,9 @@ export function MacroSettingsModal({ isOpen, onClose, dailyCaloriesTarget }: Mac
       updateCustomTargets(customTargets);
     }
 
-    // Save sugar preferences
-    updateSugarPreferences({
-      mode: sugarMode,
-      percentage: sugarPercentage,
-      grams: sugarGrams
+    // Save glycemic load preferences
+    updateGlycemicPreferences({
+      dailyGLTarget: glTarget
     });
 
     onClose();
@@ -99,36 +90,6 @@ export function MacroSettingsModal({ isOpen, onClose, dailyCaloriesTarget }: Mac
     const customCalories = calculateTotalCaloriesFromCustom();
     return customCalories - dailyCaloriesTarget;
   };
-
-  const calculateGramsFromSugarPercentage = (percent: number) => {
-    return Math.round((dailyCaloriesTarget * percent / 100) / 4);
-  };
-
-  const calculatePercentageFromSugarGrams = (grams: number) => {
-    return Math.round((grams * 4 / dailyCaloriesTarget) * 100);
-  };
-
-  const getSugarGuidance = () => {
-    const currentGrams = sugarMode === 'percentage'
-      ? calculateGramsFromSugarPercentage(sugarPercentage)
-      : sugarGrams;
-
-    const currentPercentage = sugarMode === 'percentage'
-      ? sugarPercentage
-      : calculatePercentageFromSugarGrams(sugarGrams);
-
-    if (currentPercentage <= 5) {
-      return { text: "Very Low (Ketosis-friendly)", color: "text-green-600", border: "border-green-200", bg: "bg-green-50" };
-    } else if (currentPercentage <= 10) {
-      return { text: "WHO Recommended (≤10%)", color: "text-blue-600", border: "border-blue-200", bg: "bg-blue-50" };
-    } else if (currentPercentage <= 20) {
-      return { text: "Moderate", color: "text-yellow-600", border: "border-yellow-200", bg: "bg-yellow-50" };
-    } else {
-      return { text: "High (Consider reducing)", color: "text-red-600", border: "border-red-200", bg: "bg-red-50" };
-    }
-  };
-
-  const sugarGuidance = getSugarGuidance();
 
   const autoBalancePercentages = () => {
     const total = percentageSplit.protein + percentageSplit.carbs + percentageSplit.fat;
@@ -157,7 +118,7 @@ export function MacroSettingsModal({ isOpen, onClose, dailyCaloriesTarget }: Mac
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="macros">Macronutrients</TabsTrigger>
-              <TabsTrigger value="sugar">Sugar Control</TabsTrigger>
+              <TabsTrigger value="glycemic">Glycemic Load</TabsTrigger>
             </TabsList>
 
             {/* Macronutrients Tab */}
@@ -427,189 +388,85 @@ export function MacroSettingsModal({ isOpen, onClose, dailyCaloriesTarget }: Mac
               )}
             </TabsContent>
 
-            {/* Sugar Control Tab */}
-            <TabsContent value="sugar" className="space-y-6 mt-6">
-              {/* Info Box */}
+            {/* Glycemic Load Tab */}
+            <TabsContent value="glycemic" className="space-y-6 mt-6">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <div className="flex items-start gap-2">
                   <Info className="h-4 w-4 text-blue-600 mt-0.5" />
                   <div className="text-sm text-blue-700">
-                    <p className="font-medium">Sugar Guidelines:</p>
+                    <p className="font-medium">Glycemic Load (GL) Guidelines:</p>
                     <ul className="mt-1 space-y-1">
-                      <li>• <strong>WHO recommends</strong> ≤10% of calories from added sugar</li>
-                      <li>• <strong>For diabetics:</strong> Often aim for ≤5% of calories</li>
-                      <li>• <strong>1 teaspoon</strong> ≈ 4g sugar ≈ 16 calories</li>
+                      <li>• <strong>Low GL diet:</strong> 80 or less per day</li>
+                      <li>• <strong>Moderate GL diet:</strong> 80-120 per day</li>
+                      <li>• <strong>High GL diet:</strong> 120+ per day</li>
+                      <li>• <strong>GL = (GI × Carbs) ÷ 100</strong></li>
                     </ul>
                   </div>
                 </div>
               </div>
 
-              {/* Sugar Mode Toggle */}
-              <div className="flex items-center space-x-4">
-                <Button
-                  type="button"
-                  variant={sugarMode === 'percentage' ? 'default' : 'outline'}
-                  onClick={() => setSugarMode('percentage')}
-                  className="flex-1"
-                >
-                  <Percent className="h-4 w-4 mr-2" />
-                  Percentage
-                </Button>
-                <Button
-                  type="button"
-                  variant={sugarMode === 'grams' ? 'default' : 'outline'}
-                  onClick={() => setSugarMode('grams')}
-                  className="flex-1"
-                >
-                  <Scale className="h-4 w-4 mr-2" />
-                  Grams
-                </Button>
+              <div>
+                <Label htmlFor="gl-target" className="text-base font-medium">
+                  Daily Glycemic Load Target
+                </Label>
+                <div className="mt-4">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm">Target GL:</span>
+                    <span className="text-sm font-medium">{glTarget}</span>
+                  </div>
+                  <Slider
+                    id="gl-target"
+                    min={50}
+                    max={150}
+                    step={5}
+                    value={[glTarget]}
+                    onValueChange={([value]) => setGlTarget(value)}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                    <span>Low (50)</span>
+                    <span>Moderate (100)</span>
+                    <span>High (150)</span>
+                  </div>
+                </div>
               </div>
 
-              {/* Percentage Mode */}
-              {sugarMode === 'percentage' && (
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between mb-2">
-                      <Label htmlFor="sugar-percent">Sugar (% of calories)</Label>
-                      <span className="text-sm font-medium">{sugarPercentage}%</span>
-                    </div>
-                    <Slider
-                      id="sugar-percent"
-                      min={0}
-                      max={30}
-                      step={1}
-                      value={[sugarPercentage]}
-                      onValueChange={([value]) => setSugarPercentage(value)}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                      <span>0% (None)</span>
-                      <span>10% (WHO)</span>
-                      <span>30% (High)</span>
-                    </div>
-                  </div>
-
-                  {/* Quick Sugar Presets */}
-                  <div className="space-y-3">
-                    <div className="text-sm font-medium">Quick Presets:</div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSugarMode('percentage');
-                          setSugarPercentage(5);
-                        }}
-                      >
-                        Ketosis (5%)
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSugarMode('percentage');
-                          setSugarPercentage(10);
-                        }}
-                      >
-                        WHO Max (10%)
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Grams Mode */}
-              {sugarMode === 'grams' && (
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="sugar-grams">Sugar (grams per day)</Label>
-                    <Input
-                      id="sugar-grams"
-                      type="number"
-                      min={0}
-                      max={200}
-                      value={sugarGrams}
-                      onChange={(e) => setSugarGrams(parseInt(e.target.value) || 0)}
-                      className="mt-2 text-center text-lg"
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground mt-3">
-                      <div className="text-center">
-                        <div>Keto</div>
-                        <div className="font-medium">&lt;20g</div>
-                      </div>
-                      <div className="text-center">
-                        <div>Low</div>
-                        <div className="font-medium">20-40g</div>
-                      </div>
-                      <div className="text-center">
-                        <div>Moderate</div>
-                        <div className="font-medium">40-60g</div>
-                      </div>
-                      <div className="text-center">
-                        <div>High</div>
-                        <div className="font-medium">60g+</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="text-sm font-medium">Quick Presets:</div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSugarMode('grams');
-                          setSugarGrams(25);
-                        }}
-                      >
-                        25g (6 tsp)
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSugarMode('grams');
-                          setSugarGrams(50);
-                        }}
-                      >
-                        50g (12 tsp)
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Sugar Summary */}
-              <div className={`p-4 rounded-lg border ${sugarGuidance.border} ${sugarGuidance.bg}`}>
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-medium">Current Setting:</h3>
-                  <span className={`text-sm font-medium ${sugarGuidance.color}`}>
-                    {sugarGuidance.text}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <div className="text-muted-foreground">Sugar Amount:</div>
-                    <div className="font-medium">
-                      {sugarMode === 'percentage'
-                        ? `${calculateGramsFromSugarPercentage(sugarPercentage)}g (${sugarPercentage}%)`
-                        : `${sugarGrams}g (${calculatePercentageFromSugarGrams(sugarGrams)}%)`
-                      }
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-muted-foreground">Equivalent to:</div>
-                    <div className="font-medium">
-                      {Math.round((sugarMode === 'percentage'
-                        ? calculateGramsFromSugarPercentage(sugarPercentage)
-                        : sugarGrams) / 4)} tsp sugar
-                    </div>
-                  </div>
+              {/* Quick Presets */}
+              <div className="space-y-3">
+                <div className="text-sm font-medium">Quick Presets:</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setGlTarget(80)}
+                  >
+                    Low GL (80)
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setGlTarget(100)}
+                  >
+                    Moderate (100)
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setGlTarget(120)}
+                  >
+                    High GL (120)
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setGlTarget(60)}
+                  >
+                    Very Low (60)
+                  </Button>
                 </div>
               </div>
             </TabsContent>

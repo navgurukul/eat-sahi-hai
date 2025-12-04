@@ -7,10 +7,8 @@ interface MacroPreferences {
   fat: number;     // as percentage of total calories
 }
 
-interface SugarPreferences {
-  mode: 'percentage' | 'grams';
-  percentage: number; // When mode is 'percentage'
-  grams: number;      // When mode is 'grams'
+interface GlycemicPreferences {
+  dailyGLTarget: number; // Daily Glycemic Load target
 }
 
 interface UserPreferences {
@@ -21,7 +19,7 @@ interface UserPreferences {
     fat: number;     // in grams
   };
   useCustomTargets: boolean; // flag to use custom gram targets instead of percentages
-  sugarPreferences: SugarPreferences;
+  glycemicPreferences: GlycemicPreferences;
 }
 
 const defaultMacroSplit: MacroPreferences = {
@@ -33,10 +31,8 @@ const defaultMacroSplit: MacroPreferences = {
 const defaultPreferences: UserPreferences = {
   macroSplit: defaultMacroSplit,
   useCustomTargets: false,
-  sugarPreferences: {
-    mode: 'percentage',
-    percentage: 10, // WHO recommendation: 10% of calories
-    grams: 50 // Default grams for 2000 calories: (2000 * 0.1) / 4 = 50g
+  glycemicPreferences: {
+    dailyGLTarget: 100, // Common target: 80-120 per day
   }
 };
 
@@ -47,8 +43,7 @@ interface UserPreferencesContextType {
   toggleUseCustomTargets: (useCustom: boolean) => void;
   validateMacroSplit: (split: MacroPreferences) => boolean;
   calculateMacroFromCalories: (calories: number) => { protein: number; carbs: number; fat: number };
-  updateSugarPreferences: (prefs: SugarPreferences) => void;
-  calculateSugarTarget: (calories: number) => number;
+  updateGlycemicPreferences: (prefs: GlycemicPreferences) => void;
 }
 
 const UserPreferencesContext = createContext<UserPreferencesContextType | undefined>(undefined);
@@ -59,9 +54,9 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem('userMacroPreferences');
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Ensure backward compatibility - add sugarPreferences if missing
-      if (!parsed.sugarPreferences) {
-        parsed.sugarPreferences = defaultPreferences.sugarPreferences;
+      // Ensure backward compatibility - add glycemicPreferences if missing
+      if (!parsed.glycemicPreferences) {
+        parsed.glycemicPreferences = defaultPreferences.glycemicPreferences;
       }
       return parsed;
     }
@@ -103,10 +98,10 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  const updateSugarPreferences = (prefs: SugarPreferences) => {
+  const updateGlycemicPreferences = (prefs: GlycemicPreferences) => {
     setPreferences(prev => ({
       ...prev,
-      sugarPreferences: prefs
+      glycemicPreferences: prefs
     }));
   };
 
@@ -124,19 +119,6 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const calculateSugarTarget = (calories: number) => {
-    // Safe destructuring with default values
-    const { mode, percentage, grams } = preferences.sugarPreferences || defaultPreferences.sugarPreferences;
-    
-    if (mode === 'percentage') {
-      // Calculate grams from percentage
-      return Math.round((calories * percentage / 100) / 4);
-    } else {
-      // Use fixed grams
-      return grams;
-    }
-  };
-
   return (
     <UserPreferencesContext.Provider value={{
       preferences,
@@ -145,8 +127,7 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
       toggleUseCustomTargets,
       validateMacroSplit,
       calculateMacroFromCalories,
-      updateSugarPreferences,
-      calculateSugarTarget
+      updateGlycemicPreferences,
     }}>
       {children}
     </UserPreferencesContext.Provider>

@@ -5,7 +5,6 @@ import { MacroSettingsModal } from "../components/MacroSettingsModal";
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { useFoodContext } from "@/contexts/FoodContext";
-// Daily target values - these can be made configurable later
 
 export function MacroIndicators({
   dailyCaloriesTarget,
@@ -13,21 +12,41 @@ export function MacroIndicators({
   dailyCaloriesTarget: number;
 }) {
   const { selectedDate, getLoggedItemsForDate } = useFoodContext();
-  const { calculateMacroFromCalories, calculateSugarTarget } = useUserPreferences();
+  const { preferences, calculateMacroFromCalories } = useUserPreferences();
   const [showSettings, setShowSettings] = useState(false);
+
   const loggedItems = getLoggedItemsForDate(selectedDate);
   const macroTargets = calculateMacroFromCalories(dailyCaloriesTarget);
+
   const proteinTarget = macroTargets.protein;
   const carbsTarget = macroTargets.carbs;
   const fatTarget = macroTargets.fat;
-  const sugarTarget = calculateSugarTarget(dailyCaloriesTarget);
+
+  const glTarget = preferences.glycemicPreferences?.dailyGLTarget || 100;
+
+  // Calculate actual GL from food items (you need glycemicIndex in your food data)
+  const calculateDayGL = () => {
+    const itemsForSelectedDate = loggedItems.filter((item) => {
+      const itemDate = new Date(item.date).toDateString();
+      const selectedDateString = selectedDate.toDateString();
+      return itemDate === selectedDateString;
+    });
+
+    return itemsForSelectedDate.reduce((totalGL, item) => {
+      // GL = (GI × Carbs) ÷ 100
+      const gl = (item.glycemicIndex || 50) * (item.carbs || 0) / 100;
+      return totalGL + gl;
+    }, 0);
+  };
+
+  const currentGL = Math.round(calculateDayGL());
+
 
   const DAILY_TARGETS = {
     calories: Math.round(dailyCaloriesTarget),
     protein: proteinTarget,
     carbs: carbsTarget,
     fat: fatTarget,
-    glycemicLoad: sugarTarget,
   };
   // Calculate dynamic totals from logged food items for the specific date only
   const calculateDayTotals = () => {
@@ -51,27 +70,23 @@ export function MacroIndicators({
 
   const dayTotals = calculateDayTotals();
 
-  // Function to get dynamic color for Sugar Level based on glycemic load
-  const getSugarLevelColor = (glValue: number): string => {
-    if (glValue >= 1 && glValue <= 40) {
-      return "#22c55e"; // Green (good)
-    } else if (glValue >= 41 && glValue <= 60) {
-      return "#eab308"; // Yellow (moderate)
-    } else if (glValue >= 61) {
-      return "#ef4444"; // Red (high)
-    }
-    return "#6b7280"; // Gray for 0 or invalid values
+
+  const getGLColor = (current: number, target: number) => {
+    const percentage = (current / target) * 100;
+    if (percentage <= 60) return "#21c45d"; // Green
+    if (percentage <= 80) return "#eab308"; // Yellow  
+    if (percentage <= 100) return "#f97316"; // Orange
+    return "#ef4444"; // Red
   };
 
-  const getSugarGuidance = (current: number, target: number) => {
-    const percentage = (current / target) * 100;
-
-    if (current === 0) return { text: "No sugar logged", color: "text-gray-500" };
-    if (percentage <= 50) return { text: "Very Good", color: "text-green-500" };
-    if (percentage <= 80) return { text: "Good", color: "text-blue-500" };
-    if (percentage <= 100) return { text: "Moderate", color: "text-yellow-500" };
-    if (percentage <= 120) return { text: "High", color: "text-orange-500" };
-    return { text: "Very High", color: "text-red-500" };
+  // Helper function for GL guidance
+  const getGLGuidance = (current: number, target: number) => {
+    if (current === 0) return "No food logged";
+    if (current <= target * 0.6) return "Very Low GL";
+    if (current <= target * 0.8) return "Low GL";
+    if (current <= target) return "Moderate GL";
+    if (current <= target * 1.2) return "High GL";
+    return "Very High GL";
   };
 
   // Round the values for display
@@ -79,10 +94,6 @@ export function MacroIndicators({
     calories: {
       current: Math.round(dayTotals.calories),
       target: DAILY_TARGETS.calories,
-    },
-    glycemic: {
-      current: Math.round(dayTotals.glycemicLoad),
-      target: DAILY_TARGETS.glycemicLoad,
     },
     protein: {
       current: Math.round(dayTotals.protein),
@@ -98,27 +109,29 @@ export function MacroIndicators({
     },
   };
 
-  const sugarGuidance = getSugarGuidance(macros.glycemic.current, macros.glycemic.target);
+  const glGuidance = getGLGuidance(currentGL, glTarget);
+  const glColor = getGLColor(currentGL, glTarget);
+
 
   return (
     <div className="space-y-4">
-       <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold">Daily Nutrition Targets</h2>
-            <p className="text-sm text-muted-foreground">
-              Track your daily macros and sugar intake
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowSettings(true)}
-            className="flex items-center gap-2"
-          >
-            <Settings className="h-4 w-4" />
-            Customize
-          </Button>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold">Daily Nutrition Targets</h2>
+          <p className="text-sm text-muted-foreground">
+            Track your daily macros and glycemic load
+          </p>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowSettings(true)}
+          className="flex items-center gap-2"
+        >
+          <Settings className="h-4 w-4" />
+          Customize
+        </Button>
+      </div>
       {/* Main Metrics - Calories & Sugar Level */}
       <div className="grid grid-cols-2 gap-4">
         {/* Calories Card */}
@@ -148,21 +161,21 @@ export function MacroIndicators({
           </h3>
           <div className="flex flex-col items-center">
             <ProgressRing
-              value={macros.glycemic.current}
-              max={macros.glycemic.target}
+              value={currentGL}
+              max={glTarget}
               size={60}
               color="dynamic"
-              dynamicColor={getSugarLevelColor(macros.glycemic.current)}
-            >
-              {/* Empty - no text inside circle */}
-            </ProgressRing>
+              dynamicColor={glColor}
+            />
             <p className="text-xs text-muted-foreground mt-2 font-bold">
-              {macros.glycemic.current}/{macros.glycemic.target} GL
+              {currentGL}/{glTarget} GL
+            </p>
+            <p className="text-xs mt-1" style={{ color: glColor }}>
+              {glGuidance}
             </p>
           </div>
         </div>
       </div>
-
       {/* Protein, Carbs, Fat Cards */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-card p-3 rounded-xl border border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
