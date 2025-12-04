@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -104,7 +104,15 @@ export default function Onboarding() {
     goal: "",
   });
 
+  const [heightUnit, setHeightUnit] = useState<"cm" | "ft">("cm");
+  const [heightFeet, setHeightFeet] = useState("");
+  const [heightInch, setHeightInch] = useState("");
+  const [weightUnit, setWeightUnit] = useState<"kg" | "lbs">("kg");
+  const [weightLbs, setWeightLbs] = useState("");
+  const [bmiWarning, setBmiWarning] = useState<string | null>(null);
+
   const progress = (currentStep / steps.length) * 100;
+  
   const handleNext = () => {
     // Convert height if needed
     if (currentStep === 3) {
@@ -124,6 +132,12 @@ export default function Onboarding() {
       }
     }
 
+    // Check BMI on weight step
+    if (currentStep === 4 && data.height && (data.weight || weightLbs)) {
+      const bmiResult = calculateBMI();
+      setBmiWarning(bmiResult.warning);
+    }
+
     // If final step → save to Supabase → set context → navigate home
     if (currentStep === steps.length) {
       handleOnboardingComplete();
@@ -140,9 +154,156 @@ export default function Onboarding() {
     setData((prev) => ({ ...prev, [key]: value }));
   };
 
+  // Calculate BMI with warning
+  const calculateBMI = () => {
+    let heightInCm;
+    if (heightUnit === "cm") {
+      heightInCm = parseFloat(data.height) || 0;
+    } else {
+      heightInCm =
+        (parseFloat(heightFeet) || 0) * 30.48 +
+        (parseFloat(heightInch) || 0) * 2.54;
+    }
+
+    let weightInKg;
+    if (weightUnit === "kg") {
+      weightInKg = parseFloat(data.weight) || 0;
+    } else {
+      weightInKg = (parseFloat(weightLbs) || 0) * 0.453592;
+    }
+
+    if (!heightInCm || !weightInKg) {
+      return { bmi: 0, category: "", warning: null };
+    }
+
+    const heightInMeters = heightInCm / 100;
+    const bmi = weightInKg / (heightInMeters * heightInMeters);
+    const bmiRounded = bmi.toFixed(1);
+
+    let category = "";
+    let warning: string | null = null;
+
+    if (bmi < 16.5) {
+      category = "Severely Underweight";
+      warning = "Severely underweight - Please consult a healthcare professional";
+    } else if (bmi < 18.5) {
+      category = "Underweight";
+      warning = "Underweight - Consider gradual weight gain";
+    } else if (bmi < 25) {
+      category = "Normal Weight";
+      warning = "Healthy range";
+    } else if (bmi < 30) {
+      category = "Overweight";
+      warning = "Overweight - Consider gradual weight loss";
+    } else {
+      category = "Obese";
+      warning = "Obese - Please consult a healthcare professional";
+    }
+
+    return { bmi: bmiRounded, category, warning };
+  };
+
+  // Enhanced calorie calculation with BMI adjustments
+  const calculateCaloriesWithDetails = () => {
+    const age = parseInt(data.age) || 0;
+
+    // Height in cm
+    let heightInCm;
+    if (heightUnit === "cm") {
+      heightInCm = parseFloat(data.height) || 0;
+    } else {
+      heightInCm =
+        (parseFloat(heightFeet) || 0) * 30.48 +
+        (parseFloat(heightInch) || 0) * 2.54;
+    }
+
+    // Weight in kg
+    let weightInKg;
+    if (weightUnit === "kg") {
+      weightInKg = parseFloat(data.weight) || 0;
+    } else {
+      weightInKg = (parseFloat(weightLbs) || 0) * 0.453592;
+    }
+
+    // Calculate BMI
+    const heightInMeters = heightInCm / 100;
+    const bmi = weightInKg / (heightInMeters * heightInMeters);
+    
+    // BMI categories
+    let bmiCategory = "normal";
+    let bmiWarning = null;
+    
+    if (bmi < 16.5) {
+      bmiCategory = "severely_underweight";
+      bmiWarning = "Severely underweight - Please consult a healthcare professional";
+    } else if (bmi < 18.5) {
+      bmiCategory = "underweight";
+      bmiWarning = "Underweight";
+    } else if (bmi >= 25 && bmi < 30) {
+      bmiCategory = "overweight";
+      bmiWarning = "Overweight";
+    } else if (bmi >= 30) {
+      bmiCategory = "obese";
+      bmiWarning = "Obese - Please consult a healthcare professional";
+    }
+
+    // BMR using Mifflin-St Jeor Equation
+    const bmr =
+      data.gender === "male"
+        ? 10 * weightInKg + 6.25 * heightInCm - 5 * age + 5
+        : 10 * weightInKg + 6.25 * heightInCm - 5 * age - 161;
+
+    // Activity multiplier
+    const activityMultiplier =
+      activityOptions.find((a) => a.value === data.activity)?.multiplier || 1.2;
+
+    let tdee = bmr * activityMultiplier;
+
+    // Base goal adjustment
+    if (data.goal === "lose") tdee -= 500;
+    else if (data.goal === "gain") tdee += 500;
+
+    // BMI-based adjustments for extreme cases
+    if (bmiCategory === "severely_underweight") {
+      if (data.goal === "gain") {
+        // More aggressive weight gain for severely underweight
+        tdee += 300; // Extra on top of the base +500
+      } else if (data.goal === "lose") {
+        // Don't allow weight loss for severely underweight
+        tdee = bmr * activityMultiplier; // Reset to maintenance
+        bmiWarning += " - Weight loss not recommended";
+      }
+    } else if (bmiCategory === "underweight") {
+      if (data.goal === "gain") {
+        tdee += 200; // Extra calories for underweight gain
+      }
+    } else if (bmiCategory === "overweight" || bmiCategory === "obese") {
+      if (data.goal === "lose") {
+        // More aggressive weight loss for overweight/obese
+        tdee -= 300; // Extra on top of base -500
+      } else if (data.goal === "gain") {
+        // Caution against weight gain for overweight/obese
+        bmiWarning += " - Weight gain may not be advisable";
+      }
+    }
+
+    const finalCalories = Math.round(tdee);
+
+    return {
+      calories: finalCalories,
+      bmi: bmi.toFixed(1),
+      bmiCategory,
+      bmiWarning,
+      bmr: Math.round(bmr),
+      tdee: Math.round(bmr * activityMultiplier),
+      height_cm: heightInCm,
+      weight_kg: weightInKg,
+    };
+  };
+
   const handleOnboardingComplete = async () => {
     try {
-      // Get calculated values
+      // Get calculated values with BMI adjustments
       const calculationResult = calculateCaloriesWithDetails();
 
       // Prepare profile data for Supabase
@@ -171,6 +332,11 @@ export default function Onboarding() {
           "[Onboarding] Profile saved successfully, navigating to home"
         );
 
+        // Show BMI warning if present
+        if (calculationResult.bmiWarning) {
+          alert(`Important: ${calculationResult.bmiWarning}\n\nYour daily calorie target has been adjusted based on your BMI.`);
+        }
+
         // Navigate to home - use replace to prevent going back to onboarding
         navigate("/home", { replace: true });
       } else {
@@ -189,96 +355,8 @@ export default function Onboarding() {
   };
 
   const calculateCalories = () => {
-    const age = parseInt(data.age) || 0;
-
-    // Height in cm - use the current state values
-    let heightInCm;
-    if (heightUnit === "cm") {
-      heightInCm = parseFloat(data.height) || 0;
-    } else {
-      // Use the feet/inches values from state
-      heightInCm =
-        (parseFloat(heightFeet) || 0) * 30.48 +
-        (parseFloat(heightInch) || 0) * 2.54;
-    }
-
-    // Weight in kg - use the current state values
-    let weightInKg;
-    if (weightUnit === "kg") {
-      weightInKg = parseFloat(data.weight) || 0;
-    } else {
-      // Use the lbs value from state
-      weightInKg = (parseFloat(weightLbs) || 0) * 0.453592;
-    }
-
-    // Validate all required fields
-    if (!age || !heightInCm || !weightInKg || !data.gender || !data.activity) {
-      console.log("Missing data:", {
-        age,
-        heightInCm,
-        weightInKg,
-        gender: data.gender,
-        activity: data.activity,
-      });
-      return 0;
-    }
-
-    // Mifflin-St Jeor Equation
-    let bmr =
-      data.gender === "male"
-        ? 10 * weightInKg + 6.25 * heightInCm - 5 * age + 5
-        : 10 * weightInKg + 6.25 * heightInCm - 5 * age - 161;
-
-    const activityMultiplier =
-      activityOptions.find((a) => a.value === data.activity)?.multiplier || 1.2;
-
-    let tdee = bmr * activityMultiplier;
-
-    // Adjust for goal
-    if (data.goal === "lose") tdee -= 500;
-    else if (data.goal === "gain") tdee += 500;
-
-    return Math.round(tdee);
-  };
-
-  const calculateCaloriesWithDetails = () => {
-    const age = parseInt(data.age) || 0;
-
-    // Height in cm - use the current state values
-    let heightInCm;
-    if (heightUnit === "cm") {
-      heightInCm = parseFloat(data.height) || 0;
-    } else {
-      // Use the feet/inches values from state
-      heightInCm =
-        (parseFloat(heightFeet) || 0) * 30.48 +
-        (parseFloat(heightInch) || 0) * 2.54;
-    }
-
-    // Weight in kg - use the current state values
-    let weightInKg;
-    if (weightUnit === "kg") {
-      weightInKg = parseFloat(data.weight) || 0;
-    } else {
-      // Use the lbs value from state
-      weightInKg = (parseFloat(weightLbs) || 0) * 0.453592;
-    }
-
-    // Use UserProfileService calculation for consistency
-    const result = UserProfileService.calculateCalories({
-      gender: data.gender,
-      age: age,
-      height_cm: heightInCm,
-      weight_kg: weightInKg,
-      activity_level: data.activity,
-      fitness_goal: data.goal,
-    });
-
-    return {
-      ...result,
-      height_cm: heightInCm,
-      weight_kg: weightInKg,
-    };
+    const result = calculateCaloriesWithDetails();
+    return result.calories;
   };
 
   const isStepValid = () => {
@@ -306,11 +384,6 @@ export default function Onboarding() {
     }
   };
 
-  const [heightUnit, setHeightUnit] = useState<"cm" | "ft">("cm");
-  const [heightFeet, setHeightFeet] = useState("");
-  const [heightInch, setHeightInch] = useState("");
-  const [weightUnit, setWeightUnit] = useState<"kg" | "lbs">("kg");
-  const [weightLbs, setWeightLbs] = useState("");
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -340,14 +413,35 @@ export default function Onboarding() {
 
       case 4:
         return (
-          <WeightStep
-            weightUnit={weightUnit}
-            setWeightUnit={setWeightUnit}
-            weightKg={data.weight}
-            weightLbs={weightLbs}
-            updateWeightKg={(val) => updateData("weight", val)}
-            updateWeightLbs={setWeightLbs}
-          />
+          <>
+            <WeightStep
+              weightUnit={weightUnit}
+              setWeightUnit={setWeightUnit}
+              weightKg={data.weight}
+              weightLbs={weightLbs}
+              updateWeightKg={(val) => updateData("weight", val)}
+              updateWeightLbs={setWeightLbs}
+              bmiWarning={bmiWarning}
+            />
+            {/* BMI Warning Display */}
+            {bmiWarning && (
+              <div className={`mt-4 p-3 rounded-lg ${bmiWarning.includes("Severely") || bmiWarning.includes("Obese") ? 'bg-red-50 border border-red-200' : 'bg-yellow-50 border border-yellow-200'}`}>
+                <div className="flex items-center gap-2">
+                  <span className={`text-lg ${bmiWarning.includes("Severely") || bmiWarning.includes("Obese") ? 'text-red-600' : 'text-yellow-600'}`}>
+                    {bmiWarning.includes("Severely") || bmiWarning.includes("Obese") ? '⚠️' : 'ℹ️'}
+                  </span>
+                  <div>
+                    <p className={`font-medium ${bmiWarning.includes("Severely") || bmiWarning.includes("Obese") ? 'text-red-800' : 'text-yellow-800'}`}>
+                      {calculateBMI().category}: {calculateBMI().bmi} BMI
+                    </p>
+                    <p className={`text-sm ${bmiWarning.includes("Severely") || bmiWarning.includes("Obese") ? 'text-red-600' : 'text-yellow-600'}`}>
+                      {bmiWarning}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         );
       case 5:
         return (
@@ -367,52 +461,77 @@ export default function Onboarding() {
         );
       case 7:
         const calories = calculateCalories();
-        return renderSummary(calories);
+        const bmiResult = calculateBMI();
+        const calculationResult = calculateCaloriesWithDetails();
+        return renderSummary(calories, bmiResult, calculationResult.bmiWarning);
 
       default:
         return null;
     }
   };
 
-  const renderSummary = (calories: number) => (
-    (
-      <div className="space-y-4 animate-fade-in text-center">
-        <h2 className="text-3xl font-bold">Your Fitness Profile</h2>
-        <p className="text-muted-foreground">
-          Here's your personalized summary
-        </p>
+  const renderSummary = (calories: number, bmiResult: any, bmiWarning: string | null) => (
+    <div className="space-y-4 animate-fade-in text-center">
+      <h2 className="text-3xl font-bold">Your Fitness Profile</h2>
+      <p className="text-muted-foreground">
+        Here's your personalized summary
+      </p>
 
-        <Card
-          className="max-w-lg mx-auto p-4 "
-          style={{ backgroundColor: "#21C45D" }}
-        >
-          <div className="text-center space-y-2 mb-2">
-            <p className="text-white/90 text-sm font-medium">
-              Daily Calorie Target
-            </p>
-            <p className="text-6xl text-white">{calories}</p>
-            <p className="text-white/80 text-sm">calories per day</p>
+      {/* BMI Warning Banner */}
+      {bmiWarning && (
+        <div className={`max-w-lg mx-auto p-3 rounded-lg ${bmiWarning.includes("Severely") || bmiWarning.includes("Obese") ? 'bg-red-50 border border-red-200' : 'bg-yellow-50 border border-yellow-200'}`}>
+          <div className="flex items-center gap-2">
+            <span className={`text-lg ${bmiWarning.includes("Severely") || bmiWarning.includes("Obese") ? 'text-red-600' : 'text-yellow-600'}`}>
+              {bmiWarning.includes("Severely") || bmiWarning.includes("Obese") ? '⚠️' : 'ℹ️'}
+            </span>
+            <div>
+              <p className={`font-medium ${bmiWarning.includes("Severely") || bmiWarning.includes("Obese") ? 'text-red-800' : 'text-yellow-800'}`}>
+                {bmiResult.category}: {bmiResult.bmi} BMI
+              </p>
+              <p className={`text-sm ${bmiWarning.includes("Severely") || bmiWarning.includes("Obese") ? 'text-red-600' : 'text-yellow-600'}`}>
+                {bmiWarning}
+              </p>
+            </div>
           </div>
-        </Card>
+        </div>
+      )}
 
-        <div className="max-w-lg mx-auto grid grid-cols-2 gap-2">
-          <Card className="p-4 shadow-elegant">
-            <p className="text-sm text-muted-foreground mb-1">Gender</p>
-            <p className="font-semibold text-lg capitalize">{data.gender}</p>
-          </Card>
-          <Card className="p-4 shadow-elegant">
-            <p className="text-sm text-muted-foreground mb-1">Age</p>
-            <p className="font-semibold text-lg">{data.age} years</p>
-          </Card>
-          <Card className="p-4 shadow-elegant">
-            <p className="text-sm text-muted-foreground mb-1">Height</p>
-            <p className="font-semibold text-lg">{data.height} cm</p>
-          </Card>
-          <Card className="p-4 shadow-elegant">
-            <p className="text-sm text-muted-foreground mb-1">Weight</p>
-            <p className="font-semibold text-lg">{data.weight} kg</p>
-          </Card>
-          <Card className="p-4 shadow-elegant ">
+      <Card
+        className="max-w-lg mx-auto p-4"
+        style={{ backgroundColor: "#21C45D" }}
+      >
+        <div className="text-center space-y-2 mb-2">
+          <p className="text-white/90 text-sm font-medium">
+            Daily Calorie Target
+          </p>
+          <p className="text-6xl text-white">{calories}</p>
+          <p className="text-white/80 text-sm">calories per day</p>
+          {bmiWarning && bmiWarning.includes("adjusted") && (
+            <p className="text-white/80 text-xs italic">
+              *Adjusted based on your BMI
+            </p>
+          )}
+        </div>
+      </Card>
+
+      <div className="max-w-lg mx-auto grid grid-cols-2 gap-2">
+        <Card className="p-4 shadow-elegant">
+          <p className="text-sm text-muted-foreground mb-1">Gender</p>
+          <p className="font-semibold text-lg capitalize">{data.gender}</p>
+        </Card>
+        <Card className="p-4 shadow-elegant">
+          <p className="text-sm text-muted-foreground mb-1">Age</p>
+          <p className="font-semibold text-lg">{data.age} years</p>
+        </Card>
+        <Card className="p-4 shadow-elegant">
+          <p className="text-sm text-muted-foreground mb-1">Height</p>
+          <p className="font-semibold text-lg">{data.height} cm</p>
+        </Card>
+        <Card className="p-4 shadow-elegant">
+          <p className="text-sm text-muted-foreground mb-1">Weight</p>
+          <p className="font-semibold text-lg">{data.weight} kg</p>
+        </Card>
+        <Card className="p-4 shadow-elegant ">
             <p className="text-sm text-muted-foreground mb-1">Activity Level</p>
             <p className="font-semibold capitalize">
               {activityOptions.find((a) => a.value === data.activity)?.label}
@@ -424,59 +543,8 @@ export default function Onboarding() {
               {goalOptions.find((g) => g.value === data.goal)?.label}
             </p>
           </Card>
-        </div>
       </div>
-
-          // <Card className="overflow-hidden border-2 hover:shadow-2xl transition-all duration-500 animate-fade-in">
-          //   <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b">
-          //     <div className="flex items-center gap-3">
-          //       <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-          //         <Activity className="w-6 h-6 text-primary-foreground" />
-          //       </div>
-          //       <div>
-          //         <CardTitle className="text-2xl">Your Fitness Profile</CardTitle>
-          //         <p className="text-sm text-muted-foreground mt-1">
-          //           Personalized health metrics
-          //         </p>
-          //       </div>
-          //     </div>
-          //   </CardHeader>
-
-          //   <CardContent className="p-8 space-y-6">
-          //     {/* Daily Calorie Target */}
-          //     <div className="rounded-3xl p-8 text-center space-y-2 bg-green-500 text-white shadow-lg transition-all hover:scale-105">
-          //       <div className="inline-block p-4 bg-white/20 rounded-full backdrop-blur-sm">
-          //         <Target className="w-8 h-8 text-white" />
-          //       </div>
-          //       <p className="text-sm font-medium uppercase tracking-wider">
-          //         Daily Calorie Target
-          //       </p>
-          //       <p className="text-5xl font-bold">{calories}</p>
-          //       <p className="text-sm">calories per day</p>
-          //     </div>
-
-          //     {/* Stats Grid */}
-          //     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-4">
-          //       {[
-          //         { label: "Gender", value: data.gender, emoji: "👤" },
-          //         { label: "Age", value: data.age, emoji: "🎂", unit: "years" },
-          //         { label: "Height", value: data.height, emoji: "📏", unit: "cm" },
-          //         { label: "Weight", value: data.weight, emoji: "⚖️", unit: "kg" },
-          //         { label: "Activity", value: data.activity, emoji: "💪" },
-          //         { label: "Goal", value: data.goal, emoji: "🎯" },
-          //       ].map((item, index) => (
-          //         <Card key={index} className="text-center border-2 p-4 hover:shadow-lg transition-all hover:-translate-y-1">
-          //           <div className="text-2xl mb-2">{item.emoji}</div>
-          //           <p className="text-xs text-muted-foreground uppercase font-medium">{item.label}</p>
-          //           <p className="text-lg font-bold capitalize">
-          //             {item.value} {item.unit && <span className="text-sm font-normal">{item.unit}</span>}
-          //           </p>
-          //         </Card>
-          //       ))}
-          //     </div>
-          //   </CardContent>
-          // </Card>
-    )
+    </div>
   );
 
   return (

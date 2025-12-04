@@ -51,6 +51,7 @@ interface FoodContextType {
   refreshLoggedItemsFromDatabase: () => Promise<void>;
   dailyCaloriesTarget: number;
   setDailyCaloriesTarget: (value: number) => void;
+  reloadUserProfile: () => Promise<void>;
 }
 
 const FoodContext = createContext<FoodContextType | undefined>(undefined);
@@ -180,38 +181,30 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
     loadUserProfile();
   }, [user]);
 
-  // Save to localStorage when target changes (for offline access)
   useEffect(() => {
     localStorage.setItem("dailyCaloriesTarget", dailyCaloriesTarget.toString());
   }, [dailyCaloriesTarget]);
 
-  // Fetch foods from Supabase (with React Query caching)
   const { data: supabaseFoods } = useAllFoods();
 
-  // Mock data for logged items - only previous week (complete data) for charts
   const [loggedItems, setLoggedItems] = useState<LoggedFoodItem[]>(
     getInitialLoggedItems
   );
 
-  // Save to localStorage whenever loggedItems change (fallback persistence)
   useEffect(() => {
     saveLoggedItemsToStorage(loggedItems);
   }, [loggedItems]);
 
-  // Load data from database on mount
   useEffect(() => {
     loadDataFromDatabase();
   }, []);
 
-  // Refresh data when selected date changes to ensure we show correct data for that date
   useEffect(() => {
     const refreshDataForDate = async () => {
-      // Only refresh if we need to load more data for the selected date
       const existingItemsForDate = loggedItems.filter(
         (item) => item.date.toDateString() === selectedDate.toDateString()
       );
 
-      // If we don't have data for the selected date and it's not today, try to load it
       if (existingItemsForDate.length === 0) {
         try {
           const itemsForDate = await UserFoodLogService.getLoggedItemsForDate(
@@ -288,6 +281,21 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
       console.error("Error loading data for specific date:", error);
     }
   };
+
+  // In FoodContext.tsx, add this function:
+const reloadUserProfile = async () => {
+  if (user) {
+    try {
+      const profile = await UserProfileService.getUserProfile();
+      if (profile && profile.daily_calories_target) {
+        setDailyCaloriesTarget(profile.daily_calories_target);
+        localStorage.setItem("dailyCaloriesTarget", profile.daily_calories_target.toString());
+      }
+    } catch (error) {
+      console.error("Error reloading user profile:", error);
+    }
+  }
+};
 
   // Past food items for quick selection - use Supabase data when available, fallback to hardcoded
   const hardcodedFoodItems: SelectedFoodItem[] = [
@@ -555,6 +563,7 @@ export function FoodProvider({ children }: { children: React.ReactNode }) {
         refreshLoggedItemsFromDatabase,
         dailyCaloriesTarget,
         setDailyCaloriesTarget,
+        reloadUserProfile,
       }}
     >
       {children}
