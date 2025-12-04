@@ -144,7 +144,7 @@ export function MacroIndicators({
         {/* Sugar Level Card */}
         <div className="bg-card p-4 rounded-xl border border-border/50 shadow-sm">
           <h3 className="text-base font-baloo font-medium text-foreground mb-2">
-            🍯 Sugar Level
+            🍯 Glycemic Load
           </h3>
           <div className="flex flex-col items-center">
             <ProgressRing
@@ -157,7 +157,7 @@ export function MacroIndicators({
               {/* Empty - no text inside circle */}
             </ProgressRing>
             <p className="text-xs text-muted-foreground mt-2 font-bold">
-              {macros.glycemic.current}/{macros.glycemic.target} GI
+              {macros.glycemic.current}/{macros.glycemic.target} GL
             </p>
           </div>
         </div>
