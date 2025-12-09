@@ -36,6 +36,39 @@ npm i
 npm run dev
 ```
 
+## Testing
+
+This project includes comprehensive test coverage using Vitest and React Testing Library.
+
+### Running Tests
+
+```sh
+# Run tests once
+npm run test:run
+
+# Run tests in watch mode (interactive)
+npm test
+
+# Run tests with UI
+npm run test:ui
+```
+
+### Test Coverage
+
+The test suite includes:
+- Component tests for UI components
+- Utility function tests
+- Integration tests for key features
+
+Current test files:
+- `src/App.test.tsx` - Application routing and initialization
+- `src/components/TimeHeader.test.tsx` - Time-based greeting component
+- `src/components/BottomNavigation.test.tsx` - Bottom navigation bar
+- `src/components/MacroIndicators.test.tsx` - Macro nutrition indicators
+- `src/components/DateSelector.test.tsx` - Date selection component
+- `src/lib/utils.test.ts` - Utility functions
+```
+
 **Edit a file directly in GitHub**
 
 - Navigate to the desired file(s).
@@ -59,6 +92,8 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- Vitest (for testing)
+- React Testing Library
 
 ## How can I deploy this project?
 
