@@ -1,4 +1,4 @@
-// components/onboardingSteps/WeightStep.tsx
+// components/onboardingSteps/WeightStep.tsx - Updated
 import { Input } from "@/components/ui/input";
 import WeightIcon from "@/assets/weight.png";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,7 @@ interface WeightStepProps {
   weightLbs: string;
   updateWeightKg: (val: string) => void;
   updateWeightLbs: (val: string) => void;
+  bmiWarning?: string | null;
 }
 
 export default function WeightStep({
@@ -19,6 +20,7 @@ export default function WeightStep({
   weightLbs,
   updateWeightKg,
   updateWeightLbs,
+  bmiWarning,
 }: WeightStepProps) {
   return (
     <div className="space-y-2 animate-slide-in text-center">
@@ -91,6 +93,15 @@ export default function WeightStep({
           Weight should be between{" "}
           {weightUnit === "kg" ? "20-500 kg" : "44-1100 lbs"}
         </p>
+        
+        {/* BMI Warning Display */}
+        {bmiWarning && (
+          <div className={`mt-4 p-3 rounded-lg ${bmiWarning.includes("Severely") || bmiWarning.includes("Obese") ? 'bg-red-50 border border-red-200' : 'bg-yellow-50 border border-yellow-200'}`}>
+            <p className={`text-sm ${bmiWarning.includes("Severely") || bmiWarning.includes("Obese") ? 'text-red-600' : 'text-yellow-600'}`}>
+              {bmiWarning}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

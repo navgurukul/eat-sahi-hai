@@ -1,7 +1,11 @@
+import { useUserPreferences } from "@/contexts/UserPreferencesContext";
+import { MacroSettingsModal } from "@/components/MacroSettingsModal";
+import { Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, PieChart, Pie, LineChart, Line, CartesianGrid, Tooltip, Legend } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
 import { TrendingUp, Target, Info } from "lucide-react";
 
 interface MacroData {
@@ -22,6 +26,7 @@ interface MacroChartProps {
 
 export function MacroChart({ totalCalories, macros }: MacroChartProps) {
   const [activeChart, setActiveChart] = useState<'bar' | 'pie' | 'comparison'>('bar');
+  const [showSettings, setShowSettings] = useState(false); // Add this
 
   // Calculate percentages and recommendations
   const totalMacros = macros.protein + macros.carbs + macros.fat;
@@ -239,6 +244,15 @@ export function MacroChart({ totalCalories, macros }: MacroChartProps) {
               Total calories and macronutrients consumed this week
             </p>
           </div>
+          <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowSettings(true)}
+              className="flex items-center gap-2"
+            >
+              <Settings className="h-4 w-4" />
+              Adjust Targets
+            </Button>
           <div className="flex space-x-1">
             <button
               onClick={() => setActiveChart('bar')}
@@ -355,6 +369,11 @@ export function MacroChart({ totalCalories, macros }: MacroChartProps) {
           </div>
         )}
       </CardContent>
+      <MacroSettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        dailyCaloriesTarget={totalCalories} // or use a prop
+      />
     </Card>
   );
 }

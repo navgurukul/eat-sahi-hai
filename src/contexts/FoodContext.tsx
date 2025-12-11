@@ -20,6 +20,7 @@ export interface LoggedFoodItem {
   carbs: number;
   fat: number;
   glycemicLoad: number;
+  glycemicIndex?: number;
   time: string;
   date: Date;
 }
@@ -32,6 +33,7 @@ export interface SelectedFoodItem {
   carbs: number;
   fat: number;
   glycemicLoad: number;
+  glycemicIndex?: number;
   emoji: string;
   category: string;
   portion: string;
